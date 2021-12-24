@@ -1,0 +1,1 @@
+import{ab as e,aN as t}from"./index.687e5dce.js";const n=()=>e.get({url:t.GetRuleEngineInstanceList}),l=()=>e.get({url:t.GetSceneRuleList}),a=()=>e.get({url:t.GetSqlRuleList});export{n as G,a,l as b};
