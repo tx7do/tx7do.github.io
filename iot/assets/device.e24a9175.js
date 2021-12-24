@@ -1,0 +1,1 @@
+import{ab as t,aJ as e}from"./index.43dbecee.js";const o=()=>t.get({url:e.GetProductList}),c=()=>t.get({url:e.GetProductCategoryList}),r=()=>t.get({url:e.GetDeviceGroupList}),i=()=>t.get({url:e.GetDeviceInstanceList});export{o as G,c as a,r as b,i as c};
