@@ -1,5 +1,3 @@
-# 杨粼波的个人博客
+# 文章列表
 
-## 联系方式
-
-## 个人介绍
+[本地部署Docker开发环境](./docs/develop_docker_deploy.html).
