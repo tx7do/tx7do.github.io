@@ -1,1 +1,8 @@
 theme: jekyll-theme-midnight
+
+title: '杨粼波的个人博客'              # 网站的标题
+subtitle: '随便的人'        # 网站的副标题
+email: 'yanglinbo@gmail.com'                 # 你的email
+name: '杨粼波'                   # 你的名字
+description: '随便写点技术性的文章'  # 网站描述
+url: 'https://tx7do.github.io'                  # 网站URL，比如https://<username>.github.io
