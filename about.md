@@ -1,5 +1,7 @@
 # 关于我
 
+***
+
 ## 个人信息
 
 - 名字: 杨粼波
@@ -10,4 +12,4 @@
 
 ## 联系方式
 
-- 邮箱: yanglinbo@gmail.com
+- 邮箱: <yanglinbo@gmail.com>

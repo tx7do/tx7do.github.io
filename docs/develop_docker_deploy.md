@@ -1,6 +1,10 @@
 # 本地部署Docker开发环境
 
+***
+
 ## 数据库
+
+-----
 
 ### TiDB
 
@@ -174,13 +178,15 @@ docker run -d \
 bitnami/neo4j:latest
 ```
 
-## CouchDB
+### CouchDB
 
 ```shell
 docker pull bitnami/couchdb:latest
 ```
 
 ## 缓存
+
+-----
 
 ### Redis
 
@@ -201,6 +207,8 @@ docker pull bitnami/memecached:latest
 ```
 
 ## 注册中心
+
+-----
 
 ### etcd
 
@@ -260,6 +268,8 @@ bitnami/consul:latest
 管理后台: <http://localhost:8500>
 
 ## 消息队列
+
+-----
 
 ### RabbitMQ
 
@@ -466,6 +476,8 @@ bitnami/fluentd:latest
 
 ## 其他
 
+-----
+
 ### Spark
 
 ```shell
@@ -513,6 +525,8 @@ docker pull bitnami/tensorflow-resnet:latest
 
 ## API网关
 
+-----
+
 ### HAProxy
 
 ```shell
@@ -544,6 +558,8 @@ docker pull bitnami/envoy:latest
 ### Gravitee
 
 ## 参考资料
+
+-----
 
 <https://docs.emqx.cn/broker/v4.3/#%E6%B6%88%E6%81%AF%E6%A1%A5%E6%8E%A5>  
 <https://github.com/lf-edge/ekuiper/blob/master/README-CN.md>  
