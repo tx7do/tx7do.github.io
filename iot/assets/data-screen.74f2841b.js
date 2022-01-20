@@ -1,1 +1,0 @@
-import{ab as t,aI as e}from"./index.fa3b631c.js";const r=()=>t.get({url:e.GetDataScreenCategoryList}),o=()=>t.get({url:e.GetDataScreenList}),s=()=>t.get({url:e.GetDataScreenConfigurationList});export{r as G,o as a,s as b};
