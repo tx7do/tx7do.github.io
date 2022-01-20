@@ -88,7 +88,7 @@ docker run -d \
 -p 9300:9300 \
 -e ELASTICSEARCH_USERNAME=elastic \
 -e ELASTICSEARCH_PASSWORD=elastic \
--e xpack.security.enabled=true `
+-e xpack.security.enabled=true \
 -e discovery.type=single-node \
 -e http.cors.enabled=true \
 -e http.cors.allow-origin=http://localhost:13580,http://127.0.0.1:13580 \
