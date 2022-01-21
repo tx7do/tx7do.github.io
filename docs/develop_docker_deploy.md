@@ -2,25 +2,9 @@
 
 ***
 
-## 数据库
+## 关系型数据库
 
 -----
-
-### TiDB
-
-```shell
-docker pull pingcap/tidb:latest
-docker pull pingcap/tikv:latest
-docker pull pingcap/pd:latest
-
-docker run -d \
---name tidb-test \
--v /data/tidb/data:/tmp/tidb \
---privileged=true \
--p 4000:4000 \
--p 10080:10080 \
-pingcap/tidb:latest
-```
 
 ### MySQL
 
@@ -73,13 +57,129 @@ SELECT version();
 SELECT postgis_full_version();
 ```
 
-#### TimescaleDB
+### SQLServer
+
+```shell
+docker pull mcr.microsoft.com/mssql/server:2019-latest
+docker run -d \
+--name MSSQL_1433 \
+-m 512m \
+-e "ACCEPT_EULA=Y" \
+-e "SA_PASSWORD=Abcd123456789*" \
+-p 1433:1433 \
+mcr.microsoft.com/mssql/server:2019-latest
+```
+
+### TiDB
+
+```shell
+docker pull pingcap/tidb:latest
+docker pull pingcap/tikv:latest
+docker pull pingcap/pd:latest
+
+docker run -d \
+--name tidb-test \
+-v /data/tidb/data:/tmp/tidb \
+--privileged=true \
+-p 4000:4000 \
+-p 10080:10080 \
+pingcap/tidb:latest
+```
+
+## 图数据库
+-----
+### Neo4J
+
+```shell
+docker pull bitnami/neo4j:latest
+
+docker run -d \
+--name neo4j-test \
+-p 7473:7473 \
+-p 7687:7687 \
+-p 7474:7474 \
+bitnami/neo4j:latest
+```
+
+## 时序型数据库
+
+-----
+
+### InfluxDB
+
+```shell
+docker pull bitnami/influxdb:latest
+
+docker run -d \
+--name influxdb-test \
+-p 8083:8083 \
+-p 8086:8086 \
+-e INFLUXDB_HTTP_AUTH_ENABLED=true \
+-e INFLUXDB_ADMIN_USER=admin \
+-e INFLUXDB_ADMIN_USER_PASSWORD=123456789 \
+-e INFLUXDB_ADMIN_USER_TOKEN=admintoken123 \
+-e INFLUXDB_DB=my_database \
+bitnami/influxdb:latest
+```
+
+```sql
+create user "admin" with password '123456789' with all privileges
+```
+
+管理后台: <http://localhost:8086/>
+
+### TimescaleDB
 
 ```shell
 docker pull timescale/timescaledb:latest-pg14
 docker pull timescale/timescaledb-postgis:latest-pg13
 docker pull timescale/pg_prometheus:latest-pg11
+
+docker run -d \
+--name timescale-test \
+-p 5432:5432 \
+-e POSTGRES_PASSWORD=123456 \
+timescale/timescaledb-postgis:latest-pg13
 ```
+
+### OpenTSDB
+```shell
+docker pull petergrace/opentsdb-docker:latest
+
+docker run -d \
+--name opentsdb-test \
+-p 4242:4242 \
+petergrace/opentsdb-docker:latest
+```
+- 管理后台 <http://localhost:4242>
+
+### QuestDB
+```shell
+docker pull questdb/questdb:latest
+
+docker run -d \
+    --name questdb-test \
+    -p 9000:9000 \
+    -p 8812:8812 \
+    -p 9009:9009 \
+    questdb/questdb:latest
+```
+
+### TDengine
+```shell
+docker pull tdengine/tdengine:latest
+
+docker run -d \
+    --name tdengine-test \
+    -p 6030-6041:6030-6041 \
+    -p 6030-6041:6030-6041/udp \
+    tdengine/tdengine:latest
+```
+
+### DolphinDB
+```shell
+```
+
 
 ### ElasticSearch
 
@@ -111,6 +211,11 @@ appbaseio/dejavu:latest
 http://localhost:13580/
 ```
 
+
+## 文档型数据库
+
+-----
+
 ### MongoDB
 
 ```shell
@@ -134,57 +239,8 @@ db.createUser({ user:'admin',pwd:'123456',roles:[ { role:'userAdminAnyDatabase',
 db.auth('admin', '123456')
 ```
 
-### SQLServer
 
-```shell
-docker pull mcr.microsoft.com/mssql/server:2019-latest
-docker run -d \
---name MSSQL_1433 \
--m 512m \
--e "ACCEPT_EULA=Y" \
--e "SA_PASSWORD=Abcd123456789*" \
--p 1433:1433 \
-mcr.microsoft.com/mssql/server:2019-latest
-```
-
-### InfluxDB
-
-```shell
-docker pull bitnami/influxdb:latest
-
-docker run -d \
---name influxdb-test \
--p 8083:8083 \
--p 8086:8086 \
-bitnami/influxdb:latest
-```
-
-```sql
-create user "admin" with password '123456789' with all privileges
-```
-
-管理后台: <http://localhost:8086/>
-
-### Neo4J
-
-```shell
-docker pull bitnami/neo4j:latest
-
-docker run -d \
---name neo4j-test \
--p 7473:7473 \
--p 7687:7687 \
--p 7474:7474 \
-bitnami/neo4j:latest
-```
-
-### CouchDB
-
-```shell
-docker pull bitnami/couchdb:latest
-```
-
-## 缓存
+## 键值数据库
 
 -----
 
@@ -205,6 +261,13 @@ bitnami/redis:latest
 ```shell
 docker pull bitnami/memecached:latest
 ```
+
+### CouchDB
+
+```shell
+docker pull bitnami/couchdb:latest
+```
+
 
 ## 注册中心
 
@@ -474,7 +537,7 @@ docker run -d \
 bitnami/fluentd:latest
 ```
 
-## 其他
+## 流式计算
 
 -----
 
@@ -505,6 +568,13 @@ docker run -it --rm \
 bitnami/spark:latest
 ```
 
+### Flink
+
+
+## 其他
+
+-----
+
 ### Minio
 
 ```shell
@@ -522,6 +592,7 @@ bitnami/minio:latest
 ```shell
 docker pull bitnami/tensorflow-resnet:latest
 ```
+
 
 ## API网关
 
@@ -557,10 +628,11 @@ docker pull bitnami/envoy:latest
 
 ### Gravitee
 
+
+
+
 ## 参考资料
-
 -----
-
 <https://docs.emqx.cn/broker/v4.3/#%E6%B6%88%E6%81%AF%E6%A1%A5%E6%8E%A5>  
 <https://github.com/lf-edge/ekuiper/blob/master/README-CN.md>  
 <https://db-engines.com/en/ranking/time+series+dbms>  
