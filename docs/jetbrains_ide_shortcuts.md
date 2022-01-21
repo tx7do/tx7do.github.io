@@ -19,6 +19,7 @@
 | Ctrl + Shift + Alt + N （⌘ ⇧ ⌥ O）       | 通过一个字符快速查找位置（必记） |
 
 ##### 编辑快捷键
+
 | 快捷键                     | 说明                                     |
 | ----------------------- | -------------------------------------- |
 | Ctrl + / （⌘ /）          | 单行 注释 or 取消注释（//）                      |
@@ -58,6 +59,7 @@
 | Ctrl + P                  | 方法参数提示                                 |
 
 ##### 重构快捷键
+
 | 快捷键                     | 说明                                     |
 | ----------------------- | -------------------------------------- |
 | Ctrl + Alt + M （⌘ ⌥ M）      | 提取方法                              |
@@ -88,4 +90,5 @@
 
 ##### 参考文章
 [JetBrains IDE 基本快捷键] (https://nextfe.com/jetbrains-ide-shortcuts/)
+
 [十大必会 WebStorm 快捷键] (https://blog.jetbrains.com/zh-hans/webstorm/2015/06/10-webstorm-shortcuts-you-need-to-know/)
