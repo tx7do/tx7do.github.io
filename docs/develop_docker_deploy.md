@@ -223,6 +223,7 @@ docker pull bitnami/mongodb:latest
 docker run -itd \
 --name mongodb-test \
 -p 27017:27017 \
+-e MONGODB_ROOT_USER=root \
 -e MONGODB_ROOT_PASSWORD=123456 \
 -e MONGODB_USERNAME=test \
 -e MONGODB_PASSWORD=123456 \
