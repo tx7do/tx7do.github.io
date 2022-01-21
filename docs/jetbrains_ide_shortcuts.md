@@ -2,7 +2,7 @@
 
 ***
 
-##### 导航快捷键
+### 导航快捷键
 
 | 快捷键                     | 说明                                     |
 | ----------------------- | -------------------------------------- |
@@ -18,7 +18,7 @@
 | Ctrl + Shift + N （⌘ ⇧ O）             | 通过文件名快速查找工程内的文件（必记） |
 | Ctrl + Shift + Alt + N （⌘ ⇧ ⌥ O）       | 通过一个字符快速查找位置（必记） |
 
-##### 编辑快捷键
+### 编辑快捷键
 
 | 快捷键                     | 说明                                     |
 | ----------------------- | -------------------------------------- |
@@ -58,7 +58,7 @@
 | Alt + F1                  | 查找代码所在位置                               |
 | Ctrl + P                  | 方法参数提示                                 |
 
-##### 重构快捷键
+### 重构快捷键
 
 | 快捷键                     | 说明                                     |
 | ----------------------- | -------------------------------------- |
@@ -67,7 +67,7 @@
 | Ctrl + Alt + V （⌘ ⌥ V）      | 提取变量                              |
 | Ctrl + Alt + Shift + T （⌘ ⌥ V）      | 快速访问所选代码的可用重构列表                              |
 
-##### 其他快捷键(摘录)
+### 其他快捷键(摘录)
 
 | 快捷键            | 说明                     |
 | -------------- | ---------------------- |
@@ -87,8 +87,6 @@
 | Ctrl + Alt + F11      | 开启或关闭全屏模式                               |
 
 
-
-##### 参考文章
-[JetBrains IDE 基本快捷键] (https://nextfe.com/jetbrains-ide-shortcuts/)
-
-[十大必会 WebStorm 快捷键] (https://blog.jetbrains.com/zh-hans/webstorm/2015/06/10-webstorm-shortcuts-you-need-to-know/)
+### 参考文章
+[JetBrains IDE 基本快捷键](https://nextfe.com/jetbrains-ide-shortcuts/)
+[十大必会 WebStorm 快捷键](https://blog.jetbrains.com/zh-hans/webstorm/2015/06/10-webstorm-shortcuts-you-need-to-know/)
