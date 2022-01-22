@@ -90,3 +90,5 @@
 ### 参考文章
 - [JetBrains IDE 基本快捷键](https://nextfe.com/jetbrains-ide-shortcuts/) 
 - [十大必会 WebStorm 快捷键](https://blog.jetbrains.com/zh-hans/webstorm/2015/06/10-webstorm-shortcuts-you-need-to-know/) 
+
+[![github](https://img.shields.io/badge/github-tx7do-brightgreen.svg)](https://github.com/tx7do) 
