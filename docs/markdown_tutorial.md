@@ -6,9 +6,10 @@
 
 ### 简介
 
-<img src='/assets/images/markdown.png' width='120px' style='float:left'>
+<img src='/assets/images/markdown.png' width='120px' style='float:left'>  
 
-`Markdown` 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。
+`Markdown` 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。   
+
 
 ###  应用
 
@@ -1026,4 +1027,12 @@ section 项目B
 任务4      : 24d
 ```
 
-​																														     									[回到顶部](#一Markdown)
+### 其他的教程
+[Markdown 教程](https://www.runoob.com/markdown/md-tutorial.html)  
+[Markdown 官方教程](https://markdown.com.cn/basic-syntax/)  
+[Markdown 语法说明](https://markdown.tw/)  
+[在Github 上编写](https://docs.github.com/cn/github/writing-on-github)  
+[README文件语法解读](https://github.com/guodongxiaren/README)  
+[Markdown使用教程](https://github.com/xugaoyi/Markdown)  
+
+​[回到顶部](#一Markdown)
