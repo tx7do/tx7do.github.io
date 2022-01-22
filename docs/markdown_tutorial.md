@@ -7,11 +7,9 @@
 ### 简介
 
 <img src='/assets/images/markdown.png' width='120px'>  
+`Markdown` 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。
 
-`Markdown` 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。   
-
-
-###  应用
+### 应用  
 
 当前许多网站都广泛使用 `Markdown` 来撰写帮助文档或是用于论坛上发表消息。例如：GitHub、简书、知乎等
 
@@ -19,46 +17,36 @@
 
 推荐使用`Typora`，官网：<https://typora.io/>
 
-
-
-
-
 ## 二、徽章
 
-#### 什么是徽章
+### 什么是徽章
 
 徽章是一种小巧精美的小图标，一般配有相关文字进行辅助说明，可对数据进行监控，链接跳转等，富有表现力。
 
 常见于`github`项目主页，但其不仅出现于 `github` 项目主页，凡是能够表现图片的地方都可以出现徽章。
 
-
-
-#### 徽章的使用
+### 徽章的使用
 
 * 在`markdown`中使用
 
-```
-格式: [![图片文字说明](图片源地址)](超链接地址)  即超链接内部嵌套图片
-语法：
+格式: `[![图片文字说明](图片源地址)](超链接地址)`  即超链接内部嵌套图片  
+语法：  
+
+```text
 [![github](https://img.shields.io/badge/github-tx7do-brightgreen.svg)](https://github.com/tx7do)
 ```
+
 [![github](https://img.shields.io/badge/github-tx7do-brightgreen.svg)](https://github.com/tx7do)
-
-
 
 徽章生成网站：<https://shields.io/>
 
 本文档主要介绍markdown，不对徽章做过多介绍，详细介绍请 [ 戳我 ](https://segmentfault.com/a/1190000019552597) 访问。
 
-
-
-
-
 ## 三、设置目录
 
 设置之后会根据分级标题来自动生成目录。
 
-```
+```text
 语法：
 [TOC]
 ```
@@ -69,7 +57,7 @@
 
 在github生成TOC的方法：<https://github.com/ekalinin/github-markdown-toc>
 
-windows系统需要基于golang实现的工具：https://github.com/ekalinin/github-markdown-toc.go
+windows系统需要基于golang实现的工具：<https://github.com/ekalinin/github-markdown-toc.go>
 
 > 如果你有GO语言的编译环境，可以尝试自己编译，如果没有，可以直接下载编译好的二进制文件。
 >
@@ -83,11 +71,7 @@ windows系统需要基于golang实现的工具：https://github.com/ekalinin/git
 > 2. 在该目录下打开系统命令行，输入命令：gh-md-toc.exe README.MD 生成目录
 > 3. 把生成的目录复制到.md文件即可。
 
-
-
 **这是gh-md-toc生成的目录：**
-
-
 
   * [一、Markdown](#%E4%B8%80markdown)
     * [简介](#%E7%AE%80%E4%BB%8B)
@@ -142,11 +126,11 @@ windows系统需要基于golang实现的工具：https://github.com/ekalinin/git
     * [时序图](#%E6%97%B6%E5%BA%8F%E5%9B%BE)
     * [甘特图](#%E7%94%98%E7%89%B9%E5%9B%BE)
 
-
 ## 四、标题
 
-```
 语法：
+
+```text
 # 一级标题
 ## 二级标题
 ### 三级标题
@@ -166,8 +150,6 @@ windows系统需要基于golang实现的工具：https://github.com/ekalinin/git
 ##### 五级标题
 
 ###### 六级标题
-
-
 
 ## 五、文本
 
@@ -175,12 +157,11 @@ windows系统需要基于golang实现的工具：https://github.com/ekalinin/git
 
 Markdown 段落没有特殊的格式，直接编写文字，**需要段落缩进时使用2个Tab**
 
-
-
 ### 字体
 
-```
-语法：
+语法：  
+
+```text
 *斜体文本* 
 或 _斜体文本_
 **粗体文本**
@@ -201,29 +182,25 @@ __粗体文本__
 
 ___粗斜体文本___
 
-
-
 ###  删除线
 
 如果段落上的文字要添加删除线，只需要在文字的两端加上两个波浪线 **~~** 即可，实例如下：
 
-```
-语法：
+语法：  
+
+```text
 ~~BAIDU.COM~~
 ```
 
-
-
 ~~BAIDU.COM~~
-
-
 
 ### 下划线
 
 下划线可以通过 HTML 的 **<u>** 标签来实现：
 
-```
-语法：
+语法：  
+
+```text
 <u>带下划线的文本</u>
 ```
 
@@ -231,27 +208,25 @@ ___粗斜体文本___
 
 <u>带下划线的文本</u>
 
-
-
 ### 文字高亮
 
 文字高亮功能能使行内部分文字高亮，使用一对反引号。
 
-```
-语法：
+语法：  
+
+```text
 `html` `css` `javascript` 
 ```
 
-`html` `css` `javascript` 
-
-
+`html` `css` `javascript`  
 
 ### 分隔线
 
 你可以在一行中用三个以上的星号、减号、底线来建立一个分隔线，行内不能有其他东西。你也可以在星号或是减号中间插入空格。下面每种写法都可以建立分隔线：
 
-```
-语法：
+语法：  
+
+```text
 ***
 
 *****
@@ -261,20 +236,15 @@ ___粗斜体文本___
 ----------
 ```
 
-
-
-
-
 ***
-
-
 
 ### 脚注
 
 脚注是对文本的补充说明。
 
-```
-语法：
+语法：  
+
+```text
 [^变量]
 在文档结尾或其他位置給变量赋值：
 [^变量]: 注明框内显示的内容
@@ -289,16 +259,15 @@ ___粗斜体文本___
 
 [^哈喽]: 注明框内显示的内容
 
-
-
 ## 六、列表
 
 ### 无序列表
 
 使用星号(*****)、加号(**+**)或是减号(**-**)作为列表标记：
 
-```
-语法：
+语法：  
+
+```text
 * 第一项
 * 第二项
 
@@ -309,8 +278,6 @@ ___粗斜体文本___
 - 第二项
 ```
 
-
-
 * 第一项
 * 第二项
 
@@ -318,23 +285,21 @@ ___粗斜体文本___
 
 使用数字并加上 **.** 号来表示
 
-```
-语法：
+语法：  
+
+```text
 1. 第一项
 2. 第二项
 ```
 
-
-
 1. 第一项
 2. 第二项
-
-
 
 ### 折叠列表
 
-```
-语法：
+语法：  
+
+```text
 <details>
 <summary>点我打开关闭折叠</summary>
  折叠内容
@@ -416,31 +381,25 @@ ___粗斜体文本___
     </table>
 </details>
 
-
-
 ### 带复选框列表
 
-```
-语法：
+语法：  
+
+```text
 * [x] 第一项
 * [ ] 第二项
 * [ ] 第三项
 ```
 
-
-
-- [ ] 第一项
-
-- [ ] 第二项
-
-- [x] 第三项
-
-  
+- [ ] 第一项  
+- [ ] 第二项  
+- [x] 第三项  
 
 ### 列表嵌套
 
-```
-语法：
+语法：  
+
+```text
 1. 第一项：
     - 第一项嵌套的第一个元素
     - 第一项嵌套的第二个元素
@@ -449,8 +408,6 @@ ___粗斜体文本___
     - 第二项嵌套的第一个元素
 ```
 
-
-
 1. 第一项
    - 嵌套1
    - 嵌套2
@@ -458,31 +415,25 @@ ___粗斜体文本___
    	- 嵌套1
       	- 嵌套2
 
-
-
 ## 七、区块引用
-
-
 
 区块引用是在段落开头使用 **>** 符号 ，然后后面紧跟一个**空格**符号：
 
-```
-语法：
+语法：  
+
+```text
 > 区块引用
 ```
-
-
 
 > 区块引用
 >
 > 回车键自动延伸区块
 
+### 区块嵌套
 
+语法：  
 
-#### 区块嵌套
-
-```
-语法：
+```text
 > 第一层
 > > 第二层
 > > > 第三层
@@ -494,12 +445,11 @@ ___粗斜体文本___
 > >
 > > > 第三层
 
+### 区块中使用列表
 
+语法：  
 
-#### 区块中使用列表
-
-```
-语法：
+```text
 > 区块中使用列表
 > 1. 第一项
 > 2. 第二项
@@ -514,12 +464,11 @@ ___粗斜体文本___
 >    * 111
 >    * 222
 
+### 列表中使用区块
 
+语法：  
 
-#### 列表中使用区块
-
-```
-语法：
+```text
 * 第一项
     > 区块
 * 第二项
@@ -533,22 +482,17 @@ ___粗斜体文本___
 
 * 第二项
 
-
-
-
-
 ## 八、代码
 
 如果是段落上的一个函数或片段的代码可以用反引号把它包起来（**`**）：
 
-```
-语法：
+语法：  
+
+```text
 `function()` 函数
 ```
 
 `function()`函数
-
-
 
 ### 代码区块
 
@@ -556,8 +500,9 @@ ___粗斜体文本___
 
 本代码区块为说明：
 
-```
-语法：
+语法：  
+
+```text
 ​```javascript
 function test() {
 	alert('test')
@@ -573,12 +518,11 @@ function test() {
 }
 ```
 
-
-
 ## 九、链接
 
-```
-语法：
+语法：  
+
+```text
 [链接名称](链接地址)
 
 [链接名称](链接地址,可选的alt)
@@ -590,8 +534,9 @@ function test() {
 
 例如：
 
-```
-语法：
+语法：  
+
+```text
 [百度](http://www.baidu.com,'百度')
 ```
 
@@ -599,29 +544,26 @@ function test() {
 
 直接显示链接地址：
 
-```
-语法：
+语法：  
+
+```text
 <http://www.baidu.com>
 ```
 
 <http://www.baidu.com>
-
-
 
 ### 变量链接
 
-```
-语法：
-链接可以用变量来代替，文档末尾或其他位置附带变量地址：
-这个链接用 1 作为网址变量 [Google][1]
-这个链接用 baidu 作为网址变量 [Baidu][baidu]
-然后在文档的结尾为变量赋值（网址）
+语法：  
+链接可以用变量来代替，文档末尾或其他位置附带变量地址：  
+这个链接用 `1` 作为网址变量 `[Google][1]`  
+这个链接用 `baidu` 作为网址变量 `[Baidu][baidu]`  
+然后在文档的结尾为变量赋值`（网址）`  
 
+```text
   [1]: http://www.google.com/
   [baidu]: http://www.baidu.com/
 ```
-
-
 
 [Google][1]
 
@@ -630,25 +572,24 @@ function test() {
 [1]:http://www.google.com
 [baidu]: http://www.baidu.com/
 
-
-
 ### Github中使用内部链接
 
-```
-语法：
-可使用相对路径（前提是有该路径下的文件）
+语法：  
+可使用相对路径（前提是有该路径下的文件）  
+
+```text
 [test](test.md)
 ```
+
 [test](./test/test.md)
-
-
 
 ### 锚点链接
 
 本文件中每一个标题都是一个锚点，和HTML的锚点（`#`）类似
 
-```
-语法：
+语法：  
+
+```text
 [Markdown](#Markdown)
 ```
 
@@ -656,50 +597,39 @@ function test() {
 > 本页中，如果这样写则无法跳转：\[链接](#九、链接)
 > 正确写法：\[链接](#九链接)
 
-[Markdown](#一Markdown)
-
-[链接](#九链接)     
-
-[流程图](#流程图)
-
-
+[Markdown](#一Markdown)  
+[链接](#九链接)  
+[流程图](#流程图)  
 
 ## 十、图片
 
-```
-语法：
+语法：  
+
+```text
 ![alt替代文本](图片地址)
 
 ![alt替代文本](图片地址 "title标题")
 ```
 
+- 开头一个感叹号 !  
+- 接着一个方括号，里面放上图片的替代文字  
+- 接着一个普通括号，里面放上图片的地址，最后还可以用引号包住并加上选择性的 'title' 属性的文字。  
 
+语法：  
 
-- 开头一个感叹号 !
-
-- 接着一个方括号，里面放上图片的替代文字
-
-- 接着一个普通括号，里面放上图片的地址，最后还可以用引号包住并加上选择性的 'title' 属性的文字。
-
-  
-
-
-
-```
-语法：
+```text
 ![logo](/assets/images/markdown.png "logo")
 ```
 
 ![logo](/assets/images/markdown.png "logo")
 
+当然，你也可以像链接那样对图片地址使用变量:  
 
+这里链接用 `img` 作为图片地址变量  
+然后在文档的结尾或其他位置给变量赋值（图片地址）  
+语法：  
 
-当然，你也可以像链接那样对图片地址使用变量:
-
-```
-这里链接用 img 作为图片地址变量 
-然后在文档的结尾或其他位置给变量赋值（图片地址）
-语法：
+```text
 ![RUNOOB][img]
 [img]: /assets/images/markdown.png
 ```
@@ -708,22 +638,16 @@ function test() {
 
 [img]: /assets/images/markdown.png
 
-
-
 ### 图片宽高
 
-如下想设置图片宽高，可以使用 <img> 标签。
+如下想设置图片宽高，可以使用 `<img>` 标签。  
+语法：  
 
-```
-语法：
+```text
 <img src="/assets/images/markdown.png" width="50px" height="30px">
 ```
 
-
-
 <img src="/assets/images/markdown.png" width="50px" height="30px">
-
-
 
 ### 相对路径以及Github中使用图片
 
@@ -731,50 +655,41 @@ function test() {
 
 相对路径图片：
 
-```
-语法：
+语法：  
+
+```text
 ![头像图片](/assets/images/test.jpg)
 ```
-
-
 
 ![头像图片](/assets/images/test.jpg)
 
 其他仓库的图片：
 
-```
-语法：
+语法：  
+
+```text
 ![其他仓库的图片](https://github.com/xugaoyi/vue-music/raw/master/src/common/image/default.png)
 ```
 
-
-
 ![其他仓库的图片](https://github.com/xugaoyi/vue-music/raw/master/src/common/image/default.png)
-
-
-
-
 
 ## 十一、表格
 
 制作表格使用 (**|**) 来分隔不同的单元格，使用( **-**) 来分隔表头和其他行。
 
-```
-语法：
+语法：  
+
+```text
 |  表头   | 表头  |
 |  ----  | ----  |
 | 单元格  | 单元格 |
 | 单元格  | 单元格 |
 ```
 
-
-
 |  表头  |  表头  |
 | :----: | :----: |
 | 单元格 | 单元格 |
 | 单元格 | 单元格 |
-
-
 
 **对齐方式**
 
@@ -782,8 +697,9 @@ function test() {
 - **:-** 设置内容和标题栏居左对齐
 - **:-:** 设置内容和标题栏居中对齐
 
-```
-语法：
+语法：  
+
+```text
 | 左对齐 | 右对齐 | 居中对齐 |
 | :-----| ----: | :----: |
 | 单元格 | 单元格 | 单元格 |
@@ -795,24 +711,20 @@ function test() {
 | 单元格 | 单元格 |  单元格  |
 | 单元格 | 单元格 |  单元格  |
 
-
-
 ## 十二、Emoji表情包
 
-```
-语法：  Emoji表情英文名的前后加冒号，Typore上先输入冒号再输入首字母有表情提示
-如：
+语法：  Emoji表情英文名的前后加冒号，Typore上先输入冒号再输入首字母有表情提示  
+如：  
+
+```text
 :smirk:
 ```
+
 :kiss:
 :smile_cat::see_no_evil::horse:
 :smirk::blush::smiley::smile: :sunny:
 
-
-
 更多表情名称请查看：[表情包清单](https://www.webfx.com/tools/emoji-cheat-sheet/)
-
-
 
 ## 十三、其他技巧
 
@@ -822,37 +734,33 @@ function test() {
 
 目前支持的 HTML 元素有：`<kbd> <b> <i> <em> <sup> <sub> <br>`等 ，如：
 
-```
-语法：
+语法：  
+
+```text
 使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑
 ```
 
 使用 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd> 重启电脑
-
-
 
 <b>使用b标签的加粗字体</b>
-
-
 
 ### 转义
 
 Markdown 使用了很多特殊符号来表示特定的意义，如果需要显示特定的符号则需要使用反斜杠转义字符：
 
-```
-语法：
+语法：  
+
+```text
 **未转义星号显示加粗** 
 \*\* 转义显示星号 \*\*
 ```
 
-
-
-**未转义星号显示加粗** 
+**未转义星号显示加粗**  
 \*\* 转义显示星号 \*\*
 
 Markdown 支持以下这些符号前面加上反斜杠来帮助插入普通的符号：
 
-```
+```text
 \   反斜线
 `   反引号
 *   星号
@@ -867,22 +775,19 @@ _   下划线
 !   感叹号
 ```
 
-
-
 ***
 
 *\*\* **以下部分在Github暂未支持** \*\*\*
 
 ***
 
-
-
 ### 数学公式
 
 当你需要在编辑器中插入数学公式时，可以使用两个美元符 $$ 包裹 TeX 或 LaTeX 格式的数学公式来实现。提交后，问答和文章页会根据需要加载 Mathjax 对数学公式进行渲染。如：
 
-```
-语法：
+语法：  
+
+```text
 $$
 \mathbf{V}_1 \times \mathbf{V}_2 =  \begin{vmatrix} 
 \mathbf{i} & \mathbf{j} & \mathbf{k} \\
@@ -892,7 +797,6 @@ $$
 $$tep1}{\style{visibility:hidden}{(x+1)(x+1)}}
 $$
 ```
-
 
 $$
 \mathbf{V}_1 \times \mathbf{V}_2 =  \begin{vmatrix} 
@@ -904,8 +808,9 @@ $$
 
 ### 图表
 
-```
-语法：
+语法：  
+
+```text
 ​```chart
 ,Budget,Income,Expenses,Debt
 June,5000,8000,4000,6000
@@ -946,12 +851,11 @@ y.title: Month
 y.suffix: $
 ```
 
-
-
 ### 流程图
 
-```
-语法：
+语法：  
+
+```text
 ​```mermaid
 graph TD
 A[模块A] -->|A1| B(模块B)
@@ -975,12 +879,11 @@ C -->|条件C2| E[模块E]
 C -->|条件C3| F[模块F]
 ```
 
-
-
 ### 时序图
 
-```
-语法：
+语法：  
+
+```text
 ​```mermaid
 sequenceDiagram
 A->>B: 是否已收到消息？
@@ -988,20 +891,17 @@ B-->>A: 已收到消息
 ​```
 ```
 
-
-
 ```mermaid
 sequenceDiagram
 A->>B: 是否已收到消息？
 B-->>A: 已收到消息
 ```
 
-
-
 ### 甘特图
 
-``` ···
-语法：
+语法：  
+
+```text
 ​```mermaid
 gantt
 title 甘特图
@@ -1028,6 +928,7 @@ section 项目B
 ```
 
 ### 其他的教程
+
 [Markdown 教程](https://www.runoob.com/markdown/md-tutorial.html)  
 [Markdown 官方教程](https://markdown.com.cn/basic-syntax/)  
 [Markdown 语法说明](https://markdown.tw/)  
@@ -1035,5 +936,6 @@ section 项目B
 [README文件语法解读](https://github.com/guodongxiaren/README)  
 [Markdown使用教程](https://github.com/xugaoyi/Markdown)  
 [Markdown 入门参考](https://xianbai.me/learn-md/index.html)  
+[Markdown Rules 详解](https://www.cnblogs.com/FLY_DREAM/p/13823769.html)  
 
-​[回到顶部](#一Markdown)
+​[回到顶部](#一Markdown)  
