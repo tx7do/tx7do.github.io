@@ -6,7 +6,7 @@
 
 ### 简介
 
-<img src='/assets/images/markdown.png' width='120px' style='float:left'>  
+<img src='/assets/images/markdown.png' width='120px'>  
 
 `Markdown` 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档。   
 
@@ -962,8 +962,8 @@ C -->|条件C3| F[模块F]
 ​```
 ```
 
-流程图相关文章：<https://www.jianshu.com/p/b421cc723da5>
-
+流程图相关文章：  
+<https://www.jianshu.com/p/b421cc723da5>  
 <http://www.imooc.com/article/292708>
 
 ```mermaid
@@ -1034,5 +1034,6 @@ section 项目B
 [在Github 上编写](https://docs.github.com/cn/github/writing-on-github)  
 [README文件语法解读](https://github.com/guodongxiaren/README)  
 [Markdown使用教程](https://github.com/xugaoyi/Markdown)  
+[Markdown 入门参考](https://xianbai.me/learn-md/index.html)  
 
 ​[回到顶部](#一Markdown)
