@@ -46,32 +46,9 @@ docker run -d \
 timescale/timescaledb-postgis:latest-pg13
 ```
 
-## golang客户端
-
-因为Timescale只是一个PostgreSQL的插件,所以,我们选择一个pg数据库的客户端即可,选择很多.  
-
-- pgx  
-
-``` shell
-go get github.com/jackc/pgx/v4
-```
-
-- gorm
-
-```shell
-go get -u gorm.io/driver/postgres
-go get -u gorm.io/gorm
-```
-
-- entgo
-
-```shell
-go get -d entgo.io/ent/cmd/ent
-```
-
 ## 数据结构定义
 
-- 传感器信息  
+传感器信息  
 表名: sensors  
 
 | Column                     | Type                                    | Modifiers |
@@ -80,7 +57,7 @@ go get -d entgo.io/ent/cmd/ent
 |type  | text  | |
 |location | text | |
 
-- 传感器记录数据  
+传感器记录数据  
 表名: sensor_data  
 
 | Column                     | Type                                    | Modifiers |
@@ -180,6 +157,29 @@ SELECT show_chunks('sensor_data');
 
 ```sql
 SELECT drop_chunks('2017-01-01'::TIMESTAMPTZ, 'sensor_data');
+```
+
+## golang客户端安装
+
+因为Timescale只是一个PostgreSQL的插件,所以,我们选择一个pg数据库的客户端即可,选择很多.  
+
+- pgx  
+
+``` shell
+go get github.com/jackc/pgx/v4
+```
+
+- gorm
+
+```shell
+go get -u gorm.io/driver/postgres
+go get -u gorm.io/gorm
+```
+
+- entgo
+
+```shell
+go get -d entgo.io/ent/cmd/ent
 ```
 
 ## 参考资料  
