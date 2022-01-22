@@ -11,11 +11,16 @@ TimescaleDB是基于PostgreSQL的时序数据库插件，完全继承了PostgreS
 ### 易于使用  
 
 1. PostgreSQL支持所有SQL的完整SQL接口(包括二级索引，基于非时间的聚合，子查询，JOIN，窗口函数)。  
-2. 连接到任何使用PostgreSQL的客户端或工具，无需更改。3.面向时间的特性、API函数和优化。4.对数据保留策略的强大支持。  
+2. 连接到任何使用PostgreSQL的客户端或工具，无需更改。
+3. 面向时间的特性、API函数和优化。
+4. 对数据保留策略的强大支持。  
 
 ### 可扩展  
 
-1. 透明的时间/空间分区，可用于扩展(单节点)和扩展(即将推出)。2.高数据写速率(包括批量提交、内存索引、事务支持、数据回填支持)3.在单个节点上设置大小合适的块(二维数据分区)，以确保即使在大数据量的情况下也能快速摄取数据。4.跨块和服务器的并行操作。
+1. 透明的时间/空间分区，可用于扩展(单节点)和扩展(即将推出)。
+2. 高数据写速率(包括批量提交、内存索引、事务支持、数据回填支持)。
+3. 在单个节点上设置大小合适的块(二维数据分区)，以确保即使在大数据量的情况下也能快速摄取数据。
+4. 跨块和服务器的并行操作。
 
 ### 相关网站  
 
@@ -45,45 +50,47 @@ timescale/timescaledb-postgis:latest-pg13
 
 因为Timescale只是一个PostgreSQL的插件,所以,我们选择一个pg数据库的客户端即可,选择很多.  
 
-1. 直接使用pg客户端  
+- pgx  
 
 ``` shell
 go get github.com/jackc/pgx/v4
 ```
 
-2. 使用ORM  
+- gorm
 
-  - gorm
+```shell
+go get -u gorm.io/driver/postgres
+go get -u gorm.io/gorm
+```
 
-    ```shell
-    go get -u gorm.io/driver/postgres
-    go get -u gorm.io/gorm
-    ```
+- entgo
 
-  - entgo
-
-    ```shell
-    go get -d entgo.io/ent/cmd/ent
-    ```
+```shell
+go get -d entgo.io/ent/cmd/ent
+```
 
 ## 数据结构定义
 
-传感器信息  
+- 传感器信息  
 表名: sensors  
-| Column                     | Type                                    |Modifiers|
-| ----------------------- | -------------------------------------- |-----|
-id    |  bigint ||
-type  | text ||
-location | text ||
 
-传感器记录数据  
-表名: sensor_data
-| Column                     | Type                                    |Modifiers|
-| ----------------------- | -------------------------------------- |-----|
-time    | timestamp with time zone |not null|
-sensor_id  |  bigint ||
-temperature | double precision ||
-cpu | double precision ||
+| Column                     | Type                                    | Modifiers |
+| ----------------------- | -------------------------------------- | ----- |
+|id    |  bigint  | |
+|type  | text  | |
+|location | text | |
+
+- 传感器记录数据  
+表名: sensor_data  
+
+| Column                     | Type                                    | Modifiers |
+| ----------------------- | -------------------------------------- | ----- |
+|time    | timestamp |not null|
+|sensor_id  |  bigint | |
+|temperature | double precision | |
+|cpu | double precision | |
+
+## 数据库操作SQL
 
 1. 创建表  
 
@@ -110,12 +117,14 @@ SELECT create_hypertable('sensor_data', 'time');
 2. 插入测试数据  
 
 ```sql
+-- 插入 传感器 数据
 INSERT INTO sensors (type, location) VALUES
 ('a','floor'),
 ('a', 'ceiling'),
 ('b','floor'),
 ('b', 'ceiling');
 
+-- 插入 传感器记录 数据
 INSERT INTO sensor_data (time, sensor_id, cpu, temperature)
 SELECT
   time,
