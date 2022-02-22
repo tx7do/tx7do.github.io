@@ -2,6 +2,12 @@
 
 ***
 
+Bash的换行符为 <code>\\</code>
+
+CMD的换行符为 <code>\^</code>
+
+Powershell的换行符为 <code>\`</code>
+
 ## 关系型数据库
 
 -----
@@ -12,11 +18,11 @@
 docker pull bitnami/mysql:latest
 
 docker run -d \
---name mysql-test \
--p 3306:3306 \
--e ALLOW_EMPTY_PASSWORD=yes \
--e MYSQL_ROOT_PASSWORD=123456 \
-bitnami/mysql:latest
+    --name mysql-test \
+    -p 3306:3306 \
+    -e ALLOW_EMPTY_PASSWORD=yes \
+    -e MYSQL_ROOT_PASSWORD=123456 \
+    bitnami/mysql:latest
 ```
 
 ### MariaDB
@@ -25,11 +31,11 @@ bitnami/mysql:latest
 docker pull bitnami/mariadb:latest
 
 docker run -d \
---name mariadb-test \
--p 3306:3306 \
--e ALLOW_EMPTY_PASSWORD=yes \
--e MARIADB_ROOT_PASSWORD=123456 \
-bitnami/mariadb:latest
+    --name mariadb-test \
+    -p 3306:3306 \
+    -e ALLOW_EMPTY_PASSWORD=yes \
+    -e MARIADB_ROOT_PASSWORD=123456 \
+    bitnami/mariadb:latest
 ```
 
 ### PostgresSQL
@@ -41,10 +47,10 @@ docker pull bitnami/pgbouncer:latest
 docker pull bitnami/pgpool:latest
 
 docker run -d \
---name postgres-test \
--p 5432:5432 \
--e POSTGRES_PASSWORD=123456 \
-bitnami/postgresql:latest
+    --name postgres-test \
+    -p 5432:5432 \
+    -e POSTGRES_PASSWORD=123456 \
+    bitnami/postgresql:latest
 
 docker exec -it postgres-test "apt update"
 ```
@@ -61,13 +67,14 @@ SELECT postgis_full_version();
 
 ```shell
 docker pull mcr.microsoft.com/mssql/server:2019-latest
+
 docker run -d \
---name MSSQL_1433 \
--m 512m \
--e "ACCEPT_EULA=Y" \
--e "SA_PASSWORD=Abcd123456789*" \
--p 1433:1433 \
-mcr.microsoft.com/mssql/server:2019-latest
+    --name MSSQL_1433 \
+    -m 512m \
+    -e "ACCEPT_EULA=Y" \
+    -e "SA_PASSWORD=Abcd123456789*" \
+    -p 1433:1433 \
+    mcr.microsoft.com/mssql/server:2019-latest
 ```
 
 ### TiDB
@@ -78,27 +85,29 @@ docker pull pingcap/tikv:latest
 docker pull pingcap/pd:latest
 
 docker run -d \
---name tidb-test \
--v /data/tidb/data:/tmp/tidb \
---privileged=true \
--p 4000:4000 \
--p 10080:10080 \
-pingcap/tidb:latest
+    --name tidb-test \
+    -v /data/tidb/data:/tmp/tidb \
+    --privileged=true \
+    -p 4000:4000 \
+    -p 10080:10080 \
+    pingcap/tidb:latest
 ```
 
 ## 图数据库
+
 -----
+
 ### Neo4J
 
 ```shell
 docker pull bitnami/neo4j:latest
 
 docker run -d \
---name neo4j-test \
--p 7473:7473 \
--p 7687:7687 \
--p 7474:7474 \
-bitnami/neo4j:latest
+    --name neo4j-test \
+    -p 7473:7473 \
+    -p 7687:7687 \
+    -p 7474:7474 \
+    bitnami/neo4j:latest
 ```
 
 ## 时序型数据库
@@ -111,15 +120,15 @@ bitnami/neo4j:latest
 docker pull bitnami/influxdb:latest
 
 docker run -d \
---name influxdb-test \
--p 8083:8083 \
--p 8086:8086 \
--e INFLUXDB_HTTP_AUTH_ENABLED=true \
--e INFLUXDB_ADMIN_USER=admin \
--e INFLUXDB_ADMIN_USER_PASSWORD=123456789 \
--e INFLUXDB_ADMIN_USER_TOKEN=admintoken123 \
--e INFLUXDB_DB=my_database \
-bitnami/influxdb:latest
+    --name influxdb-test \
+    -p 8083:8083 \
+    -p 8086:8086 \
+    -e INFLUXDB_HTTP_AUTH_ENABLED=true \
+    -e INFLUXDB_ADMIN_USER=admin \
+    -e INFLUXDB_ADMIN_USER_PASSWORD=123456789 \
+    -e INFLUXDB_ADMIN_USER_TOKEN=admintoken123 \
+    -e INFLUXDB_DB=my_database \
+    bitnami/influxdb:latest
 ```
 
 ```sql
@@ -136,24 +145,27 @@ docker pull timescale/timescaledb-postgis:latest-pg13
 docker pull timescale/pg_prometheus:latest-pg11
 
 docker run -d \
---name timescale-test \
--p 5432:5432 \
--e POSTGRES_PASSWORD=123456 \
-timescale/timescaledb-postgis:latest-pg13
+    --name timescale-test \
+    -p 5432:5432 \
+    -e POSTGRES_PASSWORD=123456 \
+    timescale/timescaledb-postgis:latest-pg13
 ```
 
 ### OpenTSDB
+
 ```shell
 docker pull petergrace/opentsdb-docker:latest
 
 docker run -d \
---name opentsdb-test \
--p 4242:4242 \
-petergrace/opentsdb-docker:latest
+    --name opentsdb-test \
+    -p 4242:4242 \
+    petergrace/opentsdb-docker:latest
 ```
+
 - 管理后台 <http://localhost:4242>
 
 ### QuestDB
+
 ```shell
 docker pull questdb/questdb:latest
 
@@ -166,6 +178,7 @@ docker run -d \
 ```
 
 ### TDengine
+
 ```shell
 docker pull tdengine/tdengine:latest
 
@@ -177,9 +190,9 @@ docker run -d \
 ```
 
 ### DolphinDB
+
 ```shell
 ```
-
 
 ### ElasticSearch
 
@@ -187,32 +200,47 @@ docker run -d \
 docker pull bitnami/elasticsearch:latest
 
 docker run -d \
---name elasticsearch-test \
--p 9200:9200 \
--p 9300:9300 \
--e ELASTICSEARCH_USERNAME=elastic \
--e ELASTICSEARCH_PASSWORD=elastic \
--e xpack.security.enabled=true \
--e discovery.type=single-node \
--e http.cors.enabled=true \
--e http.cors.allow-origin=http://localhost:13580,http://127.0.0.1:13580 \
--e http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization \
--e http.cors.allow-credentials=true \
-bitnami/elasticsearch:latest
+    --name elasticsearch-test \
+    -p 9200:9200 \
+    -p 9300:9300 \
+    -e ELASTICSEARCH_USERNAME=elastic \
+    -e ELASTICSEARCH_PASSWORD=elastic \
+    -e xpack.security.enabled=true \
+    -e discovery.type=single-node \
+    -e http.cors.enabled=true \
+    -e http.cors.allow-origin=http://localhost:13580,http://127.0.0.1:13580 \
+    -e http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization \
+    -e http.cors.allow-credentials=true \
+    bitnami/elasticsearch:latest
 
 docker pull appbaseio/dejavu:latest
 
 docker run -d \
---name dejavu-test \
--p 13580:1358 \
-appbaseio/dejavu:latest
-
+    --name dejavu-test \
+    -p 13580:1358 \
+    appbaseio/dejavu:latest
 
 http://localhost:13580/
 ```
 
+### Clickhouse
 
-## 文档型数据库
+```bash
+docker pull yandex/clickhouse-server:latest
+
+# 8123为http接口 9000为tcp接口 9004为mysql接口
+# 推荐使用DBeaver作为客户端
+docker run -d \
+    --name clickhouse-server-test \
+    -p 8123:8123 \
+    -p 9000:9000 \
+    -p 9004:9004 \
+    --ulimit \
+    nofile=262144:262144 \
+    yandex/clickhouse-server:latest
+```
+
+## NoSQL数据库
 
 -----
 
@@ -220,15 +248,16 @@ http://localhost:13580/
 
 ```shell
 docker pull bitnami/mongodb:latest
+
 docker run -itd \
---name mongodb-test \
--p 27017:27017 \
--e MONGODB_ROOT_USER=root \
--e MONGODB_ROOT_PASSWORD=123456 \
--e MONGODB_USERNAME=test \
--e MONGODB_PASSWORD=123456 \
--e MONGODB_DATABASE=test \
-bitnami/mongodb:latest
+    --name mongodb-test \
+    -p 27017:27017 \
+    -e MONGODB_ROOT_USER=root \
+    -e MONGODB_ROOT_PASSWORD=123456 \
+    -e MONGODB_USERNAME=test \
+    -e MONGODB_PASSWORD=123456 \
+    -e MONGODB_DATABASE=test \
+    bitnami/mongodb:latest
 ```
 
 创建管理用户:
@@ -240,21 +269,16 @@ db.createUser({ user:'admin',pwd:'123456',roles:[ { role:'userAdminAnyDatabase',
 db.auth('admin', '123456')
 ```
 
-
-## 键值数据库
-
------
-
 ### Redis
 
 ```shell
 docker pull bitnami/redis:latest
 
 docker run -itd \
---name redis-test \
--p 6379:6379 \
--e ALLOW_EMPTY_PASSWORD=yes \
-bitnami/redis:latest
+    --name redis-test \
+    -p 6379:6379 \
+    -e ALLOW_EMPTY_PASSWORD=yes \
+    bitnami/redis:latest
 ```
 
 ### Memecached
@@ -269,6 +293,16 @@ docker pull bitnami/memecached:latest
 docker pull bitnami/couchdb:latest
 ```
 
+### Cassandra
+
+```shell
+docker pull bitnami/cassandra:latest
+
+docker run --name cassandra \
+    -p 7000:7000  \
+    -e CASSANDRA_TRANSPORT_PORT_NUMBER=7000 \
+    bitnami/cassandra:latest
+```
 
 ## 注册中心
 
@@ -292,11 +326,11 @@ docker pull nsqio/nsq:latest
 docker pull bitnami/nats:latest
 
 docker run -d \
---name nats-server \
---publish 4222:4222 \
---publish 6222:6222 \
---publish 8222:8222 \
-bitnami/nats:latest
+    --name nats-server \
+    --publish 4222:4222 \
+    --publish 6222:6222 \
+    --publish 8222:8222 \
+    bitnami/nats:latest
 ```
 
 ### Nacos
@@ -305,10 +339,10 @@ bitnami/nats:latest
 docker pull nacos/nacos-server:latest
 
 docker run -d \
---name nacos-standalone \
--e MODE=standalone \
--p 8849:8848 \
-nacos/nacos-server:latest
+    --name nacos-standalone \
+    -e MODE=standalone \
+    -p 8849:8848 \
+    nacos/nacos-server:latest
 ```
 
 管理后台: <http://localhost:8849/nacos/index.html>
@@ -319,14 +353,14 @@ nacos/nacos-server:latest
 docker pull bitnami/consul:latest
 
 docker run -d \
---name=consul-server-standalone \
--p 8500:8500 \
--e CONSUL_BIND_INTERFACE='eth0' \
--e CONSUL_AGENT_MODE=server \
--e CONSUL_ENABLE_UI=true \
--e CONSUL_BOOTSTRAP_EXPECT=1 \
--e CONSUL_CLIENT_LAN_ADDRESS=0.0.0.0 \
-bitnami/consul:latest
+    --name=consul-server-standalone \
+    -p 8500:8500 \
+    -e CONSUL_BIND_INTERFACE='eth0' \
+    -e CONSUL_AGENT_MODE=server \
+    -e CONSUL_ENABLE_UI=true \
+    -e CONSUL_BOOTSTRAP_EXPECT=1 \
+    -e CONSUL_CLIENT_LAN_ADDRESS=0.0.0.0 \
+    bitnami/consul:latest
 ```
 
 管理后台: <http://localhost:8500>
@@ -341,14 +375,14 @@ bitnami/consul:latest
 docker pull bitnami/rabbitmq:latest
 
 docker run -d \
---hostname localhost \
---name rabbitmq-test \
--p 15672:15672 \
--p 5672:5672 \
--p 1883:1883 \
--p 15675:15675 \
--e RABBITMQ_PLUGINS= rabbitmq_top \
-bitnami/rabbitmq:latest
+    --hostname localhost \
+    --name rabbitmq-test \
+    -p 15672:15672 \
+    -p 5672:5672 \
+    -p 1883:1883 \
+    -p 15675:15675 \
+    -e RABBITMQ_PLUGINS= rabbitmq_top \
+    bitnami/rabbitmq:latest
 
 rabbitmq-plugins --offline enable rabbitmq_peer_discovery_consul
 # rabbitmq_mqtt 提供与后端服务交互使用，端口1883
@@ -368,24 +402,24 @@ docker pull bitnami/kafka:latest
 docker pull bitnami/zookeeper:latest
 
 docker run -d \
---name zookeeper-test \
--p 2181:2181 \
--e ALLOW_ANONYMOUS_LOGIN=yes \
-bitnami/zookeeper:latest
+    --name zookeeper-test \
+    -p 2181:2181 \
+    -e ALLOW_ANONYMOUS_LOGIN=yes \
+    bitnami/zookeeper:latest
 
 docker run -d \
---name kafka-standalone \
---restart always \
---link zookeeper-test \
--p 9092:9092 \
--v /home/data/kafka:/bitnami/kafka \
--e KAFKA_BROKER_ID=1 \
--e KAFKA_LISTENERS=PLAINTEXT://:9092 \
--e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
--e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
--e ALLOW_PLAINTEXT_LISTENER=yes \
---user root \
-bitnami/kafka:latest
+    --name kafka-standalone \
+    --restart always \
+    --link zookeeper-test \
+    -p 9092:9092 \
+    -v /home/data/kafka:/bitnami/kafka \
+    -e KAFKA_BROKER_ID=1 \
+    -e KAFKA_LISTENERS=PLAINTEXT://:9092 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+    -e ALLOW_PLAINTEXT_LISTENER=yes \
+    --user root \
+    bitnami/kafka:latest
 ```
 
 ### mosquitto
@@ -394,10 +428,10 @@ bitnami/kafka:latest
 docker pull eclipse-mosquitto:latest
 
 docker run -d \
---name mosquitto-test \
--p 1883:1883 \
--p 9001:9001 \
-eclipse-mosquitto:latest
+    --name mosquitto-test \
+    -p 1883:1883 \
+    -p 9001:9001 \
+    eclipse-mosquitto:latest
 ```
 
 ### EMX
@@ -406,10 +440,10 @@ eclipse-mosquitto:latest
 docker pull emqx/emqx:latest
 
 docker run -d \
---name emqx-test \
--p 18083:18083 \
--p 1883:1883 \
-emqx/emqx:latest
+    --name emqx-test \
+    -p 18083:18083 \
+    -p 1883:1883 \
+    emqx/emqx:latest
 ```
 
 ### Pulsar
@@ -420,10 +454,10 @@ emqx/emqx:latest
 docker pull apachepulsar/pulsar:latest
 
 docker run -itd \
--p 6650:6650 \
--p 8080:8080 \
---name pulsar-standalone \
-apachepulsar/pulsar:latest bin/pulsar standalone
+    -p 6650:6650 \
+    -p 8080:8080 \
+    --name pulsar-standalone \
+    apachepulsar/pulsar:latest bin/pulsar standalone
 ```
 
 #### 管理后台安装
@@ -432,10 +466,10 @@ apachepulsar/pulsar:latest bin/pulsar standalone
 docker pull apachepulsar/pulsar-manager:latest
 
 docker run -itd \
--p 9527:9527 \
--p 7750:7750 \
--e SPRING_CONFIGURATION_FILE=/pulsar-manager/pulsar-manager/application.properties \
-apachepulsar/pulsar-manager:latest
+    -p 9527:9527 \
+    -p 7750:7750 \
+    -e SPRING_CONFIGURATION_FILE=/pulsar-manager/pulsar-manager/application.properties \
+    apachepulsar/pulsar-manager:latest
 ```
 
 #### 访问接口
@@ -455,17 +489,17 @@ apachepulsar/pulsar-manager:latest
 docker pull jaegertracing/all-in-one:latest
 
 docker run -d \
---name jaeger \
--e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
--p 5775:5775/udp \
--p 6831:6831/udp \
--p 6832:6832/udp \
--p 5778:5778 \
--p 16686:16686 \
--p 14268:14268 \
--p 14250:14250 \
--p 9411:9411 \
-jaegertracing/all-in-one:latest
+    --name jaeger \
+    -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
+    -p 5775:5775/udp \
+    -p 6831:6831/udp \
+    -p 6832:6832/udp \
+    -p 5778:5778 \
+    -p 16686:16686 \
+    -p 14268:14268 \
+    -p 14250:14250 \
+    -p 9411:9411 \
+    jaegertracing/all-in-one:latest
 ```
 
 ### Kibana
@@ -474,12 +508,12 @@ jaegertracing/all-in-one:latest
 docker pull bitnami/kibana:latest
 
 docker run -d \
---name kibana \
--p 5601:5601 \
---name kibana \
--e KIBANA_ELASTICSEARCH_URL=elasticsearch \
--e KIBANA_ELASTICSEARCH_PORT_NUMBER=9200
-bitnami/kibana:latest
+    --name kibana \
+    -p 5601:5601 \
+    --name kibana \
+    -e KIBANA_ELASTICSEARCH_URL=elasticsearch \
+    -e KIBANA_ELASTICSEARCH_PORT_NUMBER=9200
+    bitnami/kibana:latest
 ```
 
 ### Prometheus
@@ -489,14 +523,14 @@ docker pull bitnami/prometheus:latest
 docker pull bitnami/pushgateway:latest
 
 docker run -d --rm \
---name=prometheus-gateway \
--p 5051:9091 \
-bitnami/pushgateway
+    --name=prometheus-gateway \
+    -p 5051:9091 \
+    bitnami/pushgateway
 
 docker run -d --rm \
---name=prometheus \
--p 5050:9090 \
-bitnami/prometheus:latest
+    --name=prometheus \
+    -p 5050:9090 \
+    bitnami/prometheus:latest
 ```
 
 #### 后台访问
@@ -510,9 +544,9 @@ bitnami/prometheus:latest
 docker pull bitnami/grafana:latest
 
 docker run -d \
---name grafana \
--p 3000:3000 \
-bitnami/grafana:latest
+    --name grafana \
+    -p 3000:3000 \
+    bitnami/grafana:latest
 ```
 
 ### Logstash
@@ -522,8 +556,8 @@ docker pull bitnami/logstash:latest
 docker pull bitnami/logstash-exporter:latest
 
 docker run -d \
--p 8080:8080 \
-bitnami/logstash:latest
+    -p 8080:8080 \
+    bitnami/logstash:latest
 ```
 
 ### Fluentd
@@ -532,10 +566,10 @@ bitnami/logstash:latest
 docker pull bitnami/fluentd:latest
 
 docker run -d \
--p 24224:24224 \
--p 24224:24224/udp \
--v /data:/opt/bitnami/fluentd/log \
-bitnami/fluentd:latest
+    -p 24224:24224 \
+    -p 24224:24224/udp \
+    -v /data:/opt/bitnami/fluentd/log \
+    bitnami/fluentd:latest
 ```
 
 ## 流式计算
@@ -548,29 +582,28 @@ bitnami/fluentd:latest
 docker pull bitnami/spark:latest
 
 docker run -it --rm \
---name spark \
--p 4040:4040 \
--p 7077:7077 \
--p 8088:8088 \
--p 8081:8081 \
--p 8080:8080 \
--p 8042:8042 \
--p 8030:8030 \
--p 8031:8031 \
--p 8040:8040 \
--p 9000:9000 \
--p 49707:49707 \
--p 50010:50010 \
--p 50070:50070 \
--p 50075:50075 \
--p 50020:50020 \
--p 50090:50090 \
--e SPARK_MODE=master \
-bitnami/spark:latest
+    --name spark \
+    -p 4040:4040 \
+    -p 7077:7077 \
+    -p 8088:8088 \
+    -p 8081:8081 \
+    -p 8080:8080 \
+    -p 8042:8042 \
+    -p 8030:8030 \
+    -p 8031:8031 \
+    -p 8040:8040 \
+    -p 9000:9000 \
+    -p 49707:49707 \
+    -p 50010:50010 \
+    -p 50070:50070 \
+    -p 50075:50075 \
+    -p 50020:50020 \
+    -p 50090:50090 \
+    -e SPARK_MODE=master \
+    bitnami/spark:latest
 ```
 
 ### Flink
-
 
 ## 其他
 
@@ -582,10 +615,10 @@ bitnami/spark:latest
 docker pull bitnami/minio:latest
 
 docker run -d \
---name minio-server \
---env MINIO_ACCESS_KEY="minio-access-key" \
---env MINIO_SECRET_KEY="minio-secret-key" \
-bitnami/minio:latest
+    --name minio-server \
+    --env MINIO_ACCESS_KEY="minio-access-key" \
+    --env MINIO_SECRET_KEY="minio-secret-key" \
+    bitnami/minio:latest
 ```
 
 ### TensorFlow ResNet
@@ -593,7 +626,6 @@ bitnami/minio:latest
 ```shell
 docker pull bitnami/tensorflow-resnet:latest
 ```
-
 
 ## API网关
 
@@ -629,11 +661,10 @@ docker pull bitnami/envoy:latest
 
 ### Gravitee
 
-
-
-
 ## 参考资料
+
 -----
+
 <https://docs.emqx.cn/broker/v4.3/#%E6%B6%88%E6%81%AF%E6%A1%A5%E6%8E%A5>  
 <https://github.com/lf-edge/ekuiper/blob/master/README-CN.md>  
 <https://db-engines.com/en/ranking/time+series+dbms>  
