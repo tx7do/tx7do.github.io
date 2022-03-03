@@ -107,6 +107,7 @@ docker run -d \
     -p 7473:7473 \
     -p 7687:7687 \
     -p 7474:7474 \
+    -e NEO4J_PASSWORD=bitnami \
     bitnami/neo4j:latest
 ```
 
@@ -298,13 +299,16 @@ docker pull bitnami/couchdb:latest
 ```shell
 docker pull bitnami/cassandra:latest
 
-docker run --name cassandra \
+docker run -itd \
+    --name cassandra-test \
     -p 7000:7000  \
-    -e CASSANDRA_TRANSPORT_PORT_NUMBER=7000 \
+    -p 9042:9042  \
+    -e CASSANDRA_USER=cassandra \
+    -e CASSANDRA_PASSWORD=cassandra \
     bitnami/cassandra:latest
 ```
 
-## 注册中心
+## 服务发现注册
 
 -----
 
@@ -312,25 +316,14 @@ docker run --name cassandra \
 
 ```shell
 docker pull bitnami/etcd:latest
-```
 
-### NSQ
-
-```shell
-docker pull nsqio/nsq:latest
-```
-
-### NATS
-
-```shell
-docker pull bitnami/nats:latest
-
-docker run -d \
-    --name nats-server \
-    --publish 4222:4222 \
-    --publish 6222:6222 \
-    --publish 8222:8222 \
-    bitnami/nats:latest
+docker run -d --name etcd-standalone \
+    -p 2379:2379 \
+    -p 2380:2380 \
+    -e ETCDCTL_API=3 \
+    -e ALLOW_NONE_AUTHENTICATION=yes \
+    -e ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379 \
+    bitnami/etcd:latest
 ```
 
 ### Nacos
@@ -354,7 +347,9 @@ docker pull bitnami/consul:latest
 
 docker run -d \
     --name=consul-server-standalone \
+    -p 8300:8300 \
     -p 8500:8500 \
+    -p 8600:8600/udp \
     -e CONSUL_BIND_INTERFACE='eth0' \
     -e CONSUL_AGENT_MODE=server \
     -e CONSUL_ENABLE_UI=true \
@@ -364,6 +359,8 @@ docker run -d \
 ```
 
 管理后台: <http://localhost:8500>
+
+### Eureka
 
 ## 消息队列
 
@@ -400,6 +397,7 @@ rabbitmq-plugins enable rabbitmq_web_mqtt
 ```shell
 docker pull bitnami/kafka:latest
 docker pull bitnami/zookeeper:latest
+docker pull hlebalbau/kafka-manager:latest
 
 docker run -d \
     --name zookeeper-test \
@@ -409,17 +407,41 @@ docker run -d \
 
 docker run -d \
     --name kafka-standalone \
-    --restart always \
     --link zookeeper-test \
     -p 9092:9092 \
     -v /home/data/kafka:/bitnami/kafka \
     -e KAFKA_BROKER_ID=1 \
     -e KAFKA_LISTENERS=PLAINTEXT://:9092 \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
-    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper-test:2181 \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     --user root \
     bitnami/kafka:latest
+
+docker run -d \
+     -p 9000:9000  \
+     -e ZK_HOSTS="localhost:2181" \
+     hlebalbau/kafka-manager:latest
+```
+
+### NSQ
+
+```shell
+docker pull nsqio/nsq:latest
+```
+
+### NATS
+
+```shell
+docker pull bitnami/nats:latest
+
+docker run -d \
+    --name nats-server \
+    --p 4222:4222 \
+    --p 6222:6222 \
+    --p 8000:8222 \
+    -e NATS_HTTP_PORT_NUMBER=8222 \
+    bitnami/nats:latest
 ```
 
 ### mosquitto
