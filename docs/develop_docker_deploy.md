@@ -17,7 +17,7 @@ Powershell的换行符为 <code>\`</code>
 ```shell
 docker pull bitnami/mysql:latest
 
-docker run -d \
+docker run -itd \
     --name mysql-test \
     -p 3306:3306 \
     -e ALLOW_EMPTY_PASSWORD=yes \
@@ -30,7 +30,7 @@ docker run -d \
 ```shell
 docker pull bitnami/mariadb:latest
 
-docker run -d \
+docker run -itd \
     --name mariadb-test \
     -p 3306:3306 \
     -e ALLOW_EMPTY_PASSWORD=yes \
@@ -46,7 +46,7 @@ docker pull bitnami/postgresql-repmgr:latest
 docker pull bitnami/pgbouncer:latest
 docker pull bitnami/pgpool:latest
 
-docker run -d \
+docker run -itd \
     --name postgres-test \
     -p 5432:5432 \
     -e POSTGRES_PASSWORD=123456 \
@@ -68,7 +68,7 @@ SELECT postgis_full_version();
 ```shell
 docker pull mcr.microsoft.com/mssql/server:2019-latest
 
-docker run -d \
+docker run -itd \
     --name MSSQL_1433 \
     -m 512m \
     -e "ACCEPT_EULA=Y" \
@@ -84,7 +84,7 @@ docker pull pingcap/tidb:latest
 docker pull pingcap/tikv:latest
 docker pull pingcap/pd:latest
 
-docker run -d \
+docker run -itd \
     --name tidb-test \
     -v /data/tidb/data:/tmp/tidb \
     --privileged=true \
@@ -102,7 +102,7 @@ docker run -d \
 ```shell
 docker pull bitnami/neo4j:latest
 
-docker run -d \
+docker run -itd \
     --name neo4j-test \
     -p 7473:7473 \
     -p 7687:7687 \
@@ -120,7 +120,7 @@ docker run -d \
 ```shell
 docker pull bitnami/influxdb:latest
 
-docker run -d \
+docker run -itd \
     --name influxdb-test \
     -p 8083:8083 \
     -p 8086:8086 \
@@ -145,7 +145,7 @@ docker pull timescale/timescaledb:latest-pg14
 docker pull timescale/timescaledb-postgis:latest-pg13
 docker pull timescale/pg_prometheus:latest-pg11
 
-docker run -d \
+docker run -itd \
     --name timescale-test \
     -p 5432:5432 \
     -e POSTGRES_PASSWORD=123456 \
@@ -157,7 +157,7 @@ docker run -d \
 ```shell
 docker pull petergrace/opentsdb-docker:latest
 
-docker run -d \
+docker run -itd \
     --name opentsdb-test \
     -p 4242:4242 \
     petergrace/opentsdb-docker:latest
@@ -170,7 +170,7 @@ docker run -d \
 ```shell
 docker pull questdb/questdb:latest
 
-docker run -d \
+docker run -itd \
     --name questdb-test \
     -p 9000:9000 \
     -p 8812:8812 \
@@ -183,7 +183,7 @@ docker run -d \
 ```shell
 docker pull tdengine/tdengine:latest
 
-docker run -d \
+docker run -itd \
     --name tdengine-test \
     -p 6030-6041:6030-6041 \
     -p 6030-6041:6030-6041/udp \
@@ -200,7 +200,7 @@ docker run -d \
 ```shell
 docker pull bitnami/elasticsearch:latest
 
-docker run -d \
+docker run -itd \
     --name elasticsearch-test \
     -p 9200:9200 \
     -p 9300:9300 \
@@ -216,7 +216,7 @@ docker run -d \
 
 docker pull appbaseio/dejavu:latest
 
-docker run -d \
+docker run -itd \
     --name dejavu-test \
     -p 13580:1358 \
     appbaseio/dejavu:latest
@@ -231,7 +231,7 @@ docker pull yandex/clickhouse-server:latest
 
 # 8123为http接口 9000为tcp接口 9004为mysql接口
 # 推荐使用DBeaver作为客户端
-docker run -d \
+docker run -itd \
     --name clickhouse-server-test \
     -p 8123:8123 \
     -p 9000:9000 \
@@ -259,15 +259,6 @@ docker run -itd \
     -e MONGODB_PASSWORD=123456 \
     -e MONGODB_DATABASE=test \
     bitnami/mongodb:latest
-```
-
-创建管理用户:
-
-```sql
-# 创建一个名为 admin，密码为 123456 的用户
-db.createUser({ user:'admin',pwd:'123456',roles:[ { role:'userAdminAnyDatabase', db: 'admin'},"readWriteAnyDatabase"]});
-# 尝试使用上面创建的用户信息进行连接
-db.auth('admin', '123456')
 ```
 
 ### Redis
@@ -317,7 +308,8 @@ docker run -itd \
 ```shell
 docker pull bitnami/etcd:latest
 
-docker run -d --name etcd-standalone \
+docker run -itd \
+    --name etcd-standalone \
     -p 2379:2379 \
     -p 2380:2380 \
     -e ETCDCTL_API=3 \
@@ -331,7 +323,7 @@ docker run -d --name etcd-standalone \
 ```shell
 docker pull nacos/nacos-server:latest
 
-docker run -d \
+docker run -itd \
     --name nacos-standalone \
     -e MODE=standalone \
     -p 8849:8848 \
@@ -345,8 +337,8 @@ docker run -d \
 ```shell
 docker pull bitnami/consul:latest
 
-docker run -d \
-    --name=consul-server-standalone \
+docker run -itd \
+    --name consul-server-standalone \
     -p 8300:8300 \
     -p 8500:8500 \
     -p 8600:8600/udp \
@@ -371,14 +363,14 @@ docker run -d \
 ```shell
 docker pull bitnami/rabbitmq:latest
 
-docker run -d \
+docker run -itd \
     --hostname localhost \
     --name rabbitmq-test \
     -p 15672:15672 \
     -p 5672:5672 \
     -p 1883:1883 \
     -p 15675:15675 \
-    -e RABBITMQ_PLUGINS= rabbitmq_top \
+    -e RABBITMQ_PLUGINS=rabbitmq_top,rabbitmq_mqtt,rabbitmq_web_mqtt,rabbitmq_prometheus,rabbitmq_stomp \
     bitnami/rabbitmq:latest
 
 rabbitmq-plugins --offline enable rabbitmq_peer_discovery_consul
@@ -399,13 +391,13 @@ docker pull bitnami/kafka:latest
 docker pull bitnami/zookeeper:latest
 docker pull hlebalbau/kafka-manager:latest
 
-docker run -d \
+docker run -itd \
     --name zookeeper-test \
     -p 2181:2181 \
     -e ALLOW_ANONYMOUS_LOGIN=yes \
     bitnami/zookeeper:latest
 
-docker run -d \
+docker run -itd \
     --name kafka-standalone \
     --link zookeeper-test \
     -p 9092:9092 \
@@ -418,7 +410,7 @@ docker run -d \
     --user root \
     bitnami/kafka:latest
 
-docker run -d \
+docker run -itd \
      -p 9000:9000  \
      -e ZK_HOSTS="localhost:2181" \
      hlebalbau/kafka-manager:latest
@@ -435,7 +427,7 @@ docker pull nsqio/nsq:latest
 ```shell
 docker pull bitnami/nats:latest
 
-docker run -d \
+docker run -itd \
     --name nats-server \
     --p 4222:4222 \
     --p 6222:6222 \
@@ -449,7 +441,7 @@ docker run -d \
 ```shell
 docker pull eclipse-mosquitto:latest
 
-docker run -d \
+docker run -itd \
     --name mosquitto-test \
     -p 1883:1883 \
     -p 9001:9001 \
@@ -461,7 +453,7 @@ docker run -d \
 ```shell
 docker pull emqx/emqx:latest
 
-docker run -d \
+docker run -itd \
     --name emqx-test \
     -p 18083:18083 \
     -p 1883:1883 \
@@ -497,6 +489,7 @@ docker run -itd \
 #### 访问接口
 
  <pulsar://localhost:6650>  
+
  <http://localhost:8080>  
 
 #### 管理后台
@@ -544,12 +537,12 @@ docker run -d \
 docker pull bitnami/prometheus:latest
 docker pull bitnami/pushgateway:latest
 
-docker run -d --rm \
+docker run -d \
     --name=prometheus-gateway \
     -p 5051:9091 \
     bitnami/pushgateway
 
-docker run -d --rm \
+docker run -d \
     --name=prometheus \
     -p 5050:9090 \
     bitnami/prometheus:latest
@@ -603,29 +596,47 @@ docker run -d \
 ```shell
 docker pull bitnami/spark:latest
 
-docker run -it --rm \
-    --name spark \
-    -p 4040:4040 \
+docker run -itd \
+    --name spark-standalone \
+    -p 6066:6066 \
     -p 7077:7077 \
-    -p 8088:8088 \
-    -p 8081:8081 \
     -p 8080:8080 \
-    -p 8042:8042 \
-    -p 8030:8030 \
-    -p 8031:8031 \
-    -p 8040:8040 \
-    -p 9000:9000 \
-    -p 49707:49707 \
-    -p 50010:50010 \
     -p 50070:50070 \
-    -p 50075:50075 \
-    -p 50020:50020 \
-    -p 50090:50090 \
     -e SPARK_MODE=master \
+    -e SPARK_WORKER_CORES=1 \
+    -e SPARK_WORKER_MEMORY=2g \
     bitnami/spark:latest
 ```
 
+访问后台:
+
+<http://localhost:50070>
+
+<http://localhost:8080>
+
 ### Flink
+
+```shell
+docker pull flink:latest
+
+docker network create flink-network
+
+docker run -itd \
+    --name flink-jobmanager \
+    --network flink-network \
+    -p 8081:8081 \
+    --env FLINK_PROPERTIES="jobmanager.rpc.address: flink-jobmanager" \
+    flink:latest jobmanager
+
+docker run -itd \
+    --name flink-taskmanager \
+    --network flink-network \
+    --env FLINK_PROPERTIES="jobmanager.rpc.address: flink-jobmanager" \
+    flink:latest taskmanager
+```
+
+管理后台:
+<http://localhost:8081>
 
 ## 其他
 
@@ -636,7 +647,7 @@ docker run -it --rm \
 ```shell
 docker pull bitnami/minio:latest
 
-docker run -d \
+docker run -itd \
     --name minio-server \
     --env MINIO_ACCESS_KEY="minio-access-key" \
     --env MINIO_SECRET_KEY="minio-secret-key" \
