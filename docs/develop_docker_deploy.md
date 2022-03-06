@@ -318,6 +318,8 @@ docker run -itd \
     bitnami/etcd:latest
 ```
 
+管理工具: [etcd-manager](https://www.electronjs.org/apps/etcd-manager)
+
 ### Nacos
 
 ```shell
@@ -354,6 +356,16 @@ docker run -itd \
 
 ### Eureka
 
+### Apollo
+
+```shell
+docker pull apolloconfig/apollo-portal:latest
+docker pull apolloconfig/apollo-configservice:latest
+docker pull apolloconfig/apollo-adminservice:latest
+
+
+```
+
 ## 消息队列
 
 -----
@@ -380,8 +392,8 @@ rabbitmq-plugins enable rabbitmq_mqtt
 rabbitmq-plugins enable rabbitmq_web_mqtt
 ```
 
-管理后台: <http://localhost:15672>
-默认账号:user
+管理后台: <http://localhost:15672>  
+默认账号:user  
 默认密码:bitnami
 
 ### Kafka
@@ -416,6 +428,8 @@ docker run -itd \
      hlebalbau/kafka-manager:latest
 ```
 
+管理工具: [Offset Explorer](https://www.kafkatool.com/download.html)
+
 ### NSQ
 
 ```shell
@@ -435,6 +449,8 @@ docker run -itd \
     -e NATS_HTTP_PORT_NUMBER=8222 \
     bitnami/nats:latest
 ```
+
+管理后台: <https://127.0.0.1:8000>
 
 ### mosquitto
 
@@ -459,6 +475,10 @@ docker run -itd \
     -p 1883:1883 \
     emqx/emqx:latest
 ```
+
+管理后台: <http://localhost:18083>  
+默认账号: admin  
+默认密码: public  
 
 ### Pulsar
 
@@ -516,6 +536,8 @@ docker run -d \
     -p 9411:9411 \
     jaegertracing/all-in-one:latest
 ```
+
+管理后台: <http://localhost:16686>
 
 ### Kibana
 
@@ -610,8 +632,7 @@ docker run -itd \
 
 访问后台:
 
-<http://localhost:50070>
-
+<http://localhost:50070>  
 <http://localhost:8080>
 
 ### Flink
@@ -635,8 +656,7 @@ docker run -itd \
     flink:latest taskmanager
 ```
 
-管理后台:
-<http://localhost:8081>
+管理后台: <http://localhost:8081>
 
 ## 其他
 
