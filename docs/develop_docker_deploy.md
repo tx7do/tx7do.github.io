@@ -45,6 +45,7 @@ docker pull bitnami/postgresql:latest
 docker pull bitnami/postgresql-repmgr:latest
 docker pull bitnami/pgbouncer:latest
 docker pull bitnami/pgpool:latest
+docker pull bitnami/postgres-exporter:latest
 
 docker run -itd \
     --name postgres-test \
@@ -190,11 +191,6 @@ docker run -itd \
     tdengine/tdengine:latest
 ```
 
-### DolphinDB
-
-```shell
-```
-
 ### ElasticSearch
 
 ```shell
@@ -249,6 +245,7 @@ docker run -itd \
 
 ```shell
 docker pull bitnami/mongodb:latest
+docker pull bitnami/mongodb-exporter:latest
 
 docker run -itd \
     --name mongodb-test \
@@ -265,6 +262,7 @@ docker run -itd \
 
 ```shell
 docker pull bitnami/redis:latest
+docker pull bitnami/redis-exporter:latest
 
 docker run -itd \
     --name redis-test \
@@ -273,22 +271,39 @@ docker run -itd \
     bitnami/redis:latest
 ```
 
-### Memecached
+### Memcached
 
 ```shell
-docker pull bitnami/memecached:latest
+docker pull bitnami/memcached:latest
+docker pull bitnami/memcached-exporter:latest
+
+docker run -itd \
+    --name memcached-test \
+    -p 11211:11211 \
+    bitnami/memcached:latest
 ```
 
 ### CouchDB
 
 ```shell
 docker pull bitnami/couchdb:latest
+
+docker run -itd \
+    --name couchdb-test \
+    -p 5984:5984  \
+    -p 9100:9100  \
+    -e COUCHDB_PORT_NUMBER=5984
+    -e COUCHDB_CLUSTER_PORT_NUMBER=9100
+    -e COUCHDB_USER=admin
+    -e COUCHDB_PASSWORD=couchdb
+    bitnami/couchdb:latest
 ```
 
 ### Cassandra
 
 ```shell
 docker pull bitnami/cassandra:latest
+docker pull bitnami/cassandra-exporter:latest
 
 docker run -itd \
     --name cassandra-test \
@@ -338,6 +353,7 @@ docker run -itd \
 
 ```shell
 docker pull bitnami/consul:latest
+docker pull bitnami/consul-exporter:latest
 
 docker run -itd \
     --name consul-server-standalone \
@@ -354,17 +370,50 @@ docker run -itd \
 
 管理后台: <http://localhost:8500>
 
-### Eureka
-
 ### Apollo
+
+**注意,先要导入SQL数据!**
 
 ```shell
 docker pull apolloconfig/apollo-portal:latest
 docker pull apolloconfig/apollo-configservice:latest
 docker pull apolloconfig/apollo-adminservice:latest
 
+# 
+ docker run -itd \
+    --name apollo-configservice \
+    -p 8080:8080 \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_USERNAME=root \
+    -e SPRING_DATASOURCE_PASSWORD=123456 \
+    -v /tmp/logs:/opt/logs \
+    apolloconfig/apollo-configservice:latest
 
+docker run -itd \
+    --name apollo-adminservice \
+    -p 8090:8090 \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_USERNAME=root \
+    -e SPRING_DATASOURCE_PASSWORD=123456 \
+    -v /tmp/logs:/opt/logs \
+    apolloconfig/apollo-adminservice:latest
+
+docker run -itd \
+    --name apollo-portal \
+    -p 8070:8070 \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloPortalDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_USERNAME=root \
+    -e SPRING_DATASOURCE_PASSWORD=123456 \
+    -e APOLLO_PORTAL_ENVS=dev \
+    -e DEV_META=http://127.0.0.1:8080 \
+    -v /tmp/logs:/opt/logs \
+    apolloconfig/apollo-portal:latest
 ```
+
+Eureka管理后台: <localhost:8080>
+
+Apollo管理后台: <localhost:8070>  
+账号密码: apollo / admin
 
 ## 消息队列
 
@@ -393,15 +442,15 @@ rabbitmq-plugins enable rabbitmq_web_mqtt
 ```
 
 管理后台: <http://localhost:15672>  
-默认账号:user  
-默认密码:bitnami
+默认账号: user  
+默认密码: bitnami
 
 ### Kafka
 
 ```shell
 docker pull bitnami/kafka:latest
 docker pull bitnami/zookeeper:latest
-docker pull hlebalbau/kafka-manager:latest
+docker pull bitnami/kafka-exporter:latest
 
 docker run -itd \
     --name zookeeper-test \
@@ -421,11 +470,6 @@ docker run -itd \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     --user root \
     bitnami/kafka:latest
-
-docker run -itd \
-     -p 9000:9000  \
-     -e ZK_HOSTS="localhost:2181" \
-     hlebalbau/kafka-manager:latest
 ```
 
 管理工具: [Offset Explorer](https://www.kafkatool.com/download.html)
@@ -434,12 +478,38 @@ docker run -itd \
 
 ```shell
 docker pull nsqio/nsq:latest
+
+# nsqlookupd
+docker run -d \
+    --name lookupd \
+    -p 4160:4160 \
+    -p 4161:4161 \
+    nsqio/nsq:latest \
+    /nsqlookupd
+
+# nsqd
+docker run -itd \
+    --name lookupd \
+    -p 4160:4160 \
+    -p 4161:4161 \
+    nsqio/nsq:latest \
+    /nsqd --lookupd-tcp-address=nsqlookupd:4160
+
+#nsqadmin
+docker run run -itd \
+    --name nsqadmin \
+    -p 4171:4171 \
+    nsqio/nsq:latest \
+    /nsqadmin --lookupd-http-address=nsqlookupd:4161
 ```
+
+管理后台: <http://127.0.0.1:4171>
 
 ### NATS
 
 ```shell
 docker pull bitnami/nats:latest
+docker pull bitnami/nats-exporter:latest
 
 docker run -itd \
     --name nats-server \
@@ -457,6 +527,8 @@ docker run -itd \
 ```shell
 docker pull eclipse-mosquitto:latest
 
+# 1883 tcp
+# 9001 websockets
 docker run -itd \
     --name mosquitto-test \
     -p 1883:1883 \
@@ -482,9 +554,8 @@ docker run -itd \
 
 ### Pulsar
 
-#### Docker安装
-
 ```shell
+docker pull apachepulsar/pulsar-manager:latest
 docker pull apachepulsar/pulsar:latest
 
 docker run -itd \
@@ -492,12 +563,6 @@ docker run -itd \
     -p 8080:8080 \
     --name pulsar-standalone \
     apachepulsar/pulsar:latest bin/pulsar standalone
-```
-
-#### 管理后台安装
-
-```shell
-docker pull apachepulsar/pulsar-manager:latest
 
 docker run -itd \
     -p 9527:9527 \
@@ -506,15 +571,7 @@ docker run -itd \
     apachepulsar/pulsar-manager:latest
 ```
 
-#### 访问接口
-
- <pulsar://localhost:6650>  
-
- <http://localhost:8080>  
-
-#### 管理后台
-
-<http://localhost:9527>
+管理后台 <http://localhost:9527>
 
 ## 运维监控
 
@@ -570,10 +627,8 @@ docker run -d \
     bitnami/prometheus:latest
 ```
 
-#### 后台访问
-
-[Prometheus](http://localhost:5050)  
-[Prometheus Pushgateway](http://localhost:5051)  
+Prometheus后台: <http://localhost:5050>  
+Pushgateway后台: <http://localhost:5051>
 
 ### Grafana
 
@@ -601,6 +656,7 @@ docker run -d \
 
 ```shell
 docker pull bitnami/fluentd:latest
+docker pull bitnami/fluentd-exporter:latest
 
 docker run -d \
     -p 24224:24224 \
@@ -630,10 +686,8 @@ docker run -itd \
     bitnami/spark:latest
 ```
 
-访问后台:
-
-<http://localhost:50070>  
-<http://localhost:8080>
+hdfs的web界面：<http://localhost:50070>  
+spark界面：<http://localhost:8080>
 
 ### Flink
 
@@ -674,10 +728,34 @@ docker run -itd \
     bitnami/minio:latest
 ```
 
-### TensorFlow ResNet
+## 机器学习
+
+-----
+
+### TensorFlow
 
 ```shell
 docker pull bitnami/tensorflow-resnet:latest
+docker pull bitnami/tensorflow-serving:latest
+docker pull bitnami/tensorflow-inception:latest
+
+docker network create app-tier --driver bridge
+
+docker run -d --name tensorflow-serving \
+    --volume /tmp/model-data:/bitnami/model-data \
+    --network app-tier \
+    bitnami/tensorflow-serving:latest
+
+docker run -d --name tensorflow-resnet \
+    --volume /tmp/model-data:/bitnami/model-data \
+    --network app-tier \
+    bitnami/tensorflow-resnet:latest
+```
+
+### PyTorch
+
+```shell
+docker pull bitnami/pytorch:latest
 ```
 
 ## API网关
@@ -710,9 +788,47 @@ docker pull bitnami/envoy:latest
 
 ### APISIX
 
+```shell
+docker pull apache/apisix:latest
+docker pull apache/apisix-dashboard:latest
+```
+
+管理后台: <http://127.0.0.1:8080/apisix/dashboard>
+
 ### Tyk
 
+```shell
+docker pull tykio/tyk-gateway:latest
+```
+
 ### Gravitee
+
+```shell
+docker pull graviteeio/apim-gateway:latest
+docker pull graviteeio/apim-management-ui:latest
+docker pull graviteeio/apim-portal-ui:latest
+
+docker run \
+    --publish 82:8082 \
+    --name gateway \
+    --env GRAVITEE_MANAGEMENT_MONGODB_URI=mongodb://username:password@mongohost:27017/dbname \
+    --detach \
+    graviteeio/apim-gateway:latest
+
+docker run \
+    --publish 80:8080 \
+    --env MGMT_API_URL=http://localhost:81/management/organizations/DEFAULT/environments/DEFAULT \
+    --name management-ui \
+    --detach  \
+    graviteeio/apim-management-ui:latest
+
+docker run \
+    --publish 80:8080 \
+    --env PORTAL_API_URL=http://localhost:81/portal/environments/DEFAULT \
+    --name portal-ui \
+    --detach  \
+    graviteeio/apim-portal-ui:latest
+```
 
 ## 参考资料
 
