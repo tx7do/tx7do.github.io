@@ -4,8 +4,8 @@
 
 ## 算法列表
 
-- [X] [冒泡排序（Bubble Sort）](##)
-- [X] [鸡尾酒排序（Cocktail Sort）](##)
+- [X] [冒泡排序（Bubble Sort）](#冒泡排序)
+- [X] [鸡尾酒排序（Cocktail Sort）](#鸡尾酒排序)
 - [X] 选择排序（Selection Sort）
 - [X] 插入排序（Insertion Sort）
 - [X] 归并排序（Merge Sort）
