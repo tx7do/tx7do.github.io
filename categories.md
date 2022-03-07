@@ -4,6 +4,8 @@
 
 ## Golang
 
+- [排序算法实现 - Golang版](./docs/go_algorithm_sort.html)
+- [搜索算法实现 - Golang版](./docs/go_algorithm_search.html)
 - [时序数据库应用 -TimeScaleDB](./docs/tsdb_timescale.html)
 - [golang的接口和继承](./docs/go_inheritance.html)
 

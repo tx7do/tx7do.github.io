@@ -33,4 +33,5 @@ http://localhost:13580/
 ```
 
 ## 参考资料  
-[golang elasticsearch入门教程](https://www.tizi365.com/archives/850.html)  
+
+- [golang elasticsearch入门教程](https://www.tizi365.com/archives/850.html)  

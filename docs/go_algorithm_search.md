@@ -1,18 +1,18 @@
-# golang实现各种算法 - 搜索算法
+# 搜索算法实现 - Golang版
 
 ***
 
 ## 算法列表
 
-- 顺序查找（Sequential Search）  
-- 二叉树查找（Binary Search）  
-- 三叉树查找（Ternary Search）  
-- 插值查找（Interpolation Search）  
-- 斐波那契查找（Fibonacci Search）  
-- 指数查找（Exponential Search）  
-- 树表查找（Tree table lookup）  
-- 分块查找（Blocking Search）  
-- 哈希查找（Hash Search）  
+- [X] 顺序查找（Sequential Search）  
+- [X] 二叉树查找（Binary Search）  
+- [X] 三叉树查找（Ternary Search）  
+- [X] 插值查找（Interpolation Search）  
+- [X] 斐波那契查找（Fibonacci Search）  
+- [X] 指数查找（Exponential Search）  
+- [X] 树表查找（Tree table lookup）  
+- [X] 分块查找（Blocking Search）  
+- [X] 哈希查找（Hash Search）  
 
 ## 算法实现
 
