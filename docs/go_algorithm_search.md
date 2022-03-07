@@ -4,19 +4,19 @@
 
 ## 算法列表
 
-- [X] 顺序查找（Sequential Search）  
-- [X] 二叉树查找（Binary Search）  
-- [X] 三叉树查找（Ternary Search）  
-- [X] 插值查找（Interpolation Search）  
-- [X] 斐波那契查找（Fibonacci Search）  
-- [X] 指数查找（Exponential Search）  
-- [X] 树表查找（Tree table lookup）  
-- [X] 分块查找（Blocking Search）  
-- [X] 哈希查找（Hash Search）  
+- [X] [顺序查找（Sequential Search）](#SequentialSearch)
+- [X] [二叉树查找（Binary Search）](#BinarySearch)
+- [X] [三叉树查找（Ternary Search）](#TernarySearch)
+- [X] [插值查找（Interpolation Search）](#InterpolationSearch)
+- [X] [斐波那契查找（Fibonacci Search）](#FibonacciSearch)
+- [X] [指数查找（Exponential Search）](#ExponentialSearch)
+- [X] [树表查找（Tree table lookup）](#TreeTableSearch)
+- [X] [分块查找（Blocking Search）](#BlockingSearch)
+- [X] [哈希查找（Hash Search）](#HashSearch)
 
 ## 算法实现
 
-### 顺序查找（Sequential Search）
+### <span id="SequentialSearch">顺序查找（Sequential Search）</span>
 
 ```golang
 func SequentialSearch(array []int, target int) int {
@@ -32,13 +32,7 @@ func SequentialSearch(array []int, target int) int {
 }
 ```
 
-### 二叉树查找（Binary Search）
-
-二分查找又称折半查找,前提条件：
-
-1. 必须采用顺序存储结构
-
-2. 必须按关键字大小有序排列。  
+### <span id="BinarySearch">二叉树查找（Binary Search）</span>
 
 #### 基本二分查找
 
@@ -102,7 +96,7 @@ func UpperBound(array []int, target int) int {
 }
 ```
 
-### 三叉树查找（Ternary Search）  
+### <span id="TernarySearch">三叉树查找（Ternary Search）</span>  
 
 ```golang
 func TernarySearch(array []int, target int) int {
@@ -136,9 +130,7 @@ func TernarySearch(array []int, target int) int {
 }
 ```
 
-### 插值查找  
-
-基于二分查找算法，将查找点的选择改进为自适应选择，可以提高查找效率。它是二分查找的改进版。  
+### <span id="InterpolationSearch">插值查找（Interpolation Search）</span>
 
 ```golang
 func InterpolationSearch(array []int, target int) int {
@@ -172,7 +164,7 @@ func InterpolationSearch(array []int, target int) int {
 }
 ```
 
-### 斐波那契查找（Fibonacci Search）  
+### <span id="FibonacciSearch">斐波那契查找（Fibonacci Search）</span>
 
 在是二分查找的一种提升算法，通过运用黄金比例的概念在数列中选择查找点进行查找，提高查找效率。注意同时属于一种有序查找算法  
 
@@ -245,7 +237,7 @@ func fibonacci(n int) int {
 }
 ```
 
-### 指数查找（Exponential Search）
+### <span id="ExponentialSearch">指数查找（Exponential Search）</span>
 
 ```golang
 func ExponentialSearch(array []int, target int) int {
@@ -281,9 +273,12 @@ func ExponentialSearch(array []int, target int) int {
 }
 ```
 
-### 树表查找（Tree table lookup）
+### <span id="TreeTableSearch">树表查找（Tree table lookup）</span>
 
-### 分块查找（Blocking Search）
+```go
+```
+
+### <span id="BlockingSearch">分块查找（Blocking Search）</span>
 
 ```golang
 func JumpSearch(array []int, target int) int {
@@ -318,4 +313,7 @@ func JumpSearch(array []int, target int) int {
 }
 ```
 
-### 哈希查找（Hash Search）
+### <span id="HashSearch">哈希查找（Hash Search）</span>
+
+```go
+```
