@@ -6,24 +6,24 @@
 
 - [X] [冒泡排序（Bubble Sort）](#BubbleSort)
 - [X] [鸡尾酒排序（Cocktail Sort）](#CocktailSort)
-- [X] 选择排序（Selection Sort）
-- [X] 插入排序（Insertion Sort）
-- [X] 归并排序（Merge Sort）
-- [X] 原地归并排序（In-place Merge Sort）
-- [X] 堆排序（Heap Sort）
-- [X] 快速排序（Quick Sort）
-- [X] 希尔排序（Shell Sort）
-- [X] 计数排序（Counting Sort）
-- [X] 基数排序（Radix Sort）
-- [X] 桶排序（Bucket Sort）
-- [X] 二叉排序树排序（Binary Tree Sort）
-- [X] 鸽巢排序（Pigeonhole Sort）
-- [X] 侏儒排序（Gnome Sort）
-- [ ] 块排序（Block Sort）
+- [X] [选择排序（Selection Sort）](#SelectionSort)
+- [X] [插入排序（Insertion Sort）](#InsertionSort)
+- [X] [归并排序（Merge Sort）](#MergeSort)
+- [X] [原地归并排序（In-place Merge Sort）](#InPlaceMergeSort)
+- [X] [堆排序（Heap Sort）](#HeapSort)
+- [X] [快速排序（Quick Sort）](#QuickSort)
+- [X] [希尔排序（Shell Sort）](#ShellSort)
+- [X] [计数排序（Counting Sort）](#CountingSort)
+- [X] [基数排序（Radix Sort）](#RadixSort)
+- [X] [桶排序（Bucket Sort）](#BucketSort)
+- [X] [二叉排序树排序（Binary Tree Sort）](#BinaryTreeSort)
+- [X] [鸽巢排序（Pigeonhole Sort）](#PigeonholeSort)
+- [X] [侏儒排序（Gnome Sort）](#GnomeSort)
+- [ ] [块排序（Block Sort）](#BlockSort)
 
 ## 算法实现
 
-### <span id="BubbleSort"/>冒泡排序（Bubble Sort）
+### <span id="BubbleSort">冒泡排序（Bubble Sort）</span>
 
 ```go
 func BubbleSort(array Interface, begin, end int) {
@@ -88,7 +88,7 @@ func CocktailSort(array Interface, begin, end int) {
 }
 ```
 
-### 选择排序（Selection Sort）
+### <span id="SelectionSort">选择排序（Selection Sort）</span>
 
 ```go
 // SelectionSort 选择排序
@@ -114,7 +114,7 @@ func SelectionSort(array Interface, begin, end int) {
 }
 ```
 
-### 插入排序（Insertion Sort）
+### <span id="InsertionSort">插入排序（Insertion Sort）</span>
 
 ```go
 // InsertionSort 插入排序
@@ -134,7 +134,7 @@ func InsertionSort(array Interface, begin, end int) {
 
 ```
 
-### 归并排序（Merge Sort）
+### <span id="MergeSort">归并排序（Merge Sort）</span>
 
 ```go
 // MergeSort 归并排序
@@ -195,7 +195,7 @@ func spaceMerge(left, right Interface) Interface {
 }
 ```
 
-### 原地归并排序（In-place Merge Sort）
+### <span id="InPlaceMergeSort">原地归并排序（In-place Merge Sort）</span>
 
 ```go
 // InPlaceMergeSort 原地归并排序
@@ -243,7 +243,7 @@ func inPlaceMerge(array Interface, begin, mid, end int) {
 }
 ```
 
-### 堆排序（Heap Sort）
+### <span id="HeapSort">堆排序（Heap Sort）</span>
 
 ```go
 // HeapSort 堆排序
@@ -298,7 +298,7 @@ func (h *heap) popTop(array Interface, begin, end int) {
 }
 ```
 
-### 快速排序（Quick Sort）
+### <span id="QuickSort">快速排序（Quick Sort）</span>
 
 ```go
 // QuickSort 快速排序
@@ -328,7 +328,7 @@ func quickSortPartition(array Interface, begin, end int) int {
 }
 ```
 
-### 希尔排序（Shell Sort）
+### <span id="ShellSort">希尔排序（Shell Sort）</span>
 
 ```go
 // ShellSort 希尔排序
@@ -355,7 +355,7 @@ func ShellSort(array Interface, begin, end int) {
 }
 ```
 
-### 计数排序（Counting Sort）
+### <span id="CountingSort">计数排序（Counting Sort）</span>
 
 ```go
 // CountingSort 计数排序
@@ -444,7 +444,7 @@ func CountingSortNegative(array IntSlice, begin, end int) {
 }
 ```
 
-### 基数排序（Radix Sort）
+### <span id="RadixSort">基数排序（Radix Sort）</span>
 
 ```go
 type Buckets []IntSlice
@@ -511,7 +511,7 @@ func getDigit(integer, divisor int) int {
 }
 ```
 
-### 桶排序（Bucket Sort）
+### <span id="BucketSort">桶排序（Bucket Sort）</span>
 
 ```go
 const DefaultBucketSize = 5
@@ -558,7 +558,7 @@ func BucketSort(array Interface, begin, end int) {
 }
 ```
 
-### 二叉排序树排序（Binary Tree Sort）
+### <span id="BinaryTreeSort">二叉排序树排序（Binary Tree Sort）</span>
 
 ```go
 // BinaryTreeSort 二叉树排序
@@ -667,7 +667,7 @@ func (n *binaryNode) print(w io.Writer, ns int, ch rune) {
 }
 ```
 
-### 鸽巢排序（Pigeonhole Sort）
+### <span id="PigeonholeSort">鸽巢排序（Pigeonhole Sort）</span>
 
 ```go
 // PigeonholeSort 鸽巢排序
@@ -708,7 +708,7 @@ func PigeonholeSort(array IntSlice, begin, end int) {
 }
 ```
 
-### 侏儒排序（Gnome Sort）
+### <span id="GnomeSort">侏儒排序（Gnome Sort）</span>
 
 ```go
 // GnomeSort 侏儒排序
@@ -733,7 +733,7 @@ func GnomeSort(array Interface, begin, end int) {
 }
 ```
 
-### 块排序（Block Sort）
+### <span id="BlockSort">块排序（Block Sort）</span>
 
 ```go
 ```
