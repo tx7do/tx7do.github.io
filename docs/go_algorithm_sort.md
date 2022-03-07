@@ -4,8 +4,8 @@
 
 ## 算法列表
 
-- [X] [冒泡排序（Bubble Sort）](#冒泡排序)
-- [X] [鸡尾酒排序（Cocktail Sort）](#鸡尾酒排序)
+- [X] [冒泡排序（Bubble Sort）](#BubbleSort)
+- [X] [鸡尾酒排序（Cocktail Sort）](#CocktailSort)
 - [X] 选择排序（Selection Sort）
 - [X] 插入排序（Insertion Sort）
 - [X] 归并排序（Merge Sort）
@@ -23,7 +23,7 @@
 
 ## 算法实现
 
-### 冒泡排序（Bubble Sort）
+### <span id="BubbleSort"/>冒泡排序（Bubble Sort）
 
 ```go
 func BubbleSort(array Interface, begin, end int) {
@@ -43,7 +43,7 @@ func BubbleSort(array Interface, begin, end int) {
 }
 ```
 
-### 鸡尾酒排序（Cocktail Sort）
+### <span id="CocktailSort">鸡尾酒排序（Cocktail Sort）</span>
 
 ```go
 // CocktailSort 鸡尾酒排序
