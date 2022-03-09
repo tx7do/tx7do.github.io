@@ -12,7 +12,7 @@
 - [X] [指数查找（Exponential Search）](#ExponentialSearch)
 - [X] [树表查找（Tree table lookup）](#TreeTableSearch)
 - [X] [分块查找（Blocking Search）](#BlockingSearch)
-- [X] [哈希查找（Hash Search）](#HashSearch)
+- [ ] [哈希查找（Hash Search）](#HashSearch)
 
 ## 算法实现
 
