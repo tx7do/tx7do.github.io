@@ -2,6 +2,7 @@
 
 ***
 
+- [Golang设置代理](./docs/go_proxy.html)
 - [排序算法实现 - Golang版](./docs/go_algorithm_sort.html)
 - [搜索算法实现 - Golang版](./docs/go_algorithm_search.html)
 - [Unix时间戳](./docs/timestamp.html)

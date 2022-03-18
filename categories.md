@@ -11,6 +11,7 @@
 
 ## 程序开发
 
+- [Golang设置代理](./docs/go_proxy.html)
 - [ThingsBoard 规则引擎分析](./docs/thingsboard_rule_engine.html)
 - [Unix时间戳](./docs/timestamp.html)
 - [Markdown 简易教程](./docs/markdown_tutorial.html)
