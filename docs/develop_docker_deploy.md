@@ -720,13 +720,35 @@ docker run -itd \
 
 ```shell
 docker pull bitnami/minio:latest
+docker pull bitnami/minio-client:latest
 
+docker network create app-tier --driver bridge
+
+# MINIO_ROOT_USER最少3个字符
+# MINIO_ROOT_PASSWORD最少8个字符
+# 第一次运行的时候,服务会自动关闭,手动再启动就可以正常运行了.
 docker run -itd \
     --name minio-server \
-    --env MINIO_ACCESS_KEY="minio-access-key" \
-    --env MINIO_SECRET_KEY="minio-secret-key" \
+    -p 9000:9000 \
+    -p 9001:9001 \
+    --env MINIO_ROOT_USER="root" \
+    --env MINIO_ROOT_PASSWORD="123456789" \
+    --env MINIO_DEFAULT_BUCKETS='my-bucket' \
+    --env MINIO_FORCE_NEW_KEYS="yes" \
+    --env BITNAMI_DEBUG=true \
+    --network app-tier \
     bitnami/minio:latest
+
+docker run -itd \
+    --name minio-client \
+    --env MINIO_SERVER_HOST="minio-server" \
+    --env MINIO_SERVER_ACCESS_KEY="root" \
+    --env MINIO_SERVER_SECRET_KEY="123456789" \
+    --network app-tier \
+    bitnami/minio-client:latest
 ```
+
+管理后台: <http://localhost:9001/login>
 
 ## 机器学习
 
