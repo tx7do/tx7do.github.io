@@ -47,6 +47,7 @@ function xhrUploadFile(file: File | Blob, url: string) {
 ### 2. Fetch API
 
 ```typescript
+function fetchUploadFile(file: File | Blob, url: string) {
   fetch(url, {
     method: 'PUT',
     body: file,
@@ -57,6 +58,7 @@ function xhrUploadFile(file: File | Blob, url: string) {
     .catch((error) => {
       console.error(`${file.name} 上传失败`, error);
     });
+}
 ```
 
 ### 3. Axios
