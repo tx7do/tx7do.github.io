@@ -2,6 +2,7 @@
 
 ***
 
+- [使用高德地图实现地理围栏](./docs/gaode_geofence.html)
 - [TypeScript前端上传文件到MinIO](./docs/typescript_minio_upload_file.html)
 - [Golang设置代理](./docs/go_proxy.html)
 - [排序算法实现 - Golang版](./docs/go_algorithm_sort.html)
