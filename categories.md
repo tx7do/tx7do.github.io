@@ -11,6 +11,7 @@
 
 ## 程序开发
 
+- [TypeScript前端上传文件到MinIO](./docs/typescript_minio_upload_file.html)
 - [Golang设置代理](./docs/go_proxy.html)
 - [ThingsBoard 规则引擎分析](./docs/thingsboard_rule_engine.html)
 - [Unix时间戳](./docs/timestamp.html)
