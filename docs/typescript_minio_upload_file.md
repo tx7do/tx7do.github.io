@@ -4,6 +4,27 @@
 
 [MinIO](http://www.minio.org.cn/overview.shtml) 是一款高性能、分布式的对象存储系统. 它是一款软件产品, 可以100%的运行在标准硬件。即X86等低成本机器也能够很好的运行MinIO。
 
+## 本地Docker部署测试服务器
+
+```bash
+docker pull bitnami/minio:latest
+
+# MINIO_ROOT_USER最少3个字符
+# MINIO_ROOT_PASSWORD最少8个字符
+# 第一次运行的时候,服务会自动关闭,手动再次启动就可以正常运行了.
+docker run -itd \
+    --name minio-server \
+    -p 9000:9000 \
+    -p 9001:9001 \
+    --env MINIO_ROOT_USER="root" \
+    --env MINIO_ROOT_PASSWORD="123456789" \
+    --env MINIO_DEFAULT_BUCKETS='images' \
+    --env MINIO_FORCE_NEW_KEYS="yes" \
+    --env BITNAMI_DEBUG=true \
+    bitnami/minio:latest
+
+```
+
 ## 上传的API
 
 它有3个API可供调用:
@@ -12,7 +33,8 @@
 2. [fPutObject](https://docs.min.io/docs/javascript-client-api-reference.html#fPutObject) 从文件上传
 3. [presignedPutObject](https://docs.min.io/docs/javascript-client-api-reference.html#presignedPutObject) 提供一个临时的上传链接以供上传
 
-使用1和2的方式的话,在前端需要暴露出连接MinIO的访问密钥,很不安全.而3的话,可以由服务端生成一个临时的上传链接提供给前端上传之用,而无需要暴露访问MinIO的密钥,**我采用的是第三种方式**.
+使用1和2的方式的话,在前端需要暴露出连接MinIO的访问密钥,很不安全,而且官方的Js客户端压根就没想过开放给浏览器.  
+而3的话,可以由服务端生成一个临时的上传链接提供给前端上传之用,而无需要暴露访问MinIO的密钥,非常的安全,**我采用的是第三种方式**.
 
 第三种方式,官方有一篇文章: [Upload Files Using Pre-signed URLs](https://docs.min.io/docs/upload-files-from-browser-using-pre-signed-urls.html)
 
@@ -29,13 +51,13 @@
 ### 1. XMLHttpRequest
 
 ```typescript
-function xhrUploadFile(file: File | Blob, url: string) {
+function xhrUploadFile(file: File, url: string) {
   const xhr = new XMLHttpRequest();
   xhr.open('PUT', url, true);
   xhr.send(file);
 
   xhr.onload = () => {
-    if (xhr.status == 200) {
+    if (xhr.status === 200) {
       console.log(`${file.name} 上传成功`);
     } else {
       console.error(`${file.name} 上传失败`);
@@ -47,7 +69,7 @@ function xhrUploadFile(file: File | Blob, url: string) {
 ### 2. Fetch API
 
 ```typescript
-function fetchUploadFile(file: File | Blob, url: string) {
+function fetchUploadFile(file: File, url: string) {
   fetch(url, {
     method: 'PUT',
     body: file,
@@ -64,7 +86,7 @@ function fetchUploadFile(file: File | Blob, url: string) {
 ### 3. Axios
 
 ```typescript
-function axiosUploadFile(file: File | Blob, url: string) {
+function axiosUploadFile(file: File, url: string) {
   const instance = axios.create();
   instance
     .put(url, file, {
@@ -81,15 +103,43 @@ function axiosUploadFile(file: File | Blob, url: string) {
 }
 ```
 
+### 从后端获取临时上传链接
+
+```typescript
+function retrieveNewURL(file: File, cb: (file: File, url: string) => void) {
+  const url = `http://localhost:8080/presignedUrl/${file.name}`;
+  axios.get(url)
+    .then(function (response) {
+      cb(file, response.data.data.url);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
+```
+
+### 上传文件
+
+```typescript
+function onXhrUploadFile(file?: File) {
+  console.log('onXhrUploadFile', file);
+  if (file) {
+    retrieveNewURL(file, (file, url) => {
+      xhrUploadFile(file, url);
+    });
+  }
+}
+```
+
 ## 踩过的坑
 
-### 1. 上传提交的方法必须得是`PUT`
+### 1. `presignedPutObject`方式上传提交的方法必须得是`PUT`
 
 我试过了用`POST`去上传文件,但是显然的是:我失败了.**必须得用`PUT`去上传**.
 
 ### 2. 直接发送`File`即可
 
-看了不少文章都是这么干的,构造一个`FormData`,然后把文件打进去,如果用`putObject`和`fPutObject`这两种方式上传,这是没问题的,但是使用`presignedPutObject`则是不行的,直接发送`File`就可以了.
+看了不少文章都是这么干的: 构造一个`FormData`,然后把文件打进去,如果用`putObject`和`fPutObject`这两种方式上传,这是没问题的,但是使用`presignedPutObject`则是不行的,直接发送`File`就可以了.
 
 ```typescript
 fileUpload(file) {
@@ -119,23 +169,9 @@ Content-Type: application/zip
 
 直接使用`XMLHttpRequest`和`Fetch API`都会自动填写成为文件真实的`Content-Type`.而`Axios`则不会,需要自己填写进去,或许是我不会使用`Axios`,但是这是一个需要注意的地方,否则在MinIO里边的`Content-Type`会被填写成为`Axios`默认的`Content-Type`,或者是你自己指定的.
 
-## 本地Docker部署测试服务器
+## 示例代码
 
-```bash
-docker pull bitnami/minio:latest
+Github: <https://github.com/tx7do/minio-typescript-example>
 
-# MINIO_ROOT_USER最少3个字符
-# MINIO_ROOT_PASSWORD最少8个字符
-# 第一次运行的时候,服务会自动关闭,手动再次启动就可以正常运行了.
-docker run -itd \
-    --name minio-server \
-    -p 9000:9000 \
-    -p 9001:9001 \
-    --env MINIO_ROOT_USER="root" \
-    --env MINIO_ROOT_PASSWORD="123456789" \
-    --env MINIO_DEFAULT_BUCKETS='my-bucket' \
-    --env MINIO_FORCE_NEW_KEYS="yes" \
-    --env BITNAMI_DEBUG=true \
-    bitnami/minio:latest
-
-```
+* 后端采用go+gin实现,用于调用MinIO的API`presignedPutObject`获取临时上传Url.
+* 前端有React和Vue的实现,要实现进度条和多文件上传也是容易的.
