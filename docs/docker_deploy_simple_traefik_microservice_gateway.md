@@ -82,3 +82,8 @@ func main() {
 
 * 原始服务器的访问地址是：http://localhost:8100/hello
 * 通过网关访问的地址是：http://localhost/hello
+
+## 注意的点
+
+* 在这里我使用了Consul作为远程配置中心，另外Etcd等也可以。
+* 因为我网关跑在了Docker下，而http服务器跑在了宿主机上，因此需要`--add-host=host.docker.internal:host-gateway`以期Traefik能够访问宿主机。
