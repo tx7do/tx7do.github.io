@@ -830,27 +830,44 @@ docker pull graviteeio/apim-gateway:latest
 docker pull graviteeio/apim-management-ui:latest
 docker pull graviteeio/apim-portal-ui:latest
 
-docker run \
+docker run -itd \
     --publish 82:8082 \
     --name gateway \
     --env GRAVITEE_MANAGEMENT_MONGODB_URI=mongodb://username:password@mongohost:27017/dbname \
     --detach \
     graviteeio/apim-gateway:latest
 
-docker run \
+docker run -itd \
     --publish 80:8080 \
     --env MGMT_API_URL=http://localhost:81/management/organizations/DEFAULT/environments/DEFAULT \
     --name management-ui \
     --detach  \
     graviteeio/apim-management-ui:latest
 
-docker run \
+docker run -itd \
     --publish 80:8080 \
     --env PORTAL_API_URL=http://localhost:81/portal/environments/DEFAULT \
     --name portal-ui \
     --detach  \
     graviteeio/apim-portal-ui:latest
 ```
+
+### Traefik
+
+```bash
+docker pull traefik:latest
+
+docker run -itd `
+    --name traefik-server `
+    --link consul-server-standalone `
+    --add-host=host.docker.internal:host-gateway `
+    -p 8080:8080 `
+    -p 80:80 `
+    -v /var/run/docker.sock:/var/run/docker.sock `
+    traefik:latest --api.insecure=true --providers.consul.endpoints="consul-server-standalone:8500"
+```
+
+管理后台:<http://localhost:8080>
 
 ## 参考资料
 
