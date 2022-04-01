@@ -11,7 +11,7 @@
 
 ## 程序开发
 
-- [Docker部署简单的Traefik微服务网关](./docs/docker_deploy_simple_traefik_microservice_gateway.html)
+- [Docker简单部署Traefik微服务网关](./docs/docker_deploy_simple_traefik_microservice_gateway.html)
 - [使用高德地图实现地理围栏](./docs/gaode_geofence.html)
 - [TypeScript前端上传文件到MinIO](./docs/typescript_minio_upload_file.html)
 - [Golang设置代理](./docs/go_proxy.html)

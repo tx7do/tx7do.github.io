@@ -1,4 +1,4 @@
-# Docker部署简单的Traefik微服务网关
+# Docker简单部署Traefik微服务网关
 
 ## 什么是Traefik?
 
@@ -53,12 +53,12 @@ docker run -itd `
 
 在这里我使用了Consul作为远程配置中心，配置以KV的方式存储，可登陆consul的管理后台添加配置，Traefik默认是监控配置改变的。
 
-| 键  | 值  |
-|-----|----|
-|  traefik/http/routers/myrouter-1/rule   |  PathPrefix(`/`)  |
-|  traefik/http/routers/myrouter-1/entryPoints/0   |  http  |
-|   traefik/http/routers/myrouter-1/service  |  myservice-1  |
-|  traefik/http/services/myservice-1/loadbalancer/servers/0/url   |  http://host.docker.internal:8100  |
+| 键  | 值                                |
+|-----|----------------------------------|
+|  traefik/http/routers/myrouter-1/rule   | PathPrefix(\`/\`)                |
+|  traefik/http/routers/myrouter-1/entryPoints/0   | http                             |
+|   traefik/http/routers/myrouter-1/service  | myservice-1                      |
+|  traefik/http/services/myservice-1/loadbalancer/servers/0/url   | http://host.docker.internal:8100 |
 
 ## 简单的Go服务示例
 
@@ -80,8 +80,8 @@ func main() {
     }
 ```
 
-* 原始服务器的访问地址是：http://localhost:8100/hello
-* 通过网关访问的地址是：http://localhost/hello
+* 原始服务器的访问地址是：<http://localhost:8100/hello>
+* 通过网关访问的地址是：<http://localhost/hello>
 
 ## 注意的点
 
