@@ -431,14 +431,19 @@ docker run -itd \
     -p 5672:5672 \
     -p 1883:1883 \
     -p 15675:15675 \
-    -e RABBITMQ_PLUGINS=rabbitmq_top,rabbitmq_mqtt,rabbitmq_web_mqtt,rabbitmq_prometheus,rabbitmq_stomp \
+    -e RABBITMQ_PLUGINS=rabbitmq_top,rabbitmq_mqtt,rabbitmq_web_mqtt,rabbitmq_prometheus,rabbitmq_stomp,rabbitmq_auth_backend_http \
     bitnami/rabbitmq:latest
 
+# 查看插件列表
+rabbitmq-plugins list
+# rabbitmq_peer_discovery_consul 
 rabbitmq-plugins --offline enable rabbitmq_peer_discovery_consul
 # rabbitmq_mqtt 提供与后端服务交互使用，端口1883
 rabbitmq-plugins enable rabbitmq_mqtt
 # rabbitmq_web_mqtt 提供与前端交互使用，端口15675
 rabbitmq-plugins enable rabbitmq_web_mqtt
+# 
+rabbitmq-plugins enable rabbitmq_auth_backend_http
 ```
 
 管理后台: <http://localhost:15672>  
@@ -543,6 +548,7 @@ docker pull emqx/emqx:latest
 
 docker run -itd \
     --name emqx-test \
+    --add-host=host.docker.internal:host-gateway \
     -p 18083:18083 \
     -p 1883:1883 \
     emqx/emqx:latest
