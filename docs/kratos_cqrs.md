@@ -1,4 +1,4 @@
-# Kratos微服务架构下实现CQRS架构模式
+# Kratos微服务框架下实现CQRS架构模式
 
 **命令查询的责任分离Command Query Responsibility Segregation** 通常被简化为 **命令查询分离**，即读写分离。
 
