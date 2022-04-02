@@ -52,6 +52,7 @@
 
 在具体的技术选择上：
 
+* 微服务框架使用[Kratos](https://go-kratos.dev/)；
 * 认证使用[JWT](https://jwt.io/)；
 * 鉴权使用[Casbin](https://casbin.org/)。
 
@@ -364,5 +365,5 @@ func (s *AdminService) Login(_ context.Context, req *v1.LoginReq) (*v1.User, err
 
 ## 实例代码
 
-[Kratos Casbin](https://github.com/tx7do/kratos-casbin)
-[Kratos Examples](https://github.com/tx7do/kratos-examples/tree/main/casbin)
+* [Kratos Casbin](https://github.com/tx7do/kratos-casbin)
+* [Kratos Examples](https://github.com/tx7do/kratos-examples/tree/main/casbin)
