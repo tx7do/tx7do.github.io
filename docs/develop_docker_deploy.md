@@ -579,6 +579,20 @@ docker run -itd \
 
 管理后台 <http://localhost:9527>
 
+### HiveMQ
+
+```bash
+docker pull hivemq/hivemq4:latest
+
+docker run -itd \
+    --name hivemq-test \
+    --ulimit nofile=500000:500000 \
+    -p 8080:8080 \
+    -p 8000:8000 \
+    -p 1883:1883 \
+    hivemq/hivemq4:latest
+```
+
 ## 运维监控
 
 ### Jaeger

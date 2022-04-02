@@ -2,6 +2,7 @@
 
 ***
 
+- [Kratos的认证和鉴权](./docs/kratos_auth_authz.html)
 - [MQTT服务器使用HTTP进行用户认证](./docs/mqtt_http_auth.html)
 - [Docker 容器中安装VIM](./docs/docker_install_vim.html)
 - [Windows11 启动 Docker 提示端口被占用 无法启动](./docs/docker_port_bind_forbidden.html)
