@@ -24,16 +24,16 @@
 我可以想到的解决方案有以下这么几种：
 
 1. 无API网关
-* 1.1 每个服务各自为政，各自进行认证和鉴权
-* 1.2 拆分出 **认证授权服务** 进行全局的认证和鉴权
-2. 有API网关
-- 2.1 在网关上进行全局的认证，每个服务各自鉴权
-- 2.2 在网关上进行全局的认证和鉴权
-- 2.3 拆分出 **认证服务** 进行全局的认证，在网关上进行鉴权
+1.1 每个服务各自为政，各自进行认证和鉴权
+1.2 拆分出 **认证授权服务** 进行全局的认证和鉴权
+1. 有API网关
+2.1 在网关上进行全局的认证，每个服务各自鉴权
+2.2 在网关上进行全局的认证和鉴权
+2.3 拆分出 **认证服务** 进行全局的认证，在网关上进行鉴权
 
 我比较推崇 2.3 这种策略，为什么呢？
 
-1. 认证对于鉴权来说，是频度较低的服务：登陆不常有，鉴权则发生在每一个调用上；
+1. 认证对于鉴权来说，是频度较低的服务：登陆不常有，鉴权则发生在每一个API调用上；
 2. 往往认证会相对复杂，具有特异性，难以做到通用化。而鉴权不会特别复杂，容易做到通用化。
 
 ## 有状态和无状态身份验证
@@ -81,7 +81,7 @@ Casbin 根本上是依托规则引擎做的软件设计，抽取出来的模型�
 
 **Casbin**是一个强大的、高效的开源访问控制框架，其权限管理机制支持多种访问控制模型。目前这个框架的生态已经发展的越来越好了。提供了各种语言的类库，自定义的权限模型语言，以及模型编辑器。
 
-#### Casbin 可以：
+#### Casbin 可以
 
 1. 支持自定义请求的格式，默认的请求格式为`{subject, object, action}`。
 2. 具有访问控制模型model和策略policy两个核心概念。
@@ -89,14 +89,14 @@ Casbin 根本上是依托规则引擎做的软件设计，抽取出来的模型�
 4. 支持内置的超级用户 例如：`root` 或 `administrator`。超级用户可以执行任何操作而无需显式的权限声明。
 5. 支持多种内置的操作符，如 `keyMatch`，方便对路径式的资源进行管理，如 `/foo/bar` 可以映射到 `/foo*`
 
-#### Casbin 不能：
+#### Casbin 不能
 
 1. 身份认证 authentication（即验证用户的用户名和密码），Casbin 只负责访问控制。应该有其他专门的组件负责身份认证，然后由 Casbin 进行访问控制，二者是相互配合的关系。
 2. 管理用户列表或角色列表。 Casbin 认为由项目自身来管理用户、角色列表更为合适， 用户通常有他们的密码，但是 Casbin 的设计思想并不是把它作为一个存储密码的容器。 而是存储RBAC方案中用户和角色之间的映射关系。
 
 ### Kratos
 
-Kratos是B站开源出来的一个微服务架构，我在做技术选型的时候，横向的对比了市面上的主流几款微服务架构，总结下来，还是Kratos更加适合我使用，于是就选择了它。
+Kratos是B站开源出来的一个微服务框架，我在做技术选型的时候，横向的对比了市面上的主流几款微服务架构，总结下来，还是Kratos更加适合我使用，于是就选择了它。
 
 Kratos的认证和权鉴都是依托中间件来实现的。认证方面，Kratos官方已经支持了[Jwt中间件](https://github.com/go-kratos/kratos/tree/main/middleware/auth/jwt) 。鉴权方面，Kratos官方还没有对此的支持，于是我就自己简单的实现了一个[Casbin中间件](https://github.com/tx7do/kratos-casbin) ，简单封装，足够使用就是了。
 
@@ -169,7 +169,7 @@ func (su *SecurityUser) ParseAccessJwtTokenFromContext(ctx context.Context) erro
     if !ok {
         return errors.New("no jwt token in context")
     }
-	if err := su.ParseAccessJwtToken(claims); err != nil {
+    if err := su.ParseAccessJwtToken(claims); err != nil {
         return err
     }
     return nil
@@ -218,9 +218,9 @@ func (su *SecurityUser) ParseAccessJwtToken(claims jwtV4.Claims) error {
 
 ##### 创建白名单
 
-在白名单下的API将会被忽略认证和验证
+在白名单下的API将会被忽略认证和权限验证
 
-**需要注意的是**：这里面注册的是 **操作名（operation）**，而非是API的URL。具体的操作名是什么，可以在Protoc生成的 ***_grpc.pb.go** 和 ***_http.pb.go** 找到。
+**需要注意的是**：这里面注册的是 **操作名（operation）**，而非是API的URL。具体的操作名是什么，可以在Protoc生成的 `*_grpc.pb.go` 和 `*_http.pb.go` 找到。
 
 ```go
 // NewWhiteListMatcher 创建白名单
@@ -241,34 +241,34 @@ func NewWhiteListMatcher() selector.MatchFunc {
 ```go
 // NewMiddleware 创建中间件
 func NewMiddleware(logger log.Logger) http.ServerOption {
-	return http.Middleware(
-		recovery.Recovery(),
-		tracing.Server(),
-		logging.Server(logger),
-		selector.Server(
-			jwt.Server(
-				func(token *jwtV4.Token) (interface{}, error) {
-					return []byte(ac.ApiKey), nil
-				},
-				jwt.WithSigningMethod(jwtV4.SigningMethodHS256),
-			),
-		).
-			Match(NewWhiteListMatcher()).Build(),
-	)
+    return http.Middleware(
+        recovery.Recovery(),
+        tracing.Server(),
+        logging.Server(logger),
+        selector.Server(
+            jwt.Server(
+                func(token *jwtV4.Token) (interface{}, error) {
+                    return []byte(ac.ApiKey), nil
+                },
+                jwt.WithSigningMethod(jwtV4.SigningMethodHS256),
+            ),
+        ).
+        Match(NewWhiteListMatcher()).Build(),
+    )
 }
 ```
 
 ##### 注册中间件
 
 ```go
-	var opts = []http.ServerOption{
-		NewMiddleware(logger),
-		http.Filter(handlers.CORS(
-			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
-			handlers.AllowedOrigins([]string{"*"}),
-		)),
-	}
+var opts = []http.ServerOption{
+    NewMiddleware(logger),
+    http.Filter(handlers.CORS(
+    handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+    handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
+    handlers.AllowedOrigins([]string{"*"}),
+    )),
+}
 ```
 
 ##### 前端发送Token
@@ -279,65 +279,78 @@ func NewMiddleware(logger log.Logger) http.ServerOption {
 |-----|--------------------|
 |  Authorization   | Bearer {JWT Token} |
 
+```typescript
+export default function authHeader() {
+  const userStr = localStorage.getItem("user");
+  let user = null;
+  if (userStr)
+    user = JSON.parse(userStr);
+
+  if (user && user.token) {
+    return { Authorization: 'Bearer ' + user.token };
+  } else {
+    return {};
+  }
+}
+```
+
 #### Casbin中间件
 
-##### 创建中间件
+Casbin的模型和策略配置读取，我简化的使用了读取本地配置文件。
 
-Casbin的模型和策略配置文件，我简化的使用了读取本地配置文件。
-
-通常来说，策略文件变化不大，放本地配置文件或者直接硬代码都没问题。变化的通常都是策略配置，通常做法都是放置在数据库里面，方便通过后台去进行编辑改变。
+通常来说，模型文件变化不大，放本地配置文件或者直接硬代码都没问题。变化的通常都是策略配置，通常做法都是放置在数据库里面，方便通过后台去进行编辑改变。
 
 ```go
 // NewMiddleware 创建中间件
 func NewMiddleware(ac *conf.Auth, logger log.Logger) http.ServerOption {
-	m, _ := model.NewModelFromFile("../../configs/authz/authz_model.conf")
-	a := fileAdapter.NewAdapter("../../configs/authz/authz_policy.csv")
+    m, _ := model.NewModelFromFile("../../configs/authz/authz_model.conf")
+    a := fileAdapter.NewAdapter("../../configs/authz/authz_policy.csv")
 
-	return http.Middleware(
-		recovery.Recovery(),
-		tracing.Server(),
-		logging.Server(logger),
-		selector.Server(
-			casbinM.Server(
-				casbinM.WithCasbinModel(m),
-				casbinM.WithCasbinPolicy(a),
-				casbinM.WithSecurityUserCreator(myAuthz.NewSecurityUser),
-			),
-		).
-			Match(NewWhiteListMatcher()).Build(),
-	)
+    return http.Middleware(
+        recovery.Recovery(),
+        tracing.Server(),
+        logging.Server(logger),
+        selector.Server(
+            casbinM.Server(
+                casbinM.WithCasbinModel(m),
+                casbinM.WithCasbinPolicy(a),
+                casbinM.WithSecurityUserCreator(myAuthz.NewSecurityUser),
+            ),
+        ).
+            Match(NewWhiteListMatcher()).Build(),
+    )
 }
 ```
 
-### 开始登陆吧！
+### 开始登陆吧
 
 ```go
 func (s *AdminService) Login(_ context.Context, req *v1.LoginReq) (*v1.User, error) {
-	fmt.Println("Login", req.UserName, req.Password)
+    fmt.Println("Login", req.UserName, req.Password)
 
-	var id uint64 = 10
-	var email = "hello@kratos.com"
-	var roles []string
+    var id uint64 = 10
+    var email = "hello@kratos.com"
+    var roles []string
 
-	switch req.UserName {
-	case "admin":
-		roles = append(roles, "ROLE_ADMIN")
-	case "moderator":
-		roles = append(roles, "ROLE_MODERATOR")
-	}
+    switch req.UserName {
+    case "admin":
+        roles = append(roles, "ROLE_ADMIN")
+    case "moderator":
+        roles = append(roles, "ROLE_MODERATOR")
+    }
 
-	var securityUser myAuthz.SecurityUser
-	securityUser.AuthorityId = req.GetUserName()
+    var securityUser myAuthz.SecurityUser
+    securityUser.AuthorityId = req.GetUserName()
 
-	token := securityUser.CreateAccessJwtToken([]byte(s.auth.GetApiKey()))
+    token := securityUser.CreateAccessJwtToken([]byte(s.auth.GetApiKey()))
 
-	return &v1.User{
-		Id:       &id,
-		UserName: &req.UserName,
-		Token:    &token,
-		Email:    &email,
-		Roles:    roles,
-	}, nil
+    return &v1.User{
+        Id:       &id,
+        UserName: &req.UserName,
+        Token:    &token,
+        Email:    &email,
+        Roles:    roles,
+    }, nil
 }
 ```
 
@@ -345,23 +358,22 @@ func (s *AdminService) Login(_ context.Context, req *v1.LoginReq) (*v1.User, err
 
 1. 前端发送登陆请求
 2. 登陆请求处理
-* 2.1 验证用户名密码
-* 2.2 `securityUser.CreateAccessJwtToken`生成Jwt的Token
-* 2.3 返回token给前端
+2.1 验证用户名密码
+2.2 `securityUser.CreateAccessJwtToken`生成Jwt的Token
+2.3 返回token给前端
 3. 其他正常的请求
-* 3.1 Jwt中间件进行令牌进行认证信息校验
-* 3.2 Casbin中间件解析Jwt中间件的Payload信息，根据用户信息以及操作名进行权鉴。
+3.1 Jwt中间件进行令牌进行认证信息校验
+3.2 Casbin中间件解析Jwt中间件的Payload信息，根据用户信息以及操作名进行权鉴。
 
 ## 技术栈
 
-- [Golang](https://go.dev/)
-- [React](https://reactjs.org/docs/getting-started.html)
-- [Kratos](https://go-kratos.dev/)
-- [Consul](https://www.consul.io/)
-- [Jaeger](https://www.jaegertracing.io/)
-- [Entgo](https://entgo.io/)
-- [JWT](https://jwt.io/)
-- [Casbin](https://casbin.org/)
+* [Golang](https://go.dev/)
+* [React](https://reactjs.org/docs/getting-started.html)
+* [Kratos](https://go-kratos.dev/)
+* [Consul](https://www.consul.io/)
+* [Jaeger](https://www.jaegertracing.io/)
+* [JWT](https://jwt.io/)
+* [Casbin](https://casbin.org/)
 
 ## 实例代码
 
