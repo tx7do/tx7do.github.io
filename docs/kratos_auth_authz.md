@@ -220,7 +220,7 @@ func (su *SecurityUser) ParseAccessJwtToken(claims jwtV4.Claims) error {
 
 在白名单下的API将会被忽略认证和权限验证
 
-**需要注意的是**：这里面注册的是 **操作名（operation）**，而非是API的URL。具体的操作名是什么，可以在Protoc生成的 `*_grpc.pb.go` 和 `*_http.pb.go` 找到。
+**需要注意的是**：这里面注册的是 **操作名（operation）**，而非是API的Path。具体的操作名是什么，可以在Protoc生成的 `*_grpc.pb.go` 和 `*_http.pb.go` 找到。
 
 ```go
 // NewWhiteListMatcher 创建白名单

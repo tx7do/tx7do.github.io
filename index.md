@@ -2,6 +2,7 @@
 
 ***
 
+- [ThingsBoard设备登陆认证](./docs/thingsboard_device_credentials.html)
 - [Kratos微服务框架下的消息队列应用](./docs/kratos_mq.html)
 - [Kratos微服务框架下实现CQRS架构模式](./docs/kratos_cqrs.html)
 - [Kratos微服务框架下的认证和鉴权](./docs/kratos_auth_authz.html)

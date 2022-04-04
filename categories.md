@@ -15,6 +15,7 @@
 
 ## 程序开发
 
+- [ThingsBoard设备登陆认证](./docs/thingsboard_device_credentials.html)
 - [Docker 容器中安装VIM](./docs/docker_install_vim.html)
 - [Windows11 启动 Docker 提示端口被占用 无法启动](./docs/docker_port_bind_forbidden.html)
 - [Docker简单部署Traefik微服务网关](./docs/docker_deploy_simple_traefik_microservice_gateway.html)
