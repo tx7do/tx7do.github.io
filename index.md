@@ -2,6 +2,7 @@
 
 ***
 
+- [Kratos微服务框架下的的TLS单向和双向认证](./docs/mqtt_mtls.html)
 - [MQTT用X509进行认证](./docs/mqtt_x509.html)
 - [ThingsBoard设备登陆认证](./docs/thingsboard_device_credentials.html)
 - [Kratos微服务框架下的消息队列应用](./docs/kratos_mq.html)
