@@ -343,6 +343,128 @@ mosquitto发布
 mosquitto_pub -h 192.168.111.100 -p 8883 -t "/topic/UpdateTemperature" -m "temperature:15"  --cafile /ca.crt --cert /client.crt --key /client.key
 ```
 
+### 完整代码
+
+```go
+package main
+
+import (
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+)
+
+// 接入信息
+// Broker: broker-cn.emqx.io
+// TCP 端口: 1883
+// Websocket 端口: 8083
+// TCP/TLS 端口: 8883
+// Websocket/TLS 端口: 8084
+// CA 证书文件: https://static.emqx.net/data/broker.emqx.io-ca.crt
+
+const QoS = 0x02
+
+func NewMTlsConfig() *tls.Config {
+	certpool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile("ca.pem")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	certpool.AppendCertsFromPEM(ca)
+	// Import client certificate/key pair
+	clientKeyPair, err := tls.LoadX509KeyPair("client-crt.pem", "client-key.pem")
+	if err != nil {
+		panic(err)
+	}
+	return &tls.Config{
+		RootCAs:            certpool,
+		ClientAuth:         tls.NoClientCert,
+		ClientCAs:          nil,
+		InsecureSkipVerify: true,
+		Certificates:       []tls.Certificate{clientKeyPair},
+	}
+}
+
+func NewTlsConfig() *tls.Config {
+	certpool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile("./broker.emqx.io-ca.crt")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	certpool.AppendCertsFromPEM(ca)
+	return &tls.Config{
+		RootCAs: certpool,
+	}
+}
+
+var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+}
+
+var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+	fmt.Println("Connected")
+}
+
+var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
+	fmt.Printf("Connect lost: %v", err)
+}
+
+func sub(client mqtt.Client) {
+	topic := "topic/test"
+	token := client.Subscribe(topic, 1, nil)
+	token.Wait()
+	fmt.Printf("Subscribed to topic %s", topic)
+}
+
+func publish(client mqtt.Client) {
+	num := 10
+	for i := 0; i < num; i++ {
+		text := fmt.Sprintf("Message %d", i)
+		token := client.Publish("topic/test", 0, false, text)
+		token.Wait()
+		time.Sleep(time.Second)
+	}
+}
+
+func RunMqttClient() {
+	var broker = "broker.emqx.io"
+	var port = 8883
+	var clientId = "go_mqtt_client"
+	var username = "emqx"
+	var password = "public"
+
+	tlsConfig := NewTlsConfig()
+
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	opts.SetTLSConfig(tlsConfig)
+	opts.SetClientID(clientId)
+	opts.SetUsername(username)
+	opts.SetPassword(password)
+	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.OnConnect = connectHandler
+	opts.OnConnectionLost = connectLostHandler
+	client := mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
+
+	sub(client)
+	publish(client)
+
+	client.Disconnect(250)
+}
+
+func main() {
+	RunMqttClient()
+}
+```
+
 ## 参考资料
 
 * [双向TLS：保护服务网格中微服务的通信安全](https://www.kubernetes.org.cn/8900.html)
