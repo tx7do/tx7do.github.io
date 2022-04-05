@@ -4,7 +4,7 @@
 
 ## Golang
 
-- [Kratos微服务框架下的的TLS单向和双向认证](./docs/mqtt_mtls.html)
+- [Kratos微服务框架下的的TLS单向和双向认证](./docs/kratos_mtls.html)
 - [MQTT用X509进行认证](./docs/mqtt_x509.html)
 - [Kratos微服务框架下的消息队列应用](./docs/kratos_mq.html)
 - [Kratos微服务框架下实现CQRS架构模式](./docs/kratos_cqrs.html)
