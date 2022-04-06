@@ -364,6 +364,38 @@ openssl verify -CAfile ../certs/ca.crt ../certs/server.crt
 openssl verify -CAfile ../certs/ca.crt ../certs/client.crt
 ```
 
+## OpenSSL测试证书
+
+### 连接到远程服务器
+
+```bash
+openssl s_client -connect host.docker.internal:8000 -showcerts
+```
+
+### 带CA证书连接远程服务器
+
+```bash
+openssl s_client -connect host.docker.internal:8000 -CAfile ca.crt
+```
+
+### 仅以TLS1或者TLS2连接远程服务器
+
+```bash
+openssl s_client -connect host.docker.internal:8000 -tls1_2
+```
+
+### 调试远程服务器的SSL/TLS
+
+```bash
+openssl s_client -connect host.docker.internal:8000 -tlsextdebug
+```
+
+### 模拟的HTTPS服务，可以返回Openssl相关信息
+
+```bash
+openssl s_server -accept 443 -cert server.crt -key server.key -www
+```
+
 ## 在线工具
 
 测试证书生成工具 <https://myssl.com/create_test_cert.html>
@@ -544,9 +576,43 @@ func NewClientTlsConfig(keyFile, certFile, caFile string) *tls.Config {
 }
 ```
 
+## Windows管理证书
+
+1. 使用快捷键`win + r`打开“运行”窗口，然后输入“mmc”回车。  
+   随即会出现 MMC。
+2. 从“文件”菜单中，选择“添加/删除管理单元”。  
+   随即会出现“添加或删除管理单元”窗口。
+3. 从“可用管理单元”列表中选择“证书”，然后选择“添加”。
+   ![certificate](https://docs.microsoft.com/zh-cn/dotnet/framework/wcf/feature-details/media/mmc-add-certificate-snap-in.png)
+4. 在“证书管理单元”窗口中选择“计算机帐户”，然后选择“下一步”。  
+   （可选）可以选择当前用户对应的“我的用户帐户”，或特定服务对应的“服务帐户”。
+   > 如果你不是设备管理员，则只能管理你自己的用户帐户的证书。
+5. 在“选择计算机”窗口中，保留选中“本地计算机”，然后选择“完成”。
+6. 在“添加或删除管理单元”窗口中，选择“确定”。
+   ![certificate](https://docs.microsoft.com/zh-cn/dotnet/framework/wcf/feature-details/media/mmc-certificate-snap-in-selected.png)
+7. 可选：从“文件”菜单中选择“保存”或“另存为”，以保存 MMC 控制台文件供稍后使用。
+8. 若要在 MMC 管理单元中查看你的证书，请在左侧窗格中选择“控制台根节点”，然后展开“证书(本地计算机)”。  
+
+   此时将显示每种类型的证书的目录列表。 在每个证书目录中，可以查看、导出、导入和删除其证书。
+
+9. 在“运行”窗口打开证书编辑器：如果是管理员查看本机的打开“`certlm.msc`”，如果只查看当前用户的打开“`certmgr.msc`”。  
+    此时会显示当前用户的证书管理器工具。
+10. 在左侧的控制节点中展开“**证书**” -> “**受信任的证书颁发机构**” -> “**证书**”，在**证书**上鼠标单击右键 -> "**所有任务**" -> “**导入**”。  
+    只需要在这里选择你的证书导入即可。
+    ![certificate](https://img-blog.csdnimg.cn/2020032016093246.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MTkxMzEyMg==,size_16,color_FFFFFF,t_70)
+
+## MacOS管理证书
+
+## Linux管理证书
+
 ## 踩的坑
 
-我用 **自签名证书(self-signed cert)** 的时候，客户端连服务端的：127.0.0.1和localhost都是通畅的，可是我一旦用局域网IP（比如：192.168.1.6），就连接不上，这个可真是让人烦恼啊……或许，需要一张由认证网站签发的证书才行。
+* 2022.4.5  
+我用 **自签名证书(self-signed cert)** 的时候，客户端连服务端的：127.0.0.1和localhost都是通畅的，可是我一旦用局域网IP（比如：192.168.1.6），就连接不上，这个可真是让人烦恼。
+
+* 2022.4.6  
+我现在把证书给加进去到受信任里边去了，现在在浏览器里面浏览倒是没问题了，其实也不能说有问题，也就是浏览器认为证书不可信，却始终是能够能用的。在gRpc程序里边是不行，握手就失败了，今天还是不行。继续捣鼓。  
+我用gin实现了一套简单的web服务，然后用http包实现了客户端。相互之间访问没有问题。我后来又拿这个http包的客户端访问了gRpc的http服务，访问也是没有问题的。这说明，证书能用，服务器也没问题。现在问题可以确定是出在了gRpc的客户端上面了。网上去搜了一圈，无果。
 
 ## 参考资料
 
@@ -565,3 +631,7 @@ func NewClientTlsConfig(keyFile, certFile, caFile string) *tls.Config {
 * [Golang TLS example](https://github.com/nareix/tls-example)
 * [golang crypto/tls pkg](https://golang.org/pkg/crypto/tls/)
 * [局域网内搭建浏览器可信任的SSL证书](https://www.tangyuecan.com/2021/12/17/%E5%B1%80%E5%9F%9F%E7%BD%91%E5%86%85%E6%90%AD%E5%BB%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%8F%AF%E4%BF%A1%E4%BB%BB%E7%9A%84ssl%E8%AF%81%E4%B9%A6/)
+* [如何：使用 MMC 管理单元查看证书](https://docs.microsoft.com/zh-cn/dotnet/framework/wcf/feature-details/how-to-view-certificates-with-the-mmc-snap-in)
+* [如何：创建开发期间使用的临时证书](https://docs.microsoft.com/zh-cn/dotnet/framework/wcf/feature-details/how-to-create-temporary-certificates-for-use-during-development)
+* [将证书导入到“受信任的根证书颁发机构”存储区中](https://blog.csdn.net/weixin_41913122/article/details/104992412)
+* [How To Use OpenSSL s_client To Check and Verify SSL/TLS Of HTTPS Webserver?](https://www.poftut.com/use-openssl-s_client-check-verify-ssltls-https-webserver/)

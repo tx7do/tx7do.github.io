@@ -1,6 +1,7 @@
 # MQTT服务器使用HTTP进行用户认证
 
 MQTT开源服务器有不少,我只用了两个Erlang开发的开源服务器:
+
 * [RabbitMQ](https://www.rabbitmq.com/) 
 * [EMQX](https://www.emqx.io/).  
 
@@ -8,7 +9,7 @@ MQTT开源服务器有不少,我只用了两个Erlang开发的开源服务器:
 
 ## Docker部署开发服务器
 
-**1. RabbitMQ**
+1. **RabbitMQ**
 
 ```bash
 docker pull bitnami/rabbitmq:latest
@@ -31,7 +32,7 @@ rabbitmq-plugins list
 默认账号: user  
 默认密码: bitnami
 
-**2. EMQX**
+2. **EMQX**
 
 ```bash
 docker pull emqx/emqx:latest

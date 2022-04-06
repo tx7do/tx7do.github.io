@@ -151,12 +151,12 @@ docker run -d \
 
 ## 技术栈
 
-- [Kratos](https://go-kratos.dev/)
-- [TimeScaleDB](https://www.timescale.com/)
-- [Kafka](https://kafka.apache.org/)
-- [Consul](https://www.consul.io/)
-- [Jaeger](https://www.jaegertracing.io/)
-- [Entgo](https://entgo.io/)
+* [Kratos](https://go-kratos.dev/)
+* [TimeScaleDB](https://www.timescale.com/)
+* [Kafka](https://kafka.apache.org/)
+* [Consul](https://www.consul.io/)
+* [Jaeger](https://www.jaegertracing.io/)
+* [Entgo](https://entgo.io/)
 
 ## 实例代码
 
