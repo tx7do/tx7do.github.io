@@ -15,7 +15,7 @@
 
 **“direct”** 为特殊指示符，用于指示 Go 回源到模块版本的源地址去抓取(比如 GitHub 等)，当值列表中上一个 Go module proxy 返回 404 或 410 错误时，Go 自动尝试列表中的下一个，遇见 **“direct”** 时回源，遇见 EOF 时终止并抛出类似 “invalid version: unknown revision...” 的错误。
 
-## macOS 或 Linux
+### macOS 或 Linux
 
 ```bash
 # 打开模块支持
@@ -53,9 +53,9 @@ export GOPROXY=https://goproxy.bj.bcebos.com/,direct
 # 不支持 GOSUMDB
 ```
 
-## Windows
+### Windows
 
-CMD
+#### CMD
 
 ```shell
 # 打开模块支持
@@ -91,7 +91,7 @@ set GOPROXY = "https://goproxy.bj.bcebos.com/,direct"
 # 不支持 GOSUMDB
 ```
 
-PowerShell
+#### PowerShell
 
 ```shell
 # 打开模块支持
