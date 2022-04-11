@@ -64,6 +64,9 @@ SELECT version();
 SELECT postgis_full_version();
 ```
 
+默认账号：postgres  
+默认密码：123456
+
 ### SQLServer
 
 ```shell
@@ -153,6 +156,9 @@ docker run -itd \
     timescale/timescaledb-postgis:latest-pg13
 ```
 
+默认账号：postgres  
+默认密码：123456
+
 ### OpenTSDB
 
 ```shell
@@ -236,6 +242,9 @@ docker run -itd \
     nofile=262144:262144 \
     yandex/clickhouse-server:latest
 ```
+
+默认账号: default  
+密码：无
 
 ## NoSQL数据库
 

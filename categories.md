@@ -18,6 +18,7 @@
 
 ## 程序开发
 
+- [笨贼问题](./docs/stupid_robber_problem.html)
 - [ThingsBoard设备登陆认证](./docs/thingsboard_device_credentials.html)
 - [Docker 容器中安装VIM](./docs/docker_install_vim.html)
 - [Windows11 启动 Docker 提示端口被占用 无法启动](./docs/docker_port_bind_forbidden.html)

@@ -256,7 +256,7 @@ private void onValidateDeviceResponse(ValidateDeviceCredentialsResponse msg, Cha
 
 接着最终应该送给了`DeviceActorMessageProcessor::processSessionStateMsgs`。
 
-````java
+```java
 private void processSessionStateMsgs(SessionInfoProto sessionInfo, SessionEventMsg msg) {
     UUID sessionId = getSessionId(sessionInfo);
     Objects.requireNonNull(sessionId);
