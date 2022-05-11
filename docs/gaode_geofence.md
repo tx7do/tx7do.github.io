@@ -222,15 +222,15 @@ BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多
 
 `Circle`使用对象表示的几何图形 `GeoJSON Feature` __必须__ 包含以下坐标和属性：
 
-- 圆心 (Center)
+* 圆心 (Center)
 
   圆心使用 `GeoJSON Point` 对象表示。
 
-- 半径 (Radius)
+* 半径 (Radius)
 
   圆形的半径 `radius` 使用 `GeoJSON Feature` 的属性表示。 半径值以米为单位，并且其类型必须为 `double` 。
 
-- 子类型 (subType)
+* 子类型 (subType)
 
   圆形几何图形还必须包含 `subType` 属性。 此属性必须是的属性的一部分 `GeoJSON Feature` ，并且其值应为 _Circle_
 
@@ -254,11 +254,11 @@ BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多
 
 `Rectangle`使用对象表示的几何图形 `GeoJSON Polygon Feature` __必须__ 包含以下坐标和属性：
 
-- 内角
+* 内角
 
   使用对象的坐标表示矩形的角 `GeoJSON Polygon` 。 应该有五个坐标，每个角一个。 与第五个坐标相同，用于关闭多边形环。 假定这些坐标对齐，开发人员可以根据需要对其进行旋转。
 
-- 子类型
+* 子类型
 
   矩形几何图形还必须包含 `subType` 属性。 此属性必须是的属性的一部分 `GeoJSON Feature` ，并且其值应为 _Rectangle_
 
@@ -280,7 +280,7 @@ BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多
 高德地图提供了以下几组API可用于地理围栏:
 
 1. GeoJSON工具类 `AMap.GeoJSON`
-2. 编辑器工具类 `AMap.PolyEditor` `AMap.CircleEditor` `AMap.RectangleEditor` `AMap.EllipseEditor` `AMap.BezierCurveEditor`
+2. 编辑器工具类 `AMap.PolyEditor` `AMap.PolygonEditor` `AMap.CircleEditor` `AMap.RectangleEditor` `AMap.EllipseEditor` `AMap.BezierCurveEditor`
 3. 鼠标工具插件 `AMap.MouseTool`
 
 ### 1. GeoJSON工具类
@@ -302,7 +302,46 @@ BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多
     });
 ```
 
-### 2. 编辑器工具类
+### 2. 矢量图形类
+
+```typescript
+  function createPolygon(path: any, addToMap: boolean, fitView: boolean) {
+    const polygon = new AMap.Polygon({
+      path: path,
+      strokeColor: '#FF33FF',
+      strokeWeight: 6,
+      strokeOpacity: 0.2,
+      fillOpacity: 0.4,
+      fillColor: '#1791fc',
+      zIndex: 50,
+    });
+
+    polygon.on('mouseover', () => {
+      polygon.setOptions({
+        fillOpacity: 0.7,
+        fillColor: '#7bccc4',
+      });
+    });
+
+    polygon.on('mouseout', () => {
+      polygon.setOptions({
+        fillOpacity: 0.5,
+        fillColor: '#ccebc5',
+      });
+    });
+
+    if (addToMap) {
+      map.add(polygon);
+    }
+    if (fitView) {
+      setFitView();
+    }
+    currentGeofence = polygon;
+    return polygon;
+  }
+```
+
+### 3. 编辑器工具类
 
 它支持:圆形,折线,多边形,贝瑟尔曲线,椭圆,矩形.
 
@@ -313,23 +352,35 @@ BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多
   function editPolygon(path: any, open: boolean) {
     closePolygonEditor();
 
-    const polygon = createPolygon(path);
-
-    // 缩放地图到合适的视野级别
-    map.setFitView();
-
     // 创建编辑器
-    polygonEditor = new AMap.PolyEditor(map, polygon);
+    polygonEditor = new AMap.PolyEditor(map);
 
-    // 吸附功能
-    polygonEditor.addAdsorbPolygons(polygon);
-    // 设置编辑目标
-    polygonEditor.setTarget(polygon);
+    if (path.length > 0) {
+      const polygon = createPolygon(path, true, false);
 
-    // 监听事件
-    // polygonEditor.on('addnode', function (event) {});
-    // polygonEditor.on('adjust', function (event) {});
-    // polygonEditor.on('removenode', function (event) {});
+      // 吸附功能
+      polygonEditor.addAdsorbPolygons(polygon);
+      // 设置编辑目标
+      polygonEditor.setTarget(polygon);
+
+      polygon.on('dblclick', () => {
+        polygonEditor.setTarget(polygon);
+        polygonEditor.open();
+      });
+    } else {
+      polygonEditor.setTarget();
+    }
+
+    polygonEditor.on('add', function (event) {
+      console.log(event);
+      const polygon = event.target;
+      polygonEditor.addAdsorbPolygons(polygon);
+      polygon.on('dblclick', () => {
+        polygonEditor.setTarget(polygon);
+        polygonEditor.open();
+      });
+    });
+
     polygonEditor.on('end', function (event) {
         const paths = event.target.getPath();
         console.log('结束多边形编辑', event.target, paths);

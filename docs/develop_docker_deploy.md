@@ -648,7 +648,7 @@ docker pull bitnami/pushgateway:latest
 docker run -d \
     --name=prometheus-gateway \
     -p 5051:9091 \
-    bitnami/pushgateway
+    bitnami/pushgateway:latest
 
 docker run -d \
     --name=prometheus \

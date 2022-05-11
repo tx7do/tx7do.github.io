@@ -252,7 +252,7 @@
 把上一步得到的面部图像放入神经网络，得到128个特征测量值，并保存它们。
 与我们以前保存过的测量值一并计算欧氏距离，得到欧氏距离值，比较数值大小，即可得到是否同一个人。
 
-## Python实现人脸识别
+## 人脸识别
 
 ![Face-Tracking-Android-Application-Structure](/assets/images/face_recognition/Face-Tracking-Android-Application-Structure.jpg)
 
@@ -302,3 +302,4 @@ pip install numpy
 * [Histogram of oriented gradients](https://en.wikipedia.org/wiki/Histogram_of_oriented_gradients)
 * [人脸识别·美妆·动效自拍背后的技术——人脸配准](https://toutiao.io/posts/nbllxh/preview)
 * [一文梳理人脸识别，看完全都懂了！](https://www.toutiao.com/article/6675200385763770888/?wid=1650076410070)
+* [人脸关键点检测](https://niuyuanyuanna.github.io/2018/11/08/computer_version/face-keypoint-detection)
