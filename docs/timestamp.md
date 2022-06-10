@@ -122,3 +122,21 @@ CREATE TABLE IF NOT EXISTS test
     CONSTRAINT test_pkey PRIMARY KEY (id)
 );
 ```
+
+## C++
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::microseconds;
+using std::chrono::seconds;
+using std::chrono::system_clock;
+
+std::cout << "秒：" << duration_cast<seconds>(system_clock::now().time_since_epoch()).count() << std::endl;
+std::cout << "毫秒：" << duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() << std::endl;
+std::cout << "微秒：" << duration_cast<microseconds>(system_clock::now().time_since_epoch()).count() << std::endl;
+std::cout << "纳秒：" << system_clock::now().time_since_epoch().count() << std::endl;
+```
