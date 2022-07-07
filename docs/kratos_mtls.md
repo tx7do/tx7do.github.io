@@ -1,4 +1,4 @@
-# Kratos微服务框架下的的TLS单向和双向认证
+# Kratos微服务框架下的TLS单向和双向认证
 
 ## 什么是SSL
 
@@ -262,7 +262,7 @@ Certificate 的简称，有可能是 PEM 编码格式，也有可能是 DER 编�
 
 ### PFX
 
-Predecessor of PKCS#12，这种格式是二进制格式，且证书和私钥存在一个 PFX 文件中。一般用于 Windows 上的 IIS 服务器。改格式的文件一般会有一个密码用于保证私钥的安全。
+Predecessor of PKCS#12，这种格式是二进制格式，且证书和私钥存在一个 PFX 文件中。一般用于 Windows 上的 IIS 服务器。该格式的文件一般会有一个密码用于保证私钥的安全。
 
 ### JKS
 
