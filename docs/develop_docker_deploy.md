@@ -38,7 +38,7 @@ docker run -itd \
     bitnami/mariadb:latest
 ```
 
-### PostgresSQL
+### PostgreSQL
 
 ```shell
 docker pull bitnami/postgresql:latest
