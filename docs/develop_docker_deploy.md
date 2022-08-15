@@ -495,7 +495,7 @@ docker pull nsqio/nsq:latest
 
 # nsqlookupd
 docker run -d \
-    --name lookupd \
+    --name nsqlookupd \
     -p 4160:4160 \
     -p 4161:4161 \
     nsqio/nsq:latest \
@@ -503,21 +503,24 @@ docker run -d \
 
 # nsqd
 docker run -itd \
-    --name lookupd \
-    -p 4160:4160 \
-    -p 4161:4161 \
+    --name nsqd \
+    -p 4150:4150 \
+    -p 4151:4151 \
+    --link nsqlookupd \
     nsqio/nsq:latest \
     /nsqd --lookupd-tcp-address=nsqlookupd:4160
 
 #nsqadmin
-docker run run -itd \
+docker run -itd \
     --name nsqadmin \
     -p 4171:4171 \
+    --link nsqlookupd \
     nsqio/nsq:latest \
     /nsqadmin --lookupd-http-address=nsqlookupd:4161
 ```
 
-管理后台: <http://127.0.0.1:4171>
+控制台访问地址： <http://127.0.0.1:4171>
+直接使用REST API查看节点信息： <http://127.0.0.1:4161/nodes>
 
 ### NATS
 
@@ -601,6 +604,72 @@ docker run -itd \
     -p 1883:1883 \
     hivemq/hivemq4:latest
 ```
+
+### RocketMQ
+
+必须要至少启动一个NameServer，一个Broker。
+
+```shell
+docker pull apache/rocketmq:latest
+
+# NameServer
+docker run -d \
+      --name rmqnamesrv \
+      -e "JAVA_OPT_EXT=-Xms512M -Xmx512M -Xmn128m" \
+      -p 9876:9876 \
+      apache/rocketmq:latest \
+      sh mqnamesrv
+
+# Broker
+docker run -d \
+      --name rmqbroker \
+      -e "JAVA_OPT_EXT=-Xms512M -Xmx512M -Xmn128m" \
+      -p 10911:10911 -p 10909:10909 \
+      --link rmqnamesrv \
+      -e "NAMESRV_ADDR=rmqnamesrv:9876" \
+      apache/rocketmq:latest \
+      sh mqbroker
+```
+
+```shell
+docker pull styletang/rocketmq-console-ng:latest
+
+docker run -d \
+    --name rmqconsole \
+    -p 9800:8080 \
+    --link rmqnamesrv \
+    -e "JAVA_OPTS=-Drocketmq.namesrv.addr=rmqnamesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" \
+    -t styletang/rocketmq-console-ng:latest
+```
+
+控制台访问地址： <http://localhost:9800/#/>
+
+### ActiveMQ
+
+```powershell
+docker pull rmohr/activemq:latest
+
+docker run -d \
+      --name activemq-test \
+      -p 61616:61616 \
+      -p 8161:8161 \
+      -p 61613:61613 \
+      -p 1883:1883 \
+      -p 61614:61614 \
+      rmohr/activemq:latest
+```
+
+| 端口号   | 协议    |
+|-------|-------|
+| 61616 | JMS   |
+| 8161  | UI    |
+| 5672  | AMQP  |
+| 61613 | STOMP |
+| 1883  | MQTT  |
+| 61614 | WS    |
+
+管理后台：<http://localhost:8161/admin/>
+默认账号名密码：admin/admin
 
 ## 运维监控
 

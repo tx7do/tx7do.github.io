@@ -54,62 +54,101 @@ Kratos现在的版本（[v2.2.1](https://github.com/go-kratos/kratos/releases/ta
 
 ### 1. Codec 编解码器
 
-这一块和Broker都是从Go-Micro提取出来的，但是它对我的应用来说，还并没有什么用处，因为我的编解码器是很独特的，需要定制的。所以，我暂时还没用上这一块。
+编解码器现在使用的是Kratos的编解码器。
 
-### 2. Broker 消息队列
+### 2. Broker 消息队列客户端
 
-可以直接拿来用，我拿Kafka举例：
+可以直接拿来使用，我拿Kafka举例：
 
 ```go
-package kafka
+package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/tx7do/kratos-transport/broker"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"testing"
+
+	"github.com/go-kratos/kratos/v2/encoding"
+	"github.com/tx7do/kratos-transport/broker"
+	"github.com/tx7do/kratos-transport/broker/kafka"
 )
 
-func TestSubscribe(t *testing.T) {
+const (
+	testBrokers = "localhost:9092"
+	testTopic   = "test_topic"
+	testGroupId = "a-group"
+)
+
+type Hygrothermograph struct {
+	Humidity    float64 `json:"humidity"`
+	Temperature float64 `json:"temperature"`
+}
+
+func registerHygrothermographHandler() broker.Handler {
+	return func(ctx context.Context, event broker.Event) error {
+		var msg *Hygrothermograph = nil
+
+		switch t := event.Message().Body.(type) {
+		case []byte:
+			msg = &Hygrothermograph{}
+			if err := json.Unmarshal(t, msg); err != nil {
+				return err
+			}
+		case string:
+			msg = &Hygrothermograph{}
+			if err := json.Unmarshal([]byte(t), msg); err != nil {
+				return err
+			}
+		case *Hygrothermograph:
+			msg = t
+		default:
+			return fmt.Errorf("unsupported type: %T", t)
+		}
+
+		if err := handleHygrothermograph(ctx, event.Topic(), event.Message().Headers, msg); err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+func handleHygrothermograph(_ context.Context, topic string, headers broker.Headers, msg *Hygrothermograph) error {
+	log.Printf("Headers: %+v, Humidity: %.2f Temperature: %.2f\n", headers, msg.Humidity, msg.Temperature)
+	return nil
+}
+
+func main() {
+	ctx := context.Background()
+
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	ctx := context.Background()
-
-	b := NewBroker(
-		broker.Addrs("127.0.0.1:9092"),
+	b := kafka.NewBroker(
 		broker.OptionContext(ctx),
+		broker.Addrs(testBrokers),
+		broker.Codec(encoding.GetCodec("json")),
 	)
 
-	_, _ = b.Subscribe("logger.sensor.ts", receive,
+	_, err := b.Subscribe(testTopic,
+		registerHygrothermographHandler(),
+		func() broker.Any {
+			return &Hygrothermograph{}
+		},
 		broker.SubscribeContext(ctx),
-		broker.Queue("fx-group"),
+		broker.Queue(testGroupId),
 	)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	<-interrupt
 }
 
-func receive(event broker.Event) error {
-	fmt.Println("Topic: ", event.Topic(), " Payload: ", string(event.Message().Body))
-	//_ = event.Ack()
-	return nil
-}
-
-func TestPublish(t *testing.T) {
-	ctx := context.Background()
-
-	b := NewBroker(
-		broker.Addrs("127.0.0.1:9092"),
-		broker.OptionContext(ctx),
-	)
-
-	var msg broker.Message
-	msg.Body = []byte(`{"Humidity":60, "Temperature":25}`)
-	_ = b.Publish("logger.sensor.ts", &msg)
-}
 ```
 
 ### 3. Server 封装给Kratos的Server实现
@@ -120,21 +159,76 @@ func TestPublish(t *testing.T) {
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/go-kratos/kratos/v2"
 	"log"
 
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/encoding"
 	"github.com/tx7do/kratos-transport/broker"
 	"github.com/tx7do/kratos-transport/transport/kafka"
 )
 
+const (
+	testBrokers = "localhost:9092"
+	testTopic   = "test_topic"
+	testGroupId = "a-group"
+)
+
+type Hygrothermograph struct {
+	Humidity    float64 `json:"humidity"`
+	Temperature float64 `json:"temperature"`
+}
+
+func registerHygrothermographHandler() broker.Handler {
+	return func(ctx context.Context, event broker.Event) error {
+		var msg *Hygrothermograph = nil
+
+		switch t := event.Message().Body.(type) {
+		case []byte:
+			msg = &Hygrothermograph{}
+			if err := json.Unmarshal(t, msg); err != nil {
+				return err
+			}
+		case string:
+			msg = &Hygrothermograph{}
+			if err := json.Unmarshal([]byte(t), msg); err != nil {
+				return err
+			}
+		case *Hygrothermograph:
+			msg = t
+		default:
+			return fmt.Errorf("unsupported type: %T", t)
+		}
+
+		if err := handleHygrothermograph(ctx, event.Topic(), event.Message().Headers, msg); err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+func handleHygrothermograph(_ context.Context, topic string, headers broker.Headers, msg *Hygrothermograph) error {
+	log.Printf("Humidity: %.2f Temperature: %.2f\n", msg.Humidity, msg.Temperature)
+	return nil
+}
+
 func main() {
-	//ctx := context.Background()
+	ctx := context.Background()
 
 	kafkaSrv := kafka.NewServer(
-		kafka.Address("127.0.0.1:9092"),
-		kafka.Subscribe("test_topic", "a-group", receive),
+		kafka.WithAddress([]string{testBrokers}),
+		kafka.WithCodec(encoding.GetCodec("json")),
 	)
+
+	_ = kafkaSrv.RegisterSubscriber(ctx,
+		testTopic, testGroupId, false,
+		registerHygrothermographHandler(),
+		func() broker.Any {
+			return &Hygrothermograph{}
+		})
 
 	app := kratos.New(
 		kratos.Name("kafka"),
@@ -146,17 +240,6 @@ func main() {
 		log.Println(err)
 	}
 }
-
-func receive(event broker.Event) error {
-    fmt.Println("Topic: ", event.Topic(), " Payload: ", string(event.Message().Body))
-    return nil
-}
-
-func sendData(sendData []byte) error {
-    var msg broker.Message
-    msg.Body = sendData
-    kafkaSrv.Publish(topic, &msg)
-}
 ```
 
 另外再看一个例子，是Websocket的，它的应用其实也是很广的：
@@ -165,20 +248,46 @@ func sendData(sendData []byte) error {
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/encoding"
 	"github.com/tx7do/kratos-transport/transport/websocket"
 )
 
-func main() {
-	//ctx := context.Background()
+var testServer *websocket.Server
 
+const (
+	MessageTypeChat = iota + 1
+)
+
+type ChatMessage struct {
+	Type    int    `json:"type"`
+	Message string `json:"message"`
+}
+
+func main() {
 	wsSrv := websocket.NewServer(
-		websocket.Address(":8800"),
-		websocket.ReadHandle("/ws", handleMessage),
-		websocket.ConnectHandle(handleConnect),
+		websocket.WithAddress(":8800"),
+		websocket.WithPath("/ws"),
+		websocket.WithConnectHandle(handleConnect),
+		websocket.WithCodec(encoding.GetCodec("json")),
+	)
+
+	testServer = wsSrv
+
+	wsSrv.RegisterMessageHandler(MessageTypeChat,
+		func(sessionId websocket.SessionID, payload websocket.MessagePayload) error {
+			switch t := payload.(type) {
+			case *ChatMessage:
+				return handleChatMessage(sessionId, t)
+			default:
+				return errors.New("invalid payload type")
+			}
+		},
+		func() websocket.Any { return &ChatMessage{} },
 	)
 
 	app := kratos.New(
@@ -192,27 +301,26 @@ func main() {
 	}
 }
 
-func handleConnect(connectionId string, register bool) {
+func handleConnect(sessionId websocket.SessionID, register bool) {
 	if register {
-		fmt.Printf("%s connected\n", connectionId)
+		fmt.Printf("%s connected\n", sessionId)
 	} else {
-		fmt.Printf("%s disconnect\n", connectionId)
+		fmt.Printf("%s disconnect\n", sessionId)
 	}
 }
 
-func handleMessage(connectionId string, message *websocket.Message) (*websocket.Message, error) {
-	fmt.Printf("[%s] Payload: %s\n", connectionId, string(message.Body))
+func handleChatMessage(sessionId websocket.SessionID, message *ChatMessage) error {
+	fmt.Printf("[%s] Payload: %v\n", sessionId, message)
 
-	var relyMsg websocket.Message
-	relyMsg.Body = []byte("hello")
+	testServer.Broadcast(MessageTypeChat, *message)
 
-	return &relyMsg, nil
+	return nil
 }
 ```
 
 ## 具体的应用实例
 
-我写了两个实例代码，并且都已经提交到了Kratos的[examples](https://github.com/go-kratos/examples)代码仓库中去了。这两个例子都是物联网方面的应用。
+我写了一些实例代码，并且都已经提交到了Kratos的[examples](https://github.com/go-kratos/examples)代码仓库中去了。
 
 ### [kratos-cqrs](https://github.com/go-kratos/examples/tree/main/cqrs)
 
@@ -222,6 +330,10 @@ func handleMessage(connectionId string, message *websocket.Message) (*websocket.
 
 ### [kratos-realtimemap](https://github.com/go-kratos/examples/tree/main/realtimemap)
 
-这是一个完整的例子，有前端，有后端，可以完整的跑起来看。
+这是一个完整的物联网相关的例子，有前端，有后端，可以完整的跑起来看。
 
 通过MQTT接收一个开放的公交遥测数据源，然后通过REST和Websocket向前端发送数据，在地图上展现出来车辆的轨迹、车辆的位置、车辆的速度、开关门状态等等。
+
+### [kratos-chatroom](https://github.com/go-kratos/examples/tree/main/chatroom)
+
+最简单的Websocket聊天室，客户端发送消息，服务端接收之后立即广播给其他客户端。
