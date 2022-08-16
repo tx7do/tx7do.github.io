@@ -87,16 +87,19 @@ func (s *ChatRoomService) OnChatMessage(sessionId websocket.SessionID, msg *v1.C
 
 ### 实现JavaScript客户端
 
-因为我在Kratos-Transport的Websocket底层实现里面封装了一个简单的协议。第一次实现Websocket的Js客户端需要对其编解码。
+因为我在Kratos-Transport的Websocket底层实现里面封装了一个简单的应用层协议。第一次实现Websocket的Js客户端需要实现协议的编解码。
 
 编码
 
 ```javascript
 function sendMessage(id, payload) {
-    let buff = new Uint8Array(4 + payload.byteLength);
+    const strPayload = JSON.stringify(payload);
+    const payloadBuff = new TextEncoder().encode(strPayload);
+
+    let buff = new Uint8Array(4 + payloadBuff.byteLength);
     let dv = new DataView(buff.buffer);
     dv.setInt32(0, id);
-    buff.set(payload, 4);
+    buff.set(payloadBuff, 4);
 
     console.log(ab2str(buff))
 
@@ -113,6 +116,40 @@ ws.onmessage = function (event) {
     handleMessage(messageType, event.data.slice(4));
 };
 ```
+
+推荐使用TypeScript，代码看起来更加清爽一些。
+
+如果载体为Json编码，网上有工具可以将Protobuf协议生成TypeScript代码：<https://brandonxiang.github.io/pb-to-typescript/>
+
+转换后的代码是这样的：
+
+```typescript
+export enum MessageType {
+  Chat = 0,
+}
+
+export interface ChatMessage {
+  message?: string;
+  sender?: string;
+  timestamp?: string;
+}
+```
+
+发送消息：
+
+```typescript
+function sendChatMessage(message) {
+    let packet = {
+        message: message,
+        sender: "",
+        timestamp: "",
+    };
+
+    sendMessage(MessageType.Chat, packet);
+}
+```
+
+但如果使用Protobuf的二进制编码，那需要做的事情相对就比较多一点。
 
 ## 参考资料
 
