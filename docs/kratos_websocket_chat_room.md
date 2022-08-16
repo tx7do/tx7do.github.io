@@ -37,7 +37,7 @@ message ChatMessage {
 
 `MessageType`是一个Opcode，用于区分消息类型，它是一个Uint32类型，不可以有重复数值。
 
-`ChatMessage`是网络协议的载体定义，它和`MessageType。Chat`是一对。
+`ChatMessage`是网络协议的载体定义，它和`MessageType.Chat`是一对。
 
 ### 注册Websocket服务器
 
