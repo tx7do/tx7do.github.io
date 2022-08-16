@@ -8,6 +8,14 @@ WebSocket 使用 TCP 作为传输层协议, 与 HTTP 类似, WebSocket 也支持
 
 在 WebSocket 协议中, 帧 (frame) 是通信双方数据传输的基本单元, 与其它网络协议相同, frame 由 Header 和 Payload 两部分构成, frame 有多种类型, frame 的类型由其头部的 Opcode 字段 (将在下面讨论) 来指示, WebSocket 的 frame 可以分为两类, 一类是用于传输控制信息的 frame (如通知对方关闭 WebSocket 连接), 一类是用于传输应用数据的 frame, 使用 WebSocket 协议通信的双方都需要首先进行握手, 只有当握手成功之后才开始使用 frame 传输数据
 
+## 如何在Kratos下开发Websocket服务器
+
+我基于 <https://github.com/gorilla/websocket> 封装了一个简单的Websocket服务器，可以在Kratos下开发Websocket服务器。具体实现代码在：<https://github.com/tx7do/kratos-transport/tree/main/transport/websocket>
+
+可以基于它开发，也可以fork代码自己根据需要进行修改。
+
+本篇文章相当于是一个echo示例。也就是收发信息。
+
 ## 开始写代码
 
 ### 定义API
@@ -74,8 +82,9 @@ func NewWebsocketServer(c *conf.Server, _ log.Logger, svc *service.ChatRoomServi
 
 ```Go
 func (s *ChatRoomService) OnChatMessage(sessionId websocket.SessionID, msg *v1.ChatMessage) error {
-	s.ws.Broadcast(websocket.MessageType(v1.MessageType_Chat), msg)
-	return nil
+  s.ws.Broadcast(websocket.MessageType(v1.MessageType_Chat), msg)
+  //s.ws.SendMessage(sessionId， websocket.MessageType(v1.MessageType_Chat), msg)
+  return nil
 }
 ```
 
@@ -83,13 +92,39 @@ func (s *ChatRoomService) OnChatMessage(sessionId websocket.SessionID, msg *v1.C
 
 用于发送消息的方法有两个：`s.ws.SendMessage`和`s.ws.Broadcast`，前者只发送给指定的SessionID，后者发送给所有的SessionID。
 
-这样，服务器就算搞完了，是不是很简单。
+这样，服务器就算搭起来了，是不是很简单。
 
 ### 实现JavaScript客户端
 
-因为我在Kratos-Transport的Websocket底层实现里面封装了一个简单的应用层协议。第一次实现Websocket的Js客户端需要实现协议的编解码。
+Js要实现一个websocket客户端是很简单的，只需要短短十数行代码：
 
-编码
+```typescript
+var ws = new WebSocket("wss://echo.websocket.org");
+
+ws.onopen = function(evt) { 
+  console.log("Connection open ..."); 
+  ws.send("Hello WebSockets!");
+};
+
+ws.onmessage = function(evt) {
+  console.log( "Received Message: " + evt.data);
+  ws.close();
+};
+
+ws.onclose = function(evt) {
+  console.log("Connection closed.");
+};
+```
+
+但是，因为我在Kratos-Transport的Websocket底层实现里面封装了一个简单的应用层协议。故而在实现Websocket的Js客户端的时候，需要实现该应用层协议的编解码。
+
+其实要说起来这个协议的定义，也是很简单的：
+
+> 消息类型（4字节） | 包载体
+
+另外，需要提到一点：如果Websocket协议的实现是按照完整的Websocket的RFC文档定义来实现的话，Websocket协议已经实现了分包、粘包的处理，所以在应用层就不需要考虑这些问题了。不然如果在TCP/UDP开始封装协议的话，或者没有完全实现RFC文档，那就要复杂太多了。
+
+#### 编码
 
 ```javascript
 function sendMessage(id, payload) {
@@ -107,7 +142,7 @@ function sendMessage(id, payload) {
 }
 ```
 
-解码
+#### 解码
 
 ```javascript
 ws.onmessage = function (event) {
@@ -135,7 +170,9 @@ export interface ChatMessage {
 }
 ```
 
-发送消息：
+虽然说JS对类型并没有太多的约束，但是实际上，强规约还是会带来很多的好处的。特别是在多人协作的时候，让每一个人都可以充分的理解协议的意义。
+
+现在我们就可以来发送聊天消息了：
 
 ```typescript
 function sendChatMessage(message) {
@@ -149,7 +186,12 @@ function sendChatMessage(message) {
 }
 ```
 
-但如果使用Protobuf的二进制编码，那需要做的事情相对就比较多一点。
+但如果使用Protobuf的二进制编码，那需要做的事情相对就比较多一点。我在此就不再赘述。
+
+## 实例代码
+
+* <https://github.com/tx7do/kratos-chatroom>
+* <https://github.com/go-kratos/examples/tree/main/chatroom>
 
 ## 参考资料
 
@@ -158,3 +200,4 @@ function sendChatMessage(message) {
 * [HTML5 WebSocket](https://www.runoob.com/html/html5-websocket.html)
 * [MDN - WebSocket](https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket)
 * [WebSocket 协议解析 [RFC 6455]](https://sunyunqiang.com/blog/websocket_protocol_rfc6455/)
+* [WebSocket 教程](https://www.ruanyifeng.com/blog/2017/05/websocket.html)
