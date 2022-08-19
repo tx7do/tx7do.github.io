@@ -429,7 +429,7 @@ defer func() {
 
 如果要测试的话，推荐使用客户端：Altair。
 
-点击`Docs`按钮，可以查询到API文档，如下图所示：
+点击`Docs`按钮，可以查询到API文档，文档内容会显示在右侧编辑框，如下图所示：
 
 ![check docs](/assets/images/graphql/graphql_check_docs.png)
 
