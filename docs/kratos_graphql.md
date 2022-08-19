@@ -425,7 +425,21 @@ defer func() {
 
 服务器本地访问地址为：<http://localhost:8800/query>
 
+## 测试
+
 如果要测试的话，推荐使用客户端：Altair。
+
+点击`Docs`按钮，可以查询到API文档，如下图所示：
+
+![check docs](/assets/images/graphql/graphql_check_docs.png)
+
+鼠标放到API上面会显示`ADD QUERY`按钮，点击就可以添加一个新的查询到最左边的编辑框中。
+
+![add query](/assets/images/graphql/graphql_add_query.png)
+
+点击右上角的`Send Request`按钮，可以发送请求。在中间的编辑框就可以看到请求的结果了。
+
+![send request](/assets/images/graphql/graphql_send_request.png)
 
 ## 客户端工具
 
