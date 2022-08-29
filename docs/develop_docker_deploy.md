@@ -2,11 +2,15 @@
 
 ***
 
-Bash的换行符为 <code>\\</code>
+- Bash的换行符为 <code>\\</code>
 
-CMD的换行符为 <code>\^</code>
+- CMD的换行符为 <code>\^</code>
 
-Powershell的换行符为 <code>\`</code>
+- Powershell的换行符为 <code>\`</code>
+
+参数简析：
+
+- -p 宿主机端口:容器端口
 
 ## 关系型数据库
 
@@ -64,8 +68,8 @@ SELECT version();
 SELECT postgis_full_version();
 ```
 
-默认账号：postgres  
-默认密码：123456
+- 默认账号：postgres  
+- 默认密码：123456
 
 ### SQLServer
 
@@ -140,7 +144,7 @@ docker run -itd \
 create user "admin" with password '123456789' with all privileges
 ```
 
-管理后台: <http://localhost:8086/>
+- 管理后台: <http://localhost:8086/>
 
 ### TimescaleDB
 
@@ -156,8 +160,8 @@ docker run -itd \
     timescale/timescaledb-postgis:latest-pg13
 ```
 
-默认账号：postgres  
-默认密码：123456
+- 默认账号：postgres  
+- 默认密码：123456
 
 ### OpenTSDB
 
@@ -243,8 +247,8 @@ docker run -itd \
     yandex/clickhouse-server:latest
 ```
 
-默认账号: default  
-密码：无
+- 默认账号: default  
+- 密码：无
 
 ## NoSQL数据库
 
@@ -342,7 +346,7 @@ docker run -itd \
     bitnami/etcd:latest
 ```
 
-管理工具: [etcd-manager](https://www.electronjs.org/apps/etcd-manager)
+- 管理工具: [etcd-manager](https://www.electronjs.org/apps/etcd-manager)
 
 ### Nacos
 
@@ -356,7 +360,7 @@ docker run -itd \
     nacos/nacos-server:latest
 ```
 
-管理后台: <http://localhost:8849/nacos/index.html>
+- 管理后台: <http://localhost:8849/nacos/index.html>
 
 ### Consul
 
@@ -377,7 +381,7 @@ docker run -itd \
     bitnami/consul:latest
 ```
 
-管理后台: <http://localhost:8500>
+- 管理后台: <http://localhost:8500>
 
 ### Apollo
 
@@ -419,10 +423,10 @@ docker run -itd \
     apolloconfig/apollo-portal:latest
 ```
 
-Eureka管理后台: <localhost:8080>
+- Eureka管理后台: <localhost:8080>
 
-Apollo管理后台: <localhost:8070>  
-账号密码: apollo / admin
+- Apollo管理后台: <localhost:8070>  
+  账号密码: apollo / admin
 
 ## 消息队列
 
@@ -455,9 +459,9 @@ rabbitmq-plugins enable rabbitmq_web_mqtt
 rabbitmq-plugins enable rabbitmq_auth_backend_http
 ```
 
-管理后台: <http://localhost:15672>  
-默认账号: user  
-默认密码: bitnami
+- 管理后台: <http://localhost:15672>  
+- 默认账号: user  
+- 默认密码: bitnami
 
 ### Kafka
 
@@ -486,7 +490,9 @@ docker run -itd \
     bitnami/kafka:latest
 ```
 
-管理工具: [Offset Explorer](https://www.kafkatool.com/download.html)
+管理工具:
+
+- [Offset Explorer](https://www.kafkatool.com/download.html)
 
 ### NSQ
 
@@ -519,8 +525,8 @@ docker run -itd \
     /nsqadmin --lookupd-http-address=nsqlookupd:4161
 ```
 
-控制台访问地址： <http://127.0.0.1:4171>
-直接使用REST API查看节点信息： <http://127.0.0.1:4161/nodes>
+- 控制台访问地址： <http://127.0.0.1:4171>
+- 直接使用REST API查看节点信息： <http://127.0.0.1:4161/nodes>
 
 ### NATS
 
@@ -537,7 +543,7 @@ docker run -itd \
     bitnami/nats:latest
 ```
 
-管理后台: <https://127.0.0.1:8000>
+- 管理后台: <https://127.0.0.1:8000>
 
 ### mosquitto
 
@@ -566,9 +572,9 @@ docker run -itd \
     emqx/emqx:latest
 ```
 
-管理后台: <http://localhost:18083>  
-默认账号: admin  
-默认密码: public  
+- 管理后台: <http://localhost:18083>  
+- 默认账号: admin  
+- 默认密码: public  
 
 ### Pulsar
 
@@ -589,7 +595,7 @@ docker run -itd \
     apachepulsar/pulsar-manager:latest
 ```
 
-管理后台 <http://localhost:9527>
+- 管理后台 <http://localhost:9527>
 
 ### HiveMQ
 
@@ -642,11 +648,11 @@ docker run -d \
     -t styletang/rocketmq-console-ng:latest
 ```
 
-控制台访问地址： <http://localhost:9800/#/>
+- 控制台访问地址： <http://localhost:9800/#/>
 
 ### ActiveMQ
 
-```powershell
+```shell
 docker pull rmohr/activemq:latest
 
 docker run -d \
@@ -668,8 +674,8 @@ docker run -d \
 | 1883  | MQTT  |
 | 61614 | WS    |
 
-管理后台：<http://localhost:8161/admin/>
-默认账号名密码：admin/admin
+- 管理后台：<http://localhost:8161/admin/>
+- 默认账号名密码：admin/admin
 
 ## 运维监控
 
@@ -681,18 +687,44 @@ docker pull jaegertracing/all-in-one:latest
 docker run -d \
     --name jaeger \
     -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
-    -p 5775:5775/udp \
+    -e COLLECTOR_OTLP_ENABLED=true \
     -p 6831:6831/udp \
     -p 6832:6832/udp \
     -p 5778:5778 \
     -p 16686:16686 \
-    -p 14268:14268 \
+    -p 4317:4317 \
+    -p 4318:4318 \
     -p 14250:14250 \
+    -p 14268:14268 \
+    -p 14269:14269 \
     -p 9411:9411 \
     jaegertracing/all-in-one:latest
 ```
 
-管理后台: <http://localhost:16686>
+- API：<http://localhost:14268/api/traces>  
+- Zipkin API：<http://localhost:9411/api/v2/spans>
+- 后台: <http://localhost:16686>
+
+### Zipkin
+
+```shell
+docker pull openzipkin/zipkin:latest
+
+docker run -d \
+    --name zipkin \
+    -p 9411:9411 \
+    openzipkin/zipkin:latest
+```
+
+- API：<http://localhost:9411/api/v2/spans>  
+- 后台: <http://localhost:9411>
+
+### SkyWalking
+
+```bash
+docker pull apache/skywalking-oap-server:latest
+docker pull apache/skywalking-ui:latest
+```
 
 ### Kibana
 
@@ -702,7 +734,6 @@ docker pull bitnami/kibana:latest
 docker run -d \
     --name kibana \
     -p 5601:5601 \
-    --name kibana \
     -e KIBANA_ELASTICSEARCH_URL=elasticsearch \
     -e KIBANA_ELASTICSEARCH_PORT_NUMBER=9200
     bitnami/kibana:latest
@@ -715,18 +746,18 @@ docker pull bitnami/prometheus:latest
 docker pull bitnami/pushgateway:latest
 
 docker run -d \
-    --name=prometheus-gateway \
+    --name = prometheus-gateway \
     -p 5051:9091 \
     bitnami/pushgateway:latest
 
 docker run -d \
-    --name=prometheus \
+    --name = prometheus \
     -p 5050:9090 \
     bitnami/prometheus:latest
 ```
 
-Prometheus后台: <http://localhost:5050>  
-Pushgateway后台: <http://localhost:5051>
+- Prometheus 后台: <http://localhost:5050>  
+- Pushgateway 后台: <http://localhost:5051>
 
 ### Grafana
 
@@ -784,8 +815,8 @@ docker run -itd \
     bitnami/spark:latest
 ```
 
-hdfs的web界面：<http://localhost:50070>  
-spark界面：<http://localhost:8080>
+- hdfs的web界面：<http://localhost:50070>  
+- Spark界面：<http://localhost:8080>
 
 ### Flink
 
@@ -808,13 +839,13 @@ docker run -itd \
     flink:latest taskmanager
 ```
 
-管理后台: <http://localhost:8081>
+- 管理后台: <http://localhost:8081>
 
 ## 其他
 
 -----
 
-### Minio
+### MinIO
 
 ```shell
 docker pull bitnami/minio:latest
@@ -846,7 +877,7 @@ docker run -itd \
     bitnami/minio-client:latest
 ```
 
-管理后台: <http://localhost:9001/login>
+- 管理后台: <http://localhost:9001/login>
 
 ## 机器学习
 
@@ -913,7 +944,7 @@ docker pull apache/apisix:latest
 docker pull apache/apisix-dashboard:latest
 ```
 
-管理后台: <http://127.0.0.1:8080/apisix/dashboard>
+- 管理后台: <http://127.0.0.1:8080/apisix/dashboard>
 
 ### Tyk
 
@@ -957,15 +988,15 @@ docker pull traefik:latest
 
 docker run -itd `
     --name traefik-server `
-    --link consul-server-standalone `
-    --add-host=host.docker.internal:host-gateway `
     -p 8080:8080 `
     -p 80:80 `
     -v /var/run/docker.sock:/var/run/docker.sock `
+    --link consul-server-standalone `
+    --add-host=host.docker.internal:host-gateway `
     traefik:latest --api.insecure=true --providers.consul.endpoints="consul-server-standalone:8500"
 ```
 
-管理后台:<http://localhost:8080>
+- 管理后台:<http://localhost:8080>
 
 ## 参考资料
 

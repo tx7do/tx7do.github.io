@@ -156,6 +156,34 @@ package api
 
 推荐使用Jetbrain的Goland，它可以很方便的在IDE中运行该命令。堪称完美。
 
+## ProviderSet has multiple bindings for invalid type
+
+## ProviderSet has multiple bindings for ***
+
+```go
+func NewRegistrar(conf *conf.Registry) registry.Registrar {
+	c := consulAPI.DefaultConfig()
+	c.Address = conf.Consul.Address
+	c.Scheme = conf.Consul.Scheme
+	cli, err := consulAPI.NewClient(c)
+	if err != nil {
+		panic(err)
+	}
+	r := consul.New(cli, consul.WithHealthCheck(conf.Consul.HealthCheck))
+	return r
+}
+
+var ProviderSet = wire.NewSet(NewWebsocketServer, NewRegistrar, NewRegistrar)
+```
+
+一个Set里边一个类型只能注入一个，不能够注入多个。上面的代码里面调用了两次`NewRegistrar`，也就是说注入了两次`registry.Registrar`，这是不合法的，便会报这样的错误。
+
+## proto文件引入其他proto文件，Goland里边报错：Cannot resolve import '*.proto'
+
+设置->语言和框架->Protocol Buffers
+
+里边将proto存放的路径加入到配置里面。
+
 ## 参考资料
 
 * [JSON Mapping](https://developers.google.com/protocol-buffers/docs/proto3#json)
