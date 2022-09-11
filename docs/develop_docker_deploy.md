@@ -207,7 +207,7 @@ docker run -itd \
 docker pull bitnami/elasticsearch:latest
 
 docker run -itd \
-    --name elasticsearch-test \
+    --name elasticsearch \
     -p 9200:9200 \
     -p 9300:9300 \
     -e ELASTICSEARCH_USERNAME=elastic \
@@ -545,7 +545,7 @@ docker run -itd \
 
 - 管理后台: <https://127.0.0.1:8000>
 
-### mosquitto
+### Mosquitto
 
 ```shell
 docker pull eclipse-mosquitto:latest
@@ -677,7 +677,28 @@ docker run -d \
 - 管理后台：<http://localhost:8161/admin/>
 - 默认账号名密码：admin/admin
 
-## 运维监控
+### Asynq
+
+```shell
+docker pull hibiken/asynqmon:latest
+
+docker run -d \
+    --name asynq \
+    -p 8080:8080 \
+    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379
+```
+
+- 管理后台：<http://localhost:8080>
+
+## 微服务运行时
+
+### Dapr
+
+```shell
+docker pull daprio/dapr:latest
+```
+
+## 链路追踪
 
 ### Jaeger
 
@@ -724,7 +745,37 @@ docker run -d \
 ```bash
 docker pull apache/skywalking-oap-server:latest
 docker pull apache/skywalking-ui:latest
+
+# 11800端口用于skywalking将应用的服务监控信息收集端口。
+# 12800端口用于skywalking对UI提供查询接口。
+docker run -itd \
+    --name skywalking-oap-server \
+    -e TZ=Asia/Shanghai \
+    -p 12800:12800 \
+    -p 11800:11800 \
+    --link elasticsearch \
+    -e SW_STORAGE=elasticsearch \
+    -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 \
+    apache/skywalking-oap-server:latest
+
+docker run -itd \
+    --name skywalking-ui \
+    -e TZ=Asia/Shanghai \
+    -p 8080:8080 \
+    --link skywalking-oap-server \
+    -e SW_OAP_ADDRESS=skywalking-oap-server:12800 \
+    apache/skywalking-ui:latest
 ```
+
+- 后台: <http://localhost:8080>
+
+### Pinpoint
+
+```bash
+docker pull pinpointdocker/pinpoint-agent:latest
+```
+
+## 运维监控
 
 ### Kibana
 
@@ -841,7 +892,7 @@ docker run -itd \
 
 - 管理后台: <http://localhost:8081>
 
-## 其他
+## 对象存储
 
 -----
 
@@ -935,6 +986,12 @@ docker pull bitnami/nginx:latest
 
 ```shell
 docker pull bitnami/envoy:latest
+```
+
+### Caddy
+
+```shell
+docker pull caddy:latest
 ```
 
 ### APISIX
