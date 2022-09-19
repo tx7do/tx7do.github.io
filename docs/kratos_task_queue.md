@@ -91,8 +91,9 @@ import github.com/tx7do/kratos-transport/transport/asynq
 const (
 	localRedisAddr = "127.0.0.1:6379"
 
-	testTask1     = "test_task_1"
-	testTaskDelay = "test_task_delay"
+	testTask1        = "test_task_1"
+	testDelayTask    = "test_task_delay"
+	testPeriodicTask = "test_periodic_task"
 )
 
 ctx := context.Background()
@@ -120,10 +121,17 @@ err = srv.NewTask(testTask1, []byte("test string"),
     asynq.Deadline(time.Now().Add(20*time.Second)))
 ```
 
-* 延迟队列
+* 延迟任务
 
 ```go
-err = srv.NewTask(testTaskDelay, []byte("delay task"), asynq.ProcessIn(3*time.Second))
+err = srv.NewTask(testDelayTask, []byte("delay task"), asynq.ProcessIn(3*time.Second))
+```
+
+* 周期性任务
+
+```go
+// 每分钟执行一次
+err = srv.NewPeriodicTask("*/1 * * * ?", testPeriodicTask, []byte("periodic task"))
 ```
 
 #### 注册任务回调
@@ -135,12 +143,18 @@ func handleTask(_ context.Context, task *asynq.Task) error {
 }
 
 func handleDelayTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
+	log.Infof("Delay Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
+	return nil
+}
+
+func handlePeriodicTask(_ context.Context, task *asynq.Task) error {
+	log.Infof("Periodic Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
 	return nil
 }
 
 err := srv.HandleFunc(testTask1, handleTask)
 err = srv.HandleFunc(testTaskDelay, handleDelayTask)
+err = srv.HandleFunc(testPeriodicTask, handlePeriodicTask)
 ```
 
 #### 示例代码
@@ -187,10 +201,10 @@ import github.com/tx7do/kratos-transport/transport/machinery
 const (
 	localRedisAddr = "127.0.0.1:6379"
 
-	testTask1     = "test_task_1"
-	testTaskDelay = "test_task_delay"
-	sumTask       = "sum_task"
-	periodicTask  = "periodic_task"
+	testTask1        = "test_task_1"
+	testDelayTask    = "test_delay_task"
+	testPeriodicTask = "test_periodic_task"
+	sumTask          = "sum_task"
 )
 
 ctx := context.Background()
@@ -216,12 +230,20 @@ args["int64"] = 1
 err = srv.NewTask(sumTask, args)
 ```
 
-* 延迟任务（需要注意的是，延迟任务的精度只能到秒级）
+* 延迟任务
+
+```go
+// 延迟5秒执行任务
+var args = map[string]interface{}{}
+err = srv.NewTask(testDelayTask, args, WithDelayTime(time.Now().UTC().Add(time.Second*5)))
+```
+
+* 周期性任务（需要注意的是，延迟任务的精度只能到秒级）
 
 ```go
 var args = map[string]interface{}{}
 // 每分钟执行一次
-err = srv.NewPeriodicTask("*/1 * * * ?", periodicTask, args)
+err = srv.NewPeriodicTask("*/1 * * * ?", testPeriodicTask, args)
 ```
 
 #### 注册任务回调
@@ -254,6 +276,7 @@ func handlePeriodicTask() error {
 
 err = srv.HandleFunc(testTask1, handleTask)
 err = srv.HandleFunc(testTaskDelay, handleDelayTask)
+err = srv.HandleFunc(testPeriodicTask, handlePeriodicTask)
 err = srv.HandleFunc(sumTask, handleAdd)
 ```
 
