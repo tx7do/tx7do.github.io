@@ -1,6 +1,6 @@
 # Kratos微服务与它的小伙伴系列 - ORM框架 - Ent
 
-## 什么是ORM
+## 什么是ORM？
 
 面向对象编程和关系型数据库，都是目前最流行的技术，但是它们的模型是不一样的。
 
@@ -52,33 +52,67 @@ ORM 也有很突出的缺点：
 - 对于复杂的查询，ORM 要么是无法表达，要么是性能不如原生的 SQL。
 - ORM 抽象掉了数据库层，开发者无法了解底层的数据库操作，也无法定制一些特殊的 SQL。
 
-## 什么是Ent
+## 什么是Ent？
 
-ent  是Facebook开源的一个ORM框架，其结合Facebook的业务风格而诞生，比较新颖地使用节点和线条构建出数据流图来表示数据库中字段、表、之间的关系，现在已经被Facebook用在了生产环境(虽然GitHub上说该项目是experimental的),概括来说具有以下特色：
+[ent](https://entgo.io) 是Facebook开源的一个简单但是功能强大的ORM框架，它可以轻松构建和维护具有大型数据模型的应用程序。它基于代码生成，并且可以很容易地进行数据库查询以及图遍历。
 
-- 图就是代码 - 将任何数据库表建模为Go对象。
-- 轻松地遍历任何图形 - 可以轻松地运行查询、聚合和遍历任何图形结构。
-- 静态类型和显式API - 使用代码生成静态类型和显式API，查询数据更加便捷。
+它具有以下的特点：
+
+- 简单地使用数据库结构作为图结构。
+- 使用Go代码定义结构。
+- 基于代码生成的静态类型。
+- 容易地进行数据库查询和图遍历。
+- 容易地使用Go模板扩展和自定义。
 - 多存储驱动程序 - 支持MySQL、PostgreSQL、SQLite 和 Gremlin。
-- 可扩展 - 简单地扩展和使用Go模板自定义。
 
-## 安装脚手架工具entc
+## 如何去学习Ent？
+
+想要上手ent，需要学习和了解三个方面：
+
+1. entc
+2. Schema
+3. CURD API
+
+Ent因为是基于代码生成的，所以，首当其冲的，自然是要去了解其CLI工具，没有它，如何去生成代码？
+
+其次就是生成代码的模板：Schema。它主要是定义了表结构信息，至关重要的核心信息。生成数据库的结构和操作代码需要它，生成gRPC和GraphQL的接口也还是需要它。没它不行。
+
+最后，就是学习使用一些数据库的基本操作，比如：连接数据库，CURD API。
+
+从此往后，你就能够使用ent愉快的开始工作了。
+
+## CLI工具
+
+使用以下命令安装entc工具：
 
 ```bash
 go install entgo.io/ent/cmd/ent@latest
 ```
 
-## 创建实体 Schema
+## Schema
 
-schema相当于数据库的表，有两种方法可以实现：
+Schema相当于数据库的表。
 
-## 使用 `entc init` 生成
+《道德经》说：
+> 道生一，一生二，二生三，三生万物。
+
+Schema，就是一切的起始点。
+
+只有定义了Schema，CLI才能够生成数据库表的结构和操作的相关代码，有了相关代码，才能够操作数据库表的数据。
+
+后面想要生成gRPC和GraphQL的接口定义，也还是需要Schema。
+
+### 创建一个Schema
+
+创建Schema有两个方法可以做到：
+
+#### 使用 `entc init` 创建
 
 ```bash
 ent init User
 ```
 
-将会在 `{当前目录}/ent/schema/` 下生成一个`user.go`文件:
+将会在 `{当前目录}/ent/schema/` 下生成一个`user.go`文件，如果没有文件夹，则会创建一个:
 
 ```go
 package schema
@@ -101,13 +135,13 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-## sql转换工具
+#### SQL转换Schema在线工具
 
-网上有人好心的制作了一个工具，可以将SQL转换成schema代码，非常方便！
+网上有人好心的制作了一个在线工具，可以将SQL转换成schema代码，实际应用中，这是非常方便的！
 
 SQL转Schema工具： <https://printlove.cn/tools/sql2ent>
 
-比如我们有一个创建表的SQL
+比如，我们有一个创建表的SQL语句：
 
 ```sql
 CREATE TABLE `user`  (
@@ -120,7 +154,7 @@ PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 ```
 
-转换之后，生成如下代码：
+转换之后，生成如下的Schema代码：
 
 ```go
 package schema
@@ -170,17 +204,85 @@ func (User) Edges() []ent.Edge {
 }
 ```
 
-## 生成代码
+### Mixin复用字段
 
-有了以上的Schema，我们就可以生成代码了。
+在实际应用中，我们经常需要会有一些通用的字段，比如：`id`、`created_at`、`updated_at`等等。
 
-我们命令行进入ent的上一层文件夹，然后执行以下命令：
+那么，我们就一直的复制粘贴？这显然很是不优雅。
 
-```bash
-entc generate ./ent/schema
+entgo能够让我们复用这些字段吗？
+
+答案显然是，没问题。
+
+Mixin，就是办这个事儿的。
+
+好，我们现在需要复用时间相关的字段：`created_at`和`updated_at`，那么我们可以：
+
+```go
+package mixin
+
+import (
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
+)
+
+type TimeMixin struct {
+	mixin.Schema
+}
+
+func (TimeMixin) Fields() []ent.Field {
+	return []ent.Field{
+		field.Time("created_at").
+			Immutable().
+			Default(time.Now),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now),
+		field.Bool("deleted").Default(false),
+	}
+}
 ```
 
-但是用命令行的方式其实是很不方便的，主要是有时候需要带一些特殊的参数，比如：`--feature sql/modifier`，这就很麻烦了。但好在go有一个很赞的特性`go:generate`，我们可以在ent文件夹下面创建一个`generate.go`文件：
+然后，我们就可以在Schema当中应用了，比如`User`，我们为它添加一个`Mixin`方法：
+
+```go
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.TimeMixin{},
+	}
+}
+```
+
+生成代码再看，就有这3个字段了。
+
+## 生成代码
+
+有了以上的Schema，我们就可以生成代码了。生成代码只能够官方提供的CLI工具`ent`来生成。
+
+而使用CLI有两种途径可以走：直接使用命令行执行命令，还有一种就是利用了go的`go:generate`特性。
+
+### 命令行直接执行命令生成
+
+我们可以命令行进入`ent`文件夹，然后执行以下命令：
+
+```command
+ent generate ./schema
+```
+
+### 通过 generate.go 生成
+
+直接运行命令看起来是没有问题，但是在我们实际应用当中，直接使用命令行的方式进行代码生成是很不方便的。
+
+为什么呢？`ent`命令是有参数的，而在正常情况下，都是需要携带一些参数的：比如：`--feature sql/modifier`，具体文档在：[特性开关](https://entgo.io/zh/docs/feature-flags)。
+
+这时候，我们必须在某一个地方记录这些命令，而后续会有同事需要接手这个项目呢？他又从何而知？在这个时候就徒增了不少麻烦。
+
+好在go有一个很赞的特性`go:generate`，可以完美的解决这样一个问题。命令可以以代码的形式被记录下来，方便的重复使用。
+
+通常我们都会把ent相关的代码放置在`ent`文件夹下面，因此我们在`ent`文件夹下面创建一个`generate.go`文件：
 
 ```go
 package ent
@@ -188,30 +290,46 @@ package ent
 //go:generate go run -mod=mod entgo.io/ent/cmd/ent generate --feature privacy --feature sql/modifier --feature entql --feature sql/upsert ./schema
 ```
 
-接着我们可以在项目的根目录下运行命令执行整个项目的`go:generate`：
+接着，我们可以在项目的根目录或者`ent`文件夹下，执行以下命令：
 
-```bash
+```command
 go generate ./...
 ```
 
-或者指定执行这一个`generate.go`文件：
+以上的命令会遍历执行当前以及所有子目录下面的`go:generate`。
 
-```bash
-go generate ./ent
-```
-
-自此所有的预备工作就做好了。
+如果您使用的是Goland或者VSC，则可以在IDE中直接运行`go:generate`命令。
 
 ## ent的一些数据库基本操作
+
+因为数据库是复杂的，SQL是复杂的，复杂到能够出好几本书，所以是绝不可能在简单的篇幅里面讲完整，只能够将常用的一些操作（连接数据库、CURD）拿来举例讲讲。
+
+### 连接数据库
+
+```go
+import (
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
+)
+```
+
+### 自动迁移
+
+```go
+if err := client.Schema.Create(context.Background(), migrate.WithForeignKeys(false)); err != nil {
+	l.Fatalf("failed creating schema resources: %v", err)
+}
+```
 
 ### 增
 
 ```go
-pedro := client.Pet.    // PetClient.
-    Create().           // Pet create builder.
-    SetName("pedro").   // Set field value.
-    SetOwner(a8m).      // Set owner (unique edge).
-    SaveX(ctx)          // Create and return.
+pedro := client.Pet.
+    Create().
+    SetName("pedro").
+    SaveX(ctx)
 ```
 
 ### 删
@@ -225,11 +343,11 @@ err := client.User.
 ### 改
 
 ```go
-pedro, err := client.Pet.   // PetClient.
-    UpdateOneID(id).        // Pet update builder.
-    SetName("pedro").       // Set field name.
-    SetOwnerID(owner).      // Set unique edge, using id.
-    Save(ctx)               // Save and return.
+pedro, err := client.Pet.
+    UpdateOneID(id).
+    SetName("pedro").
+    SetOwnerID(owner).
+    Save(ctx)
 ```
 
 ### 查
@@ -241,7 +359,119 @@ names, err := client.Pet.
     Strings(ctx)
 ```
 
-## 整合进Kratos
+## 创建gRPC接口
+
+如果你已经有了数据库的表结构，当你开始初始化一个项目的时候，你不必写任何一行代码，就完成了从ent的数据库定义，到网络API定义的全流程。接着，你需要做的，也就是微调，然后开始撸业务逻辑代码了。不要太开心！现在不都流行所谓的“低代码”吗？这不就是吗！
+
+安装protoc插件：
+
+```shell
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+go install entgo.io/contrib/entproto/cmd/protoc-gen-entgrpc@latest
+```
+
+向项目添加依赖库：
+
+```command
+go get -u entgo.io/contrib/entproto
+```
+
+向`Schema`添加`entproto.Message()`和`entproto.Service()`方法：
+
+```go
+func (User) Annotations() []schema.Annotation {
+    return []schema.Annotation{
+        entproto.Message(),
+        entproto.Service(
+			entproto.Methods(entproto.MethodCreate | entproto.MethodGet | entproto.MethodList | entproto.MethodBatchCreate),
+		),
+    }
+}
+```
+
+其中，`entproto.Message()`将会导致生成Protobuf的`message`；`entproto.Service()`将会导致生成gRPC的`service`。
+
+使用`entproto.Field()`方法向表字段添加Protobuf的字段索引号：
+
+```go
+func (User) Fields() []ent.Field {
+    return []ent.Field{
+        field.String("name").
+            Unique().
+            Annotations(
+                entproto.Field(2),
+            ),
+        field.String("email_address").
+            Unique().
+            Annotations(
+                entproto.Field(3),
+            ),
+    }
+}
+```
+
+向`generate.go`添加`entgo.io/contrib/entproto/cmd/entproto`命令：
+
+```go
+package ent
+
+//go:generate go run -mod=mod entgo.io/ent/cmd/ent generate ./schema
+//go:generate go run -mod=mod entgo.io/contrib/entproto/cmd/entproto -path ./schema
+```
+
+执行生成命令：
+
+```command
+go generate ./...
+```
+
+将会生成以下文件：
+
+```bash
+ent/proto/entpb
+├── entpb.pb.go
+├── entpb.proto
+├── entpb_grpc.pb.go
+├── entpb_user_service.go
+└── generate.go
+```
+
+生成的`entpb.proto`文件生成的内容可能会是这样的：
+
+```protobuf
+// Code generated by entproto. DO NOT EDIT.
+syntax = "proto3";
+
+package entpb;
+
+option go_package = "ent-grpc-example/ent/proto/entpb";
+
+message User {
+  int32 id = 1;
+
+  string user_name = 2;
+
+  string email_address = 3;
+}
+
+service UserService {
+  rpc Create ( CreateUserRequest ) returns ( User );
+
+  rpc Get ( GetUserRequest ) returns ( User );
+
+  rpc Update ( UpdateUserRequest ) returns ( User );
+
+  rpc Delete ( DeleteUserRequest ) returns ( google.protobuf.Empty );
+
+  rpc List ( ListUserRequest ) returns ( ListUserResponse );
+
+  rpc BatchCreate ( BatchCreateUsersRequest ) returns ( BatchCreateUsersResponse );
+}
+```
+
+## 与Kratos携起手来
 
 官方推荐的包结构是这样的：
 
@@ -258,11 +488,17 @@ names, err := client.Pet.
 |- service  
 |- server
 
+需要说明的是，项目的结构、命名的规范这些并不在本文阐述的范围之内。并非说非要如此，这个可以根据各自的情况来灵活设计。
+
+我使用这样的项目结构和命名规范，仅仅是为了方便讲清楚如何在Kratos中去引用Ent。
+
 ### 创建数据库客户端
 
-接着在data.go文件中添加创建数据库客户端的代码，并将之注入到`ProviderSet`：
+在`data/data.go`文件中添加创建数据库客户端的代码，并将之注入到`ProviderSet`：
 
 ```go
+package data
+
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(
     NewEntClient,
@@ -346,6 +582,8 @@ func (uc *UserUseCase) Delete(ctx context.Context, req *v1.DeleteUserRequest) (b
 注入到`biz.ProviderSet`
 
 ```go
+package biz
+
 // ProviderSet is biz providers.
 var ProviderSet = wire.NewSet(
     NewUserUseCase,
@@ -355,7 +593,7 @@ var ProviderSet = wire.NewSet(
 
 ### 创建Repo
 
-在data文件夹下创建`user.go`文件，实际操作数据库客户端的操作都在此做。
+在`data`文件夹下创建`user.go`文件，实际操作数据库的操作都在此处。
 
 ```go
 package data
@@ -381,11 +619,15 @@ func (r *userRepo) Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool,
 		Exec(ctx)
 	return err != nil, err
 }
+
+...
 ```
 
 注入到`data.ProviderSet`
 
 ```go
+package data
+
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(
     NewUserRepo,
@@ -393,9 +635,70 @@ var ProviderSet = wire.NewSet(
 )
 ```
 
+### 在Service中调用
+
+```go
+package service
+
+type UserService struct {
+	v1.UnimplementedUserServiceServer
+
+	uc  *biz.UserUseCase
+	log *log.Helper
+}
+
+func NewUserService(logger log.Logger, uc *biz.UserUseCase) *UserService {
+	l := log.NewHelper(log.With(logger, "module", "service/user"))
+	return &UserService{
+		log: l,
+		uc:  uc,
+	}
+}
+
+// ListUser 列表
+func (s *UserService) ListUser(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
+	return s.uc.List(ctx, req)
+}
+
+// GetUser 获取
+func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
+	return s.uc.Get(ctx, req)
+}
+
+// CreateUser 创建
+func (s *UserService) CreateUser(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
+	return s.uc.Create(ctx, req)
+}
+
+// UpdateUser 更新
+func (s *UserService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
+	return s.uc.Update(ctx, req)
+}
+
+// DeleteUser 删除
+func (s *UserService) DeleteUser(ctx context.Context, req *v1.DeleteUserRequest) (*emptypb.Empty, error) {
+	_, err := s.uc.Delete(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+```
+
+## 结语
+
+Ent是一个优秀的ORM框架。基于模板进行代码生成，相比较利用反射等方式，在性能上的损耗更少。并且，模板的使用使得扩展系统变得简单容易。
+
+它不仅能够很对传统的关系数据库（MySQL、PostgreSQL、SQLite）方便的进行查询，并且可以容易的进行图遍历——常用的譬如像是：菜单树、组织树……这种数据查询。
+
+Ent的工具链完整。对gRPC和GraphQL也支持的极好，也有相应的一系列工具链进行支持。从数据库表可以用工具转换成Ent的Schema，从Schema可以生成gRPC和GraphQL的API的接口。Kratos的RPC就是基于的gRPC，也支持GraphQL，简直就是为Kratos量身定做的。
+
+相比较其他的ORM框架，Ent对工程化的支持是极佳的，这对于开发维护的效率将会有极大的提升，几个项目下来，受益良多。个人而言，我是极力推崇的。
+
 ## 参考资料
 
-- ORM 实例教程 - 阮一峰： <http://www.ruanyifeng.com/blog/2019/02/orm-tutorial.html>
-- 官方文档： <https://entgo.io>
-- 代码仓库： <https://github.com/ent/ent>
-- SQL转Schema工具： <https://printlove.cn/tools/sql2ent>
+1. 官方网站： <https://entgo.io/>
+2. 官方文档： <https://entgo.io/zh/docs/getting-started/>
+3. 代码仓库： <https://github.com/ent/ent>
+4. SQL转Schema在线工具： <https://printlove.cn/tools/sql2ent>
+5. ORM 实例教程 - 阮一峰： <http://www.ruanyifeng.com/blog/2019/02/orm-tutorial.html>
