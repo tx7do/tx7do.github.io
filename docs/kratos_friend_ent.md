@@ -306,16 +306,123 @@ go generate ./...
 
 ### 连接数据库
 
+#### SQLite3
+
+```go
+import (
+	_ "github.com/mattn/go-sqlite3"
+)
+
+client, err := ent.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+if err != nil {
+	log.Fatalf("failed opening connection to sqlite: %v", err)
+}
+defer client.Close()
+```
+
+#### MySQL/MariaDB
+
+- TiDB 高度兼容MySQL 5.7 协议
+- ClickHouse 支持MySQL wire通讯协议
+
 ```go
 import (
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/jackc/pgx/v4/stdlib"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 )
+
+client, err := ent.Open("mysql", "<user>:<pass>@tcp(<host>:<port>)/<database>?parseTime=True")
+if err != nil {
+	log.Fatalf("failed opening connection to mysql: %v", err)
+}
+defer client.Close()
 ```
 
-### 自动迁移
+#### PostgreSQL
+
+- CockroachDB 兼容PostgreSQL协议
+
+```go
+import (
+	_ "github.com/lib/pq"
+)
+
+client, err := ent.Open("postgresql", "host=<host> port=<port> user=<user> dbname=<database> password=<pass>")
+if err != nil {
+	log.Fatalf("failed opening connection to postgres: %v", err)
+}
+defer client.Close()
+```
+
+#### Gremlin
+
+```go
+import (
+	"<project>/ent"
+)
+
+client, err := ent.Open("gremlin", "http://localhost:8182")
+if err != nil {
+	log.Fatalf("failed opening connection to gremlin: %v", err)
+}
+defer client.Close()
+```
+
+#### 自定义驱动sql.DB
+
+有以下两种途径可以达成：
+
+```go
+package main
+
+import (
+    "time"
+
+    "<your_project>/ent"
+    "entgo.io/ent/dialect/sql"
+)
+
+func Open() (*ent.Client, error) {
+    drv, err := sql.Open("mysql", "<mysql-dsn>")
+    if err != nil {
+        return nil, err
+    }
+    // Get the underlying sql.DB object of the driver.
+    db := drv.DB()
+    db.SetMaxIdleConns(10)
+    db.SetMaxOpenConns(100)
+    db.SetConnMaxLifetime(time.Hour)
+    return ent.NewClient(ent.Driver(drv)), nil
+}
+```
+
+第二种是：
+
+```go
+package main
+
+import (
+    "database/sql"
+    "time"
+
+    "<your_project>/ent"
+    entsql "entgo.io/ent/dialect/sql"
+)
+
+func Open() (*ent.Client, error) {
+    db, err := sql.Open("mysql", "<mysql-dsn>")
+    if err != nil {
+        return nil, err
+    }
+    db.SetMaxIdleConns(10)
+    db.SetMaxOpenConns(100)
+    db.SetConnMaxLifetime(time.Hour)
+    // Create an ent.Driver from `db`.
+    drv := entsql.OpenDB("mysql", db)
+    return ent.NewClient(ent.Driver(drv)), nil
+}
+```
+
+### 自动迁移 Automatic Migration
 
 ```go
 if err := client.Schema.Create(context.Background(), migrate.WithForeignKeys(false)); err != nil {
@@ -323,7 +430,7 @@ if err := client.Schema.Create(context.Background(), migrate.WithForeignKeys(fal
 }
 ```
 
-### 增
+### 增 Create
 
 ```go
 pedro := client.Pet.
@@ -332,7 +439,7 @@ pedro := client.Pet.
     SaveX(ctx)
 ```
 
-### 删
+### 删 Delete
 
 ```go
 err := client.User.
@@ -340,7 +447,7 @@ err := client.User.
     Exec(ctx)
 ```
 
-### 改
+### 改 Update
 
 ```go
 pedro, err := client.Pet.
@@ -350,13 +457,90 @@ pedro, err := client.Pet.
     Save(ctx)
 ```
 
-### 查
+### 查 Read
 
 ```go
 names, err := client.Pet.
     Query().
     Select(pet.FieldName).
     Strings(ctx)
+```
+
+### 事务 Transaction
+
+事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。
+
+封装一个方法`WithTx`，利用匿名函数来调用被事务管理的Insert、Update、Delete语句：
+
+```go
+package data
+
+func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {
+    tx, err := client.Tx(ctx)
+    if err != nil {
+        return err
+    }
+    defer func() {
+        if v := recover(); v != nil {
+            tx.Rollback()
+            panic(v)
+        }
+    }()
+    if err := fn(tx); err != nil {
+        if rerr := tx.Rollback(); rerr != nil {
+            err = fmt.Errorf("%w: rolling back transaction: %v", err, rerr)
+        }
+        return err
+    }
+    if err := tx.Commit(); err != nil {
+        return fmt.Errorf("committing transaction: %w", err)
+    }
+    return nil
+}
+```
+
+使用方法：
+
+```go
+func createUser(tx *ent.Tx, u UserData) *ent.UserCreate {
+	return tx.User.Create().
+		SetName(u.Name).
+		SetNillableNickName(u.NickName)
+}
+
+func updateUser(tx *ent.Tx, u UserData) *ent.UserUpdate {
+    return tx.User.Update().
+		Where(
+			user.Name(u.Name),
+		).
+		SetNillableNickName(u.NickName)
+}
+
+func deleteUser(tx *ent.Tx, u UserData) *ent.UserDelete {
+    return tx.User.Delete().
+		Where(
+			user.Name(u.Name),
+		)
+}
+
+func batchCreateUser(tx *ent.Tx, users []UserData) error {
+	userCreates := make([]*ent.UserCreate, 0)
+	for _, u := range users {
+		userCreates = append(userCreates, createUser(tx, u))
+	}
+	if _, err := tx.User.CreateBulk(userCreates...).Save(r.ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func DoBatchCreateUser(ctx context.Context, client *ent.Client) {
+    if err := WithTx(ctx, client, func(tx *ent.Tx) error {
+        return batchCreateUser(tx, users)
+    }); err != nil {
+        log.Fatal(err)
+    }
+}
 ```
 
 ## 创建gRPC接口
