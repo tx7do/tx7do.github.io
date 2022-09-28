@@ -659,18 +659,22 @@ service UserService {
 
 官方推荐的包结构是这样的：
 
+```bash
 |- data  
 |- biz  
 |- service  
 |- server  
+```
 
 那么，我们可以把ent放进data文件夹下面去：
 
+```bash
 |- data  
 |  |- ent  
 |- biz  
 |- service  
 |- server
+```
 
 需要说明的是，项目的结构、命名的规范这些并不在本文阐述的范围之内。并非说非要如此，这个可以根据各自的情况来灵活设计。
 
