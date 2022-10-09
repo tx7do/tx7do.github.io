@@ -999,9 +999,17 @@ docker pull caddy:latest
 ```shell
 docker pull apache/apisix:latest
 docker pull apache/apisix-dashboard:latest
+
+docker run -itd \
+   --name apache-apisix \
+   -p 9080:9080 \
+   -e APISIX_STAND_ALONE=true \
+   --link etcd-standalone \
+   apache/apisix:latest
 ```
 
 - 管理后台: <http://127.0.0.1:8080/apisix/dashboard>
+- 用户密码：admin/admin
 
 ### Tyk
 
