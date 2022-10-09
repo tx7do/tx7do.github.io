@@ -52,12 +52,18 @@ Entgo本身是不直接支持的，但是，要实现也并不是很难的事情
 
 ## Entgo中实现软删除（Soft Deletes）
 
-在Ent中实现软删除有两种方式：
+Ent框架暂时是不支持软删除的（当前版本：v0.11.4），但是实现起来也并不麻烦，代码修改量也并不大。
 
-1. 在实体声明中创建某种删除标志（不通用）；
-2. 创建某种灵活的 Mixin，它可以拦截查询并修补它们以添加自定义逻辑。
+本着偷懒的精神，我研究了一下怎么样让代码量更少的做法，但是我并没有找寻到——这还需要框架层的支持。
 
-### 在实体声明中创建某种删除标志
+### 创建创建删除标识字段
+
+在Ent中创建删除字段有两种方式：
+
+1. 在Schema中创建删除标识（不通用）；
+2. 在Mixin中创建建删除标识（通用）。
+
+#### 在Schema中创建删除标识
 
 在表里面添加字段：
 
@@ -67,33 +73,16 @@ package schema
 func (User) Fields() []ent.Field {
     return []ent.Field{
         ...
-        field.Time("deleted_at").Optional(),
+        field.Time("deleted_at").Optional().Nillable(),
+        field.Bool("is_deleted").Optional().Nillable().Default(false),
         ...
     }
 }
 ```
 
-查询
+这种方式比较简单直观，但是，不够通用，需要在每一个Schema里面定义字段。
 
-```go
-    users, err := client.User.
-        Query().
-        Where(user.DeletedAt).
-        All(ctx)
-```
-
-删除
-
-```go
-    _, err := client.User.
-        UpdateOneID(id).
-        SetDeletedAt(time.Now())
-        Save(ctx)
-```
-
-这种方式比较简单直观，但是，不够通用。
-
-### 创建某种灵活的 Mixin
+#### 在Mixin中创建建删除标识
 
 Mixin是Ent一个很重要也很有用的特性。我们可以把一些通用的字段提炼出来形成一个mixin包，这样这个mixin包里边的字段就可以复用了。
 
@@ -105,55 +94,109 @@ package mixin
 type SoftDelete struct{}
 
 func (SoftDelete) Fields() []ent.Field {
-    return field.Time("deleted_at").Optional()
+	return []ent.Field{
+		// 删除时间
+		field.Time("deleted_at").
+			Comment("删除时间").
+			Optional().
+			Nillable(),
+
+		// 删除标识
+		field.Bool("is_deleted").
+			Comment("删除标识").
+			Optional().
+			Nillable().
+			Default(false),
+	}
 }
 ```
 
-然后，我们再向构建器添加`Delete`和`Query`拦截器的查询构建器。
+然后在Schema当中引用mixin：
 
 ```go
-func (SoftDelete) Delete() ent.Builder { 
-    // here we return Update statement, that is extends delete with all the WHERE condtions, but providing a SET instruction to update single field
-    return builder.Update().SetDeletedAt(time.Now())
-}
+package schema
 
-func (SoftDelete) Query() ent.Builder {
-    // here we return patched Query, that just add a ... deleted_at IS NULL
-    return builder.Query().Where(
-        softdelete.DeletedAt
-    )
+// Mixin of the User.
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.SoftDelete{},
+	}
 }
 ```
 
-之前的删除操作是这样的：
+### 执行查询
 
-```sql
-DELETE FROM pets WHERE id = 1
-```
-
-现在将会变成这样：
-
-```sql
-UPDATE pets SET deleted_at = ? WHERE id = ?
-```
+#### 查询
 
 之前的查询操作是这样的：
 
-```sql
-SELECT * FROM pets WHERE name = ? AND age = ?
+```go
+    users, err := client.Debug().User.
+        Query().
+        Where(user.NameEQ("a8m")).
+        Where(user.AgeEQ(18)).
+        All(ctx)
 ```
 
-现在将会变成这样：
-
 ```sql
-SELECT * FROM pets WHERE (name = ? AND age = ?) AND deleted_at IS NULL
+SELECT * 
+FROM users 
+WHERE name = ? AND age = ?
 ```
 
-用这种方式会很通用，很方便。但是，会比较复杂，也不够直观。
+现在变成这样：
+
+```go
+    users, err := client.Debug().User.
+        Query().
+        Where(user.NameEQ("a8m")).
+        Where(user.AgeEQ(18)).
+        Where(user.DeletedAtIsNil()).
+        Where(user.IsDeletedEQ(false)).
+        All(ctx)
+```
+
+```sql
+SELECT * 
+FROM users 
+WHERE (name = ? AND age = ?) AND deleted_at IS NULL AND is_deleted IS FALSe
+```
+
+#### 删除
+
+之前的删除操作是这样的：
+
+```go
+client.Debug().User.
+    DeleteOneID(1).
+    Exec(ctx)
+```
+
+```sql
+DELETE FROM users WHERE id = 1
+```
+
+现在变成这样：
+
+```go
+_, err := client.Debug().User.
+    UpdateOneID(id).
+    SetDeletedAt(time.Now()).
+    SetIsDeleted(true).
+    Save(ctx)
+```
+
+```sql
+UPDATE users 
+SET deleted_at = ?, is_deleted = true
+WHERE id = ?
+```
 
 ## 参考资料
 
-1. [Feature Request: Soft Deletes](https://github.com/ent/ent/issues/252)
-2. [数据的软删除—什么时候需要？又如何去实现？](https://juejin.cn/post/7077365676444221477)
-3. [Don’t Delete – Just Don’t](https://udidahan.com/2009/09/01/dont-delete-just-dont/)
-4. [Deleting Data Is Not a Recommended Practice](https://www.infoq.com/news/2009/09/Do-Not-Delete-Data/)
+1. [数据的软删除—什么时候需要？又如何去实现？](https://juejin.cn/post/7077365676444221477)
+2. [Don’t Delete – Just Don’t](https://udidahan.com/2009/09/01/dont-delete-just-dont/)
+3. [Deleting Data Is Not a Recommended Practice](https://www.infoq.com/news/2009/09/Do-Not-Delete-Data/)
+4. [Feature Request: Soft Deletes](https://github.com/ent/ent/issues/252)
+5. [[HELP] Trying to implement soft delete logic using Hooks and Mixins](https://github.com/ent/ent/issues/2850)
+6. [To Delete or to Soft Delete, That is the Question!](https://www.jmix.io/blog/to-delete-or-to-soft-delete-that-is-the-question/)
