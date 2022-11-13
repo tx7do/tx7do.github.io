@@ -124,44 +124,6 @@ vx.x.1
 
 在Git当中给GO模块打版本号是通过打标签（Tag）的方式实现的。
 
-当没有打过标签的版本号将是伪版本号：
-
-```bash
-golang.org/x/lint v0.0.0-20200302205851-738671d3881b
-```
-
-当我们通过Git打标签之后，可能会是这样的：
-
-```bash
-golang.org/x/lint v0.0.1
-```
-
-我们有时候会需要在一个模块下创建若干个子模块，也就是在某一个子文件夹下创建go.mod文件。
-
-我们单独更新这一个子模块的时候，它的版本号不是主模块的版本号，而是伪版本号。
-
-那么，我们怎么给子模块打一个版本号呢？
-
-假如，在我们的项目下有一个api文件夹，并且它是一个子模块，我们只需要创建一个标签：
-
-```bash
-api/v0.0.1
-```
-
-当我们再去go get更新这一个子模块的时候，版本号就已经是刚才我们打的标签的版本号了。
-
-编写Makefile打标签：
-
-```makefile
-APP_VERSION=v0.0.1
-
-PACKAGE_LIST = broker/kafka/
-
-.PHONY: tag
-tag:
-	git tag -f $(APP_VERSION) && $(foreach item, $(PACKAGE_LIST), git tag -f $(item)$(APP_VERSION) && ) git push --tags --force
-```
-
 git操作标签的命令：
 
 ```bash
@@ -188,6 +150,44 @@ git push origin <your_tag_name>
 
 # 推送多个本地标签到远程
 git push origin --tags
+```
+
+当没有打过标签的版本号将是伪版本号：
+
+```bash
+golang.org/x/lint v0.0.0-20200302205851-738671d3881b
+```
+
+当我们通过Git打标签之后，可能会是这样的：
+
+```bash
+golang.org/x/lint v0.0.1
+```
+
+我们有时候会需要在一个模块下创建若干个子模块，也就是在某一个子文件夹下创建go.mod文件。
+
+我们单独更新这一个子模块的时候，它的版本号不是主模块的版本号，而是伪版本号。
+
+那么，我们怎么给子模块打一个版本号呢？
+
+假如，在我们的项目下有一个api文件夹，并且它是一个子模块，我们只需要创建一个标签：
+
+```bash
+api/v0.0.1
+```
+
+当我们再去go get更新这一个子模块的时候，版本号就已经是刚才我们打的标签的版本号了。
+
+或者编写Makefile打标签：
+
+```makefile
+APP_VERSION=v0.0.1
+
+PACKAGE_LIST = broker/kafka/
+
+.PHONY: tag
+tag:
+	git tag -f $(APP_VERSION) && $(foreach item, $(PACKAGE_LIST), git tag -f $(item)$(APP_VERSION) && ) git push --tags --force
 ```
 
 ## 参考资料
