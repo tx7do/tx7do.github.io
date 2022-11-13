@@ -1015,6 +1015,14 @@ docker run -itd \
 
 ```shell
 docker pull tykio/tyk-gateway:latest
+
+docker run -d \
+  --name tyk_gateway \
+  -p 8080:8080 \
+  -e TYK_GW_SECRET=[YOUR-SECRET] \
+  -v $(pwd)/tyk.conf:/opt/tyk-gateway/tyk.conf \
+  -v $(pwd)/apps:/opt/tyk-gateway/apps \
+  tykio/tyk-gateway:latest
 ```
 
 ### Gravitee
