@@ -150,6 +150,46 @@ api/v0.0.1
 
 当我们再去go get更新这一个子模块的时候，版本号就已经是刚才我们打的标签的版本号了。
 
+编写Makefile打标签：
+
+```makefile
+APP_VERSION=v0.0.1
+
+PACKAGE_LIST = broker/kafka/
+
+.PHONY: tag
+tag:
+	git tag -f $(APP_VERSION) && $(foreach item, $(PACKAGE_LIST), git tag -f $(item)$(APP_VERSION) && ) git push --tags --force
+```
+
+git操作标签的命令：
+
+```bash
+# 创建一个标签
+git tag <your_tag_name>
+
+# 创建一个带有注释的标签
+git tag -a <your_tag_name> -m 'your_tag_description'
+
+# 列出所有的标签
+git tag --list
+
+# 创建一个标签
+git tag <your_tag_name>
+
+# 删除一个标签
+git tag -d <your_tag_name>
+
+# 删除远程仓库的标签
+git push --delete origin <your_tag_name>
+
+# 推送一个标签到远程
+git push origin <your_tag_name>
+
+# 推送多个本地标签到远程
+git push origin --tags
+```
+
 ## 参考资料
 
 - [搞清楚 Go Mod的版本和伪版本，下次别乱用了](https://www.51cto.com/article/715820.html)
