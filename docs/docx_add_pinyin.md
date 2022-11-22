@@ -195,7 +195,7 @@ End Sub
 ```vba
 '判断传入的Unicode是否为中文字符
 Function isChinese(uniChar As Integer) As Boolean
-    isChinese = uniChar >= 19968 And uniChar <= 40869
+    isChinese = uniChar >= 19968 Or uniChar < 0
 End Function
 ```
 
@@ -243,7 +243,7 @@ End Sub
 ```vba
 '判断传入的Unicode是否为中文字符
 Function isChinese(uniChar As Integer) As Boolean
-    isChinese = uniChar >= 19968 And uniChar <= 40869
+    isChinese = uniChar >= 19968 Or uniChar < 0
 End Function
 
 '从Json字符串中提取data字段的数据
