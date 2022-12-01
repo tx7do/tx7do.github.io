@@ -42,9 +42,14 @@ go env -w GOPRIVATE=git.mycompany.com,github.com/my/private
 
 ```shell
 go env -w GOPROXY=https://proxy.golang.com.cn,direct
+go env -w GOSUMDB=sum.golang.google.cn
+```
+
+或者
+
+```shell
 go env -w GOPROXY=https://goproxy.io,direct
 go env -w GOSUMDB=gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6
-go env -w GOSUMDB=sum.golang.google.cn
 ```
 
 ### 七牛云

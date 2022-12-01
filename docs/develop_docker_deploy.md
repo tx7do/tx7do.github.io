@@ -775,6 +775,12 @@ docker run -itd \
 docker pull pinpointdocker/pinpoint-agent:latest
 ```
 
+### Grafana Tempo
+
+```bash
+docker pull grafana/tempo:latest
+```
+
 ## 运维监控
 
 ### Kibana
