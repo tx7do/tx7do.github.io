@@ -1,4 +1,4 @@
-# 关于CPython当中引用protobuf协议的一个bug
+# 关于C++嵌入Python并且引用protobuf引起的一个SIGSEGV错误
 
 首先，我的应用场景是这样的，我是一个C++为宿主的程序，内嵌了Python，我C++里边有引用C++版的protobuf动态链接库。Python里边也有用到Python版的Protobuf。两者都用了同一版本的protobuf: 3.13.0。
 
@@ -20,6 +20,11 @@ PC: @ 0x7f0b345a4b73 std::_Hashtable<>::clear()
 ```
 
 我是百思不得其解，我一开始只怀疑是我自己的问题，一直找啊，找啊……都没有找到原因。后来，又看了看堆栈，觉得可能问题不在我这边。仔细想了下：会不会是C++里边的protobuf同python的protobuf产生冲突了？
+
+这个错误有两个关键点：
+
+1. Python当中import了protobuf的协议；
+2. C++当中引用了C++版protobuf的动态链接库。
 
 我后来把python当中的protobuf升级到了最新的版本4.21.11：
 
