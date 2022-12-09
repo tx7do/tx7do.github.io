@@ -93,6 +93,22 @@ from google.protobuf import symbol_database as _symbol_database
 
 因为我不好升级C++版本的protobuf，所以我并没有办法去测试这一块。但是就目前来看（武断的认为），似乎问题还是在python的protobuf的版本上，升级后应该就没问题了。
 
+我又看了下`/usr/local/lib/python3.8/dist-packages/google/protobuf/pyext`路径下的文件，v3.x.x下面有以下一组文件：
+
+```shell
+__init__.py  __pycache__  _message.cpython-38-x86_64-linux-gnu.so  cpp_message.py
+```
+
+而引起错误的正是因为这下面的：`_message.cpython-38-x86_64-linux-gnu.so`文件。
+
+而后的v4.x.x版本就已经没有这个文件了：
+
+```shell
+__init__.py  __pycache__  cpp_message.py
+```
+
+所以这个bug也就不复存在了。
+
 另外附上我查找到的一些相关的问题资料：
 
 - [python: SIGSEGV when use PyImport_Import import symbol_database #5979](https://github.com/protocolbuffers/protobuf/issues/5979)
