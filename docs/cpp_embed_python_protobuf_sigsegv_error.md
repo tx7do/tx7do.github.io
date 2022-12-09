@@ -1,4 +1,4 @@
-# 关于C++嵌入Python并且引用protobuf引起的一个SIGSEGV错误
+# 关于C++嵌入Python引用protobuf引起的一个SIGSEGV错误的解决过程
 
 首先，我的应用场景是这样的，我是一个C++为宿主的程序，内嵌了Python，我C++里边有引用C++版的protobuf动态链接库。Python里边也有用到Python版的Protobuf。两者都用了同一版本的protobuf: 3.13.0。
 
