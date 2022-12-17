@@ -67,19 +67,30 @@ dpkg -l | grep clang | awk '{print $2}'
 ```
 clang
 clang-10
+clang-12
 clang-13
+clang-15
+clang-format-13
 clangd
 clangd-10
+clangd-13
+clangd-15
 libclang-10-dev
 libclang-6.0-dev
 libclang-common-10-dev
+libclang-common-12-dev
 libclang-common-13-dev
+libclang-common-15-dev
 libclang-common-6.0-dev
 libclang-cpp10
+libclang-cpp12
 libclang-cpp13
+libclang-cpp15
 libclang-dev
 libclang1-10
+libclang1-12
 libclang1-13
+libclang1-15
 libclang1-6.0
 libclang1-9
 ```
@@ -89,9 +100,11 @@ libclang1-9
 ```shell
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 10
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-13 20
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 30
 
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 10
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-13 20
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 30
 ```
 
 ## 切换版本
@@ -104,30 +117,32 @@ sudo update-alternatives --config clang++
 将会看到以下信息：
 
 ```shell
-There are 2 choices for the alternative clang (providing /usr/bin/clang).
+There are 3 choices for the alternative clang (providing /usr/bin/clang).
 
   Selection    Path               Priority   Status
 ------------------------------------------------------------
-* 0            /usr/bin/clang-13   20        auto mode
+* 0            /usr/bin/clang-15   30        auto mode
   1            /usr/bin/clang-10   10        manual mode
   2            /usr/bin/clang-13   20        manual mode
+  3            /usr/bin/clang-15   30        manual mode
 
 Press <enter> to keep the current choice[*], or type selection number: 0
 ```
 
 ```shell
-There are 2 choices for the alternative clang++ (providing /usr/bin/clang++).
+There are 3 choices for the alternative clang++ (providing /usr/bin/clang++).
 
   Selection    Path                 Priority   Status
 ------------------------------------------------------------
-* 0            /usr/bin/clang++-13   20        auto mode
+* 0            /usr/bin/clang++-15   30        auto mode
   1            /usr/bin/clang++-10   10        manual mode
   2            /usr/bin/clang++-13   20        manual mode
+  3            /usr/bin/clang++-15   30        manual mode
 
 Press <enter> to keep the current choice[*], or type selection number: 0
 ```
 
-我选择了Clang 13。
+我选择了Clang 15。
 
 ## 查看clang版本号
 
@@ -137,7 +152,7 @@ clang++ --version
 ```
 
 ```
-Ubuntu clang version 13.0.1-2ubuntu2~20.04.1
+Ubuntu clang version 15.0.6
 Target: x86_64-pc-linux-gnu
 Thread model: posix
 InstalledDir: /usr/bin
