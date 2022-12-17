@@ -33,7 +33,11 @@ sudo update-alternatives --remove-all clang
 ## 安装LLVM
 
 ```shell
-sudo apt install clang-13 llvm-13 clang llvm lldb lld
+sudo apt install -y clang-13 llvm-13 python3-lldb-13 lldb-13 lld-13
+sudo apt install clang llvm lldb lld
+
+sudo apt install libc++-13-dev libc++abi-13-dev
+sudo apt install libc++-dev libc++abi-dev
 ```
 
 其中，clang是LLVM的前端，lldb是调试器，lld是链接器。
