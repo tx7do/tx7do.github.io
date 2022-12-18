@@ -1,4 +1,4 @@
-# 怎样在Ubuntu下面安装LLVM
+# 怎样在Ubuntu下面安装Clang
 
 LLVM项目是一个模块化的、可重用的编译器和工具链集合。尽管它的名字-LLVM与传统虚拟机（low level virtual machine）名字相似。但“LLVM”这个名字本身不是一个缩略词，它就是这个项目的全称。所以，不要再把LLVM叫做low level virtual machine。
 
