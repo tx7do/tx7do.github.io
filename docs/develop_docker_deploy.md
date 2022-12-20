@@ -18,7 +18,7 @@
 
 ### MySQL
 
-```shell
+```bash
 docker pull bitnami/mysql:latest
 
 docker run -itd \
@@ -31,7 +31,7 @@ docker run -itd \
 
 ### MariaDB
 
-```shell
+```bash
 docker pull bitnami/mariadb:latest
 
 docker run -itd \
@@ -44,7 +44,7 @@ docker run -itd \
 
 ### PostgreSQL
 
-```shell
+```bash
 docker pull bitnami/postgresql:latest
 docker pull bitnami/postgresql-repmgr:latest
 docker pull bitnami/pgbouncer:latest
@@ -73,7 +73,7 @@ SELECT postgis_full_version();
 
 ### SQLServer
 
-```shell
+```bash
 docker pull mcr.microsoft.com/mssql/server:2019-latest
 
 docker run -itd \
@@ -87,7 +87,7 @@ docker run -itd \
 
 ### TiDB
 
-```shell
+```bash
 docker pull pingcap/tidb:latest
 docker pull pingcap/tikv:latest
 docker pull pingcap/pd:latest
@@ -107,7 +107,7 @@ docker run -itd \
 
 ### Neo4J
 
-```shell
+```bash
 docker pull bitnami/neo4j:latest
 
 docker run -itd \
@@ -125,7 +125,7 @@ docker run -itd \
 
 ### InfluxDB
 
-```shell
+```bash
 docker pull bitnami/influxdb:latest
 
 docker run -itd \
@@ -148,7 +148,7 @@ create user "admin" with password '123456789' with all privileges
 
 ### TimescaleDB
 
-```shell
+```bash
 docker pull timescale/timescaledb:latest-pg14
 docker pull timescale/timescaledb-postgis:latest-pg13
 docker pull timescale/pg_prometheus:latest-pg11
@@ -165,7 +165,7 @@ docker run -itd \
 
 ### OpenTSDB
 
-```shell
+```bash
 docker pull petergrace/opentsdb-docker:latest
 
 docker run -itd \
@@ -178,7 +178,7 @@ docker run -itd \
 
 ### QuestDB
 
-```shell
+```bash
 docker pull questdb/questdb:latest
 
 docker run -itd \
@@ -191,7 +191,7 @@ docker run -itd \
 
 ### TDengine
 
-```shell
+```bash
 docker pull tdengine/tdengine:latest
 
 docker run -itd \
@@ -203,7 +203,7 @@ docker run -itd \
 
 ### ElasticSearch
 
-```shell
+```bash
 docker pull bitnami/elasticsearch:latest
 
 docker run -itd \
@@ -256,7 +256,7 @@ docker run -itd \
 
 ### MongoDB
 
-```shell
+```bash
 docker pull bitnami/mongodb:latest
 docker pull bitnami/mongodb-exporter:latest
 
@@ -273,7 +273,7 @@ docker run -itd \
 
 ### Redis
 
-```shell
+```bash
 docker pull bitnami/redis:latest
 docker pull bitnami/redis-exporter:latest
 
@@ -286,7 +286,7 @@ docker run -itd \
 
 ### Memcached
 
-```shell
+```bash
 docker pull bitnami/memcached:latest
 docker pull bitnami/memcached-exporter:latest
 
@@ -298,7 +298,7 @@ docker run -itd \
 
 ### CouchDB
 
-```shell
+```bash
 docker pull bitnami/couchdb:latest
 
 docker run -itd \
@@ -314,7 +314,7 @@ docker run -itd \
 
 ### Cassandra
 
-```shell
+```bash
 docker pull bitnami/cassandra:latest
 docker pull bitnami/cassandra-exporter:latest
 
@@ -333,7 +333,7 @@ docker run -itd \
 
 ### etcd
 
-```shell
+```bash
 docker pull bitnami/etcd:latest
 
 docker run -itd \
@@ -350,7 +350,7 @@ docker run -itd \
 
 ### Nacos
 
-```shell
+```bash
 docker pull nacos/nacos-server:latest
 
 docker run -itd \
@@ -364,7 +364,7 @@ docker run -itd \
 
 ### Consul
 
-```shell
+```bash
 docker pull bitnami/consul:latest
 docker pull bitnami/consul-exporter:latest
 
@@ -387,7 +387,7 @@ docker run -itd \
 
 **注意,先要导入SQL数据!**
 
-```shell
+```bash
 docker pull apolloconfig/apollo-portal:latest
 docker pull apolloconfig/apollo-configservice:latest
 docker pull apolloconfig/apollo-adminservice:latest
@@ -434,7 +434,7 @@ docker run -itd \
 
 ### RabbitMQ
 
-```shell
+```bash
 docker pull bitnami/rabbitmq:latest
 
 docker run -itd \
@@ -465,9 +465,11 @@ rabbitmq-plugins enable rabbitmq_auth_backend_http
 
 ### Kafka
 
-```shell
-docker pull bitnami/kafka:latest
+#### With ZooKeeper
+
+```bash
 docker pull bitnami/zookeeper:latest
+docker pull bitnami/kafka:latest
 docker pull bitnami/kafka-exporter:latest
 
 docker run -itd \
@@ -490,13 +492,36 @@ docker run -itd \
     bitnami/kafka:latest
 ```
 
-管理工具:
+#### With KRaft
+
+```bash
+docker pull bitnami/kafka:latest
+
+docker run -itd \
+    --name kafka-standalone \
+    --user root \
+    -p 9092:9092 \
+    -p 9093:9093 \
+    -v /home/data/kafka:/bitnami/kafka \
+    -e KAFKA_ENABLE_KRAFT=yes \
+    -e KAFKA_BROKER_ID=1 \
+    -e KAFKA_CFG_PROCESS_ROLES=broker,controller \
+    -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+    -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093 \
+    -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+    -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
+    -e ALLOW_PLAINTEXT_LISTENER=yes \
+    bitnami/kafka:latest
+```
+
+#### 管理工具
 
 - [Offset Explorer](https://www.kafkatool.com/download.html)
 
 ### NSQ
 
-```shell
+```bash
 docker pull nsqio/nsq:latest
 
 # nsqlookupd
@@ -530,7 +555,7 @@ docker run -itd \
 
 ### NATS
 
-```shell
+```bash
 docker pull bitnami/nats:latest
 docker pull bitnami/nats-exporter:latest
 
@@ -547,7 +572,7 @@ docker run -itd \
 
 ### Mosquitto
 
-```shell
+```bash
 docker pull eclipse-mosquitto:latest
 
 # 1883 tcp
@@ -561,7 +586,7 @@ docker run -itd \
 
 ### EMX
 
-```shell
+```bash
 docker pull emqx/emqx:latest
 
 docker run -itd \
@@ -578,7 +603,7 @@ docker run -itd \
 
 ### Pulsar
 
-```shell
+```bash
 docker pull apachepulsar/pulsar-manager:latest
 docker pull apachepulsar/pulsar:latest
 
@@ -615,7 +640,7 @@ docker run -itd \
 
 必须要至少启动一个NameServer，一个Broker。
 
-```shell
+```bash
 docker pull apache/rocketmq:latest
 
 # NameServer
@@ -637,7 +662,7 @@ docker run -d \
       sh mqbroker
 ```
 
-```shell
+```bash
 docker pull styletang/rocketmq-console-ng:latest
 
 docker run -d \
@@ -652,7 +677,7 @@ docker run -d \
 
 ### ActiveMQ
 
-```shell
+```bash
 docker pull rmohr/activemq:latest
 
 docker run -d \
@@ -679,7 +704,7 @@ docker run -d \
 
 ### Asynq
 
-```shell
+```bash
 docker pull hibiken/asynqmon:latest
 
 docker run -d \
@@ -694,7 +719,7 @@ docker run -d \
 
 ### Dapr
 
-```shell
+```bash
 docker pull daprio/dapr:latest
 ```
 
@@ -702,7 +727,7 @@ docker pull daprio/dapr:latest
 
 ### Jaeger
 
-```shell
+```bash
 docker pull jaegertracing/all-in-one:latest
 
 docker run -d \
@@ -728,7 +753,7 @@ docker run -d \
 
 ### Zipkin
 
-```shell
+```bash
 docker pull openzipkin/zipkin:latest
 
 docker run -d \
@@ -785,7 +810,7 @@ docker pull grafana/tempo:latest
 
 ### Kibana
 
-```shell
+```bash
 docker pull bitnami/kibana:latest
 
 docker run -d \
@@ -798,7 +823,7 @@ docker run -d \
 
 ### Prometheus
 
-```shell
+```bash
 docker pull bitnami/prometheus:latest
 docker pull bitnami/pushgateway:latest
 
@@ -818,7 +843,7 @@ docker run -d \
 
 ### Grafana
 
-```shell
+```bash
 docker pull bitnami/grafana:latest
 
 docker run -d \
@@ -829,7 +854,7 @@ docker run -d \
 
 ### Logstash
 
-```shell
+```bash
 docker pull bitnami/logstash:latest
 docker pull bitnami/logstash-exporter:latest
 
@@ -840,7 +865,7 @@ docker run -d \
 
 ### Fluentd
 
-```shell
+```bash
 docker pull bitnami/fluentd:latest
 docker pull bitnami/fluentd-exporter:latest
 
@@ -857,7 +882,7 @@ docker run -d \
 
 ### Spark
 
-```shell
+```bash
 docker pull bitnami/spark:latest
 
 docker run -itd \
@@ -877,7 +902,7 @@ docker run -itd \
 
 ### Flink
 
-```shell
+```bash
 docker pull flink:latest
 
 docker network create flink-network
@@ -904,7 +929,7 @@ docker run -itd \
 
 ### MinIO
 
-```shell
+```bash
 docker pull bitnami/minio:latest
 docker pull bitnami/minio-client:latest
 
@@ -942,7 +967,7 @@ docker run -itd \
 
 ### TensorFlow
 
-```shell
+```bash
 docker pull bitnami/tensorflow-resnet:latest
 docker pull bitnami/tensorflow-serving:latest
 docker pull bitnami/tensorflow-inception:latest
@@ -962,7 +987,7 @@ docker run -d --name tensorflow-resnet \
 
 ### PyTorch
 
-```shell
+```bash
 docker pull bitnami/pytorch:latest
 ```
 
@@ -972,37 +997,37 @@ docker pull bitnami/pytorch:latest
 
 ### HAProxy
 
-```shell
+```bash
 docker pull bitnami/haproxy:latest
 ```
 
 ### Kong
 
-```shell
+```bash
 docker pull bitnami/kong:latest
 ```
 
 ### Nginx
 
-```shell
+```bash
 docker pull bitnami/nginx:latest
 ```
 
 ### Envoy
 
-```shell
+```bash
 docker pull bitnami/envoy:latest
 ```
 
 ### Caddy
 
-```shell
+```bash
 docker pull caddy:latest
 ```
 
 ### APISIX
 
-```shell
+```bash
 docker pull apache/apisix:latest
 docker pull apache/apisix-dashboard:latest
 
@@ -1019,7 +1044,7 @@ docker run -itd \
 
 ### Tyk
 
-```shell
+```bash
 docker pull tykio/tyk-gateway:latest
 
 docker run -d \
@@ -1033,7 +1058,7 @@ docker run -d \
 
 ### Gravitee
 
-```shell
+```bash
 docker pull graviteeio/apim-gateway:latest
 docker pull graviteeio/apim-management-ui:latest
 docker pull graviteeio/apim-portal-ui:latest
