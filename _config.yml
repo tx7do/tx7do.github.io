@@ -7,10 +7,6 @@ url: 'https://tx7do.github.io'                  # 网站URL，比如https://<use
 theme: jekyll-theme-midnight
 show_downloads: false
 
-## => Analytics
+## => Google Analytics
 ##############################
-google_analytics:
-  ## Google Analytics
-  google:
-    tracking_id: G-1F1V7EPCES # Google Analytics id for the site
-    anonymize_ip: false # Anonymize IP tracking for Analytics
+google_analytics: G-1F1V7EPCES # Google Analytics id for the site
