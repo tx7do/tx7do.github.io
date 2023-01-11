@@ -6,4 +6,11 @@ description: '随便写点技术性的文章'  # 网站描述
 url: 'https://tx7do.github.io'                  # 网站URL，比如https://<username>.github.io
 theme: jekyll-theme-midnight
 show_downloads: false
-google_analytics: G-1F1V7EPCES
+
+## => Analytics
+##############################
+google_analytics:
+  ## Google Analytics
+  google:
+    tracking_id: G-1F1V7EPCES # Google Analytics id for the site
+    anonymize_ip: false # Anonymize IP tracking for Analytics
