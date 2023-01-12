@@ -762,6 +762,7 @@ export const connectToHub = new WebsocketConnect;
 
 - [Github](https://github.com/tx7do/kratos-realtimemap)
 - [Gitee](https://gitee.com/tx7do/kratos-realtimemap)
+- [Kratos 官方示例](https://github.com/go-kratos/examples/tree/main/realtimemap)
 
 ## 参考资料
 
