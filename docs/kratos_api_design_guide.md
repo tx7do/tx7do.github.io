@@ -1190,15 +1190,25 @@ api:
  	       --go-grpc_out=paths=source_relative:./api \
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
 	       $(API_PROTO_FILES)
+
+.PHONY: conf
+# generate config define code
+conf:
+	protoc --proto_path=. \
+	       --proto_path=../../../third_party \
+	       --go_out=paths=source_relative:. \
+	       ./internal/conf/*.proto
 ```
 
 根目录下的Makefile由`app\{服务名}\service\Makefile`引用，调用者在服务目录`app\{服务名}\service\`下调用`make api`执行代码生成。
 
-这个方法很有局限性，掣手掣脚，你只能够严格的固定的项目结构来，只要有一些变动就完犊子了。
+这个方法很有局限性，掣手掣脚，你只能够依照严格的固定的项目结构来，只要有一些变动就完犊子了。
+
+MonoRepo的项目结构下，因为会有多个Makefile入口，所以没办法一键执行全部的Makefile，必须借助第三方工具，比如Shell脚本。偷懒如我，总觉得很麻烦。
 
 #### 3. go:generate注解
 
-go1.4版本之后，可以通过`go generate`命令执行一些`go:generate`注解下的预处理命令，可以拿来生成API代码之用。因为非Windows系统下命令需要加`sh -c`，Windows系统不需要，所以需要使用`go:build`注解来区分操作系统，`go generate`命令会根据操作系统执行相对应的go代码文件。所以，我写了两个go文件：
+go1.4版本之后，可以通过`go generate`命令执行一些`go:generate`注解下的预处理命令，可以拿来生成API代码之用。因为在非Windows系统下，命令如果带通配符，会执行出错，需要加`sh -c`才行，而Windows系统不存在这样的问题，可以直接执行，所以需要使用`go:build`注解来区分操作系统，`go generate`命令会根据操作系统执行相对应的go代码文件。所以，我写了两个go文件：
 
 - generate_windows.go
 
@@ -1259,7 +1269,9 @@ go1.4版本之后，可以通过`go generate`命令执行一些`go:generate`注�
     package api
     ```
 
-它可以很好的完成生成代码的任务，要自动化吧，也能实现。
+它可以很好的完成生成代码的任务。主流的IDE（Goland、VSC）都可以很好的支持编辑界面执行注解。
+
+要自动化吧，也能实现，只要在项目根目录执行`go generate ./...`就能够执行整个项目的`go:generate`注解。
 
 但是，有一个很大的问题，它需要在每一组proto文件的同级目录下冗余一套go代码，维护起来就比较糟心了。
 
