@@ -6,7 +6,7 @@
 
 1. 从头开始一个 Golang 项目；
 2. 将一个现有的 Golang 项目转换为 Bazel 构建；
-3. 以及将一个外部 Golang 项目拉入您的 Bazel 构建系统。
+3. 以及将一个第三方 Golang 项目引入到您的 Bazel 构建系统。
 
 ## 从头开始一个 Golang 项目
 
