@@ -30,13 +30,32 @@ export all_proxy=http://127.0.0.1:7890
 
 终端所添加的环境变量是临时的，只适用于当前终端，关闭当前终端或在另一个终端中，添加的环境变量是无效的。
 
-如果是原生的Ubuntu，上面的命令已经可以了，但是由上面可知，这样并不能够访问到宿主的代理，所以，还需要改进，需要编写以下Shell脚本来达成目的：
+如果是原生的Ubuntu，上面的命令已经可以了，但是由上面可知，这样并不能够访问到宿主的代理，所以，还需要改进，需要编写以下Shell脚本来获取IP地址：
+
+```bash
+host_ip=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*')
+```
+
+或者
+
+```bash
+host_ip=$(cat /etc/resolv.conf |grep "nameserver" |cut -f 2 -d " ")
+```
+
+组合起来就是这样：
 
 ```bash
 #!/bin/bash
-hostip=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*')
-export HTTPS_PROXY="http://$hostip:7890"
-export HTTP_PROXY="http://$hostip:7890"
+host_ip=$(cat /etc/resolv.conf |grep "nameserver" |cut -f 2 -d " ")
+export HTTPS_PROXY="http://$host_ip:7890"
+export HTTP_PROXY="http://$host_ip:7890"
+```
+
+实际上，如果两个代理的地址都是一样的，那么可以单独的设置`ALL_PROXY`，也是一样的效果：
+
+```bash
+#!/bin/bash
+host_ip=$(cat /etc/resolv.conf |grep "nameserver" |cut -f 2 -d " ")
 export ALL_PROXY="http://$host_ip:7890"
 ```
 
@@ -48,9 +67,8 @@ export ALL_PROXY="http://$host_ip:7890"
 
 如果只需要添加的环境变量对当前用户有效，可以写入用户主目录下的Shell配置文件里面去。
 
-bash配置文件是：`~/.bashrc`
-
-zsh配置文件是：`~/.zshrc`
+- bash配置文件是：`~/.bashrc`
+- zsh配置文件是：`~/.zshrc`
 
 以下以bash示例：
 
@@ -61,7 +79,7 @@ vim ~/.bashrc
 将下面的两行脚本添加到末尾：
 
 ```bash
-hostip=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*')
+host_ip=$(cat /etc/resolv.conf |grep "nameserver" |cut -f 2 -d " ")
 export ALL_PROXY="http://$host_ip:7890"
 ```
 
