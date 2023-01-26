@@ -41,7 +41,7 @@ go_register_toolchains(version = "1.16.5")
 
 对于导入本身，我们需要提供一个导入名称。通常的命名方案是：逆反域名，后面跟命名空间和项目名称；并需将`/`和`.`全部都转换为下划线`_`。例如：`github.com/user/project`变成`com_github_user_project`。`io_bazel_rules_go`这个项目由于是Bazel官方项目中的一部分，所以它使用的是`bazel.io`而不是`github.com`。
 
-如果您并不熟悉 Bazel，那么，您需要了解到：实际的构建配置是通过`BUILD`文件完成的。我们可以将 Go 视为任何其他语言，并使用遵循相同结构的规则：`go_binary`、`go_library`和`go_test`。我在我的 Github 上准备了一个最小化的例子：<https://github.com/HappyCerberus/bazel-golang-minimal-example>。您会注意到，我们需要从导入的`io_bazel_rules_go`代码库中加载这些规则，以使其在`BUILD`文件中可用。
+如果您并不熟悉 Bazel，那么，您需要了解到：实际的构建配置是通过`BUILD`文件完成的。我们可以将 Go 视为任何其他语言，并使用遵循相同结构的构建规则：`go_binary`、`go_library`和`go_test`。我在我的 Github 上准备了一个最小化的例子：<https://github.com/HappyCerberus/bazel-golang-minimal-example>。您会注意到，我们需要从导入的`io_bazel_rules_go`代码库中加载这些规则，以使其在`BUILD`文件中可用。
 
 ## 将现有项目转换为 Bazel 构建
 
