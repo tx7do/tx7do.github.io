@@ -2,7 +2,7 @@
 
 ## ThingsBoard设备有关的表
 
-![thingsboard_device_table](/assets/images/thingsboard_device_table.png)
+![thingsboard_device_table](/assets/images/thingsboard/thingsboard_device_table.png)
 
 * **device_profile** 这个表相当于国内的“产品”的概念
 * **ota_package** 这个表是OTA升级包相关的数据
@@ -107,7 +107,7 @@ public class BasicMqttCredentials {
 
 ## 如何登陆认证设备
 
-![处理MQTT消息流程](/assets/images/thingsboard_mqtt_process_message.drawio.svg)
+![处理MQTT消息流程](/assets/images/thingsboard/thingsboard_mqtt_process_message.drawio.svg)
 
 具体处理连接的代码在：`MqttTransportHandler`中。
 
