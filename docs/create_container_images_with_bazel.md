@@ -10,7 +10,7 @@
 
 > 您可以在 GitHub 中查看最终代码及其所有提交：
 >
-> <https://github.com/speak2jc/examples-bazel-containers-hasher>
+> <https://github.com/tx7do/bazel-containers-hasher-example>
 
 我们的项目是一个用于密码加密和验证的 API。它将有两个接口：
 
@@ -100,7 +100,7 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 gazelle(name = "gazelle")
 ```
 
-要拉取所有新添加的依赖项，只需运行 Gazelle 就可以了：
+要拉取所有新添加的Bazel依赖项，只需运行 Gazelle 就可以了：
 
 ```bash
 bazel run //:gazelle
@@ -108,7 +108,7 @@ bazel run //:gazelle
 
 ![gazelle_run](/assets/images/bazel/gazelle_run.png)
 
-Bazel 在工作区根目录中生成和管理一些目录，这些目录不应提交到版本控制中，因此让我们创建一个`.gitignore`文件：
+Bazel 在工作区根目录中生成和管理一些文件夹，这些文件夹不应提交到版本控制中，因此，让我们创建一个`.gitignore`文件，并添加以下内容：
 
 ```bash
 /bazel-*
@@ -123,11 +123,11 @@ git commit -m "Setup Bazel with rules_go and Gazelle"
 
 ## 添加一个 hello world 示例代码
 
-现在，让我们为我们的程序创建基本结构。由于本文的重点是 docker 部分，因此我们不会过多介绍 go 代码。
+现在，让我们为我们的程序创建基本的项目结构。由于本文的重点是 docker 部分，因此我们不会过多介绍 go 代码。
 
-我们将使用[Gorilla Mux](https://github.com/gorilla/mux)来进行路由处理，并使用`net/http`作为服务器实际使用的go包。
+我们将使用[Gorilla Mux](https://github.com/gorilla/mux)来进行HTTP路由处理，并使用`net/http`作为HTTP服务器实际所使用的go包。
 
-首先，让我们为这个程序初始化`go mod`，因此 go 将处理我们的依赖项：
+首先，让我们为这个程序初始化`go mod`，它将处理我们的go依赖项：
 
 ```bash
 go mod init
@@ -225,21 +225,22 @@ func compareHandler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-初始化`go mod`并构建以配置 deps。这是必需的，因此该包可与标准 go 工具一起使用。然后我们将使用`gazelle`同步 bazel 依赖项。
+初始化go mod和构建配置依赖项。这是需要的，这样包就可以使用标准的go工具。然后我们将使用`gazelle`同步 Bazel 依赖项。
 
 ```bash
 go mod tidy
+
 bazel run //:gazelle -- update-repos -from_file=go.mod
 bazel run //:gazelle
 ```
 
-`go mod tidy`更新`go.mod`和`go.sum`依赖文件。
+`go mod tidy`命令更新`go.mod`和`go.sum`依赖文件。
 
 然后，我们使用`gazelle`导入`go.mod`依赖项，并将它们插入到`WORKSPACE`文件中。
 
-最后，我们在`gazelle`没有任何参数的情况下运行以创建或更新所有必需的`BUILD.bazel`文件。
+最后，我们在`gazelle`没有任何参数的情况下运行，以创建或更新所有必需的`BUILD.bazel`文件。
 
-现在，我们应该能够使用bazel来构建和运行项目：
+现在，我们应该是能够使用bazel来执行构建和运行项目：
 
 ```bash
 bazel build //...
@@ -276,7 +277,7 @@ git commit -m "Add go api code"
 
 ## 添加Docker支持
 
-我们将使用[rules_docker](https://github.com/bazelbuild/rules_docker)创建容器镜像。这个包提供了构建 通用镜像 以及 [特定语言镜像](https://github.com/bazelbuild/rules_docker#language-rules) 的规则。我们可以使用`go_image`，但正如文档中所述，它在 Mac 中不起作用，而且我们不想强迫开发人员使用任何特定操作系统，因此我们必须使用更通用的[container_image](https://github.com/bazelbuild/rules_docker#container_image-1)规则。
+我们将使用[rules_docker](https://github.com/bazelbuild/rules_docker)创建容器镜像。这个包提供了构建 通用镜像 以及 [特定语言镜像](https://github.com/bazelbuild/rules_docker#language-rules) 的规则。我们可以使用`go_image`方法，但正如文档中所述，它在 Mac 中不起作用，而且我们不想强迫开发人员限制使用任何特定操作系统，因此我们必须使用更通用的[container_image](https://github.com/bazelbuild/rules_docker#container_image-1)方法。
 
 首先，我们必须在我们的`WORKSPACE`文件中加载规则：
 
@@ -325,11 +326,11 @@ http_archive(
 # ...
 ```
 
-请注意，bazel 规则加载的顺序并不重要，但我们更愿意将 go 规则留在底部，因为`gazelle`在文件底部添加了依赖项。
+请注意，bazel 规则加载的顺序并不重要，但我们更愿意将 go 规则留在底部，因为`gazelle`会在文件底部添加`go.mod`依赖项。
 
-## 构建镜像
+## 构建Docker镜像
 
-现在我们必须声明一个将创建 docker 镜像的新构建目标。更新`cmd/api/BUILD.bazel`文件，使其看起来像这样：
+现在，我们必须声明一个创建 docker 镜像的新构建目标。修改`cmd/api/BUILD.bazel`文件，使其看起来像这样：
 
 ```python
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
@@ -360,13 +361,13 @@ container_image(
 )
 ```
 
-现在，测试新目标：
+现在，测试新的构建目标：
 
 ```bash
 bazel build //cmd/api:image
 ```
 
-此命令将构建一个可以导入到 docker 里去的 `tar`文件。您可以手动调用`docker load`导入文件，或使用 bazel 来做到这一点：
+上面的命令将构建一个可以导入到 docker 里去的 `tar`文件。您可以手动调用`docker load`导入文件，或使用 bazel 来做到这一点：
 
 ```bash
 bazel run //cmd/api:image
@@ -379,13 +380,13 @@ REPOSITORY      TAG    IMAGE ID            CREATED             SIZE
 bazel/cmd/api   image  e793d723ef4f        50 years ago        10.8MB
 ```
 
-现在您可以使用 docker 运行镜像：
+现在您可以使用 `docker run`命令来运行镜像：
 
 ```bash
 docker run --rm -it -p8000:8000 bazel/cmd/api:image
 ```
 
-您可以再次使用`curl`来测试它是否正常工作：
+您可以再次使用`curl`来测试它是否能够正常工作：
 
 ```bash
 $ curl -i localhost:8000/hash -d '{"plain":"text"}'
@@ -422,7 +423,7 @@ git commit -m "Add docker support"
 > 2020/03/21 20:57:17 Start serving...
 > ```
 >
-> 如果您计划在 docker 中运行所有二进制文件（您应该这样做），您可以使用[bazel RC files](https://docs.bazel.build/versions/master/guide.html#where-are-the-bazelrc-files)自动执行此操作。
+> 如果您打算把所有的二进制文件都放在 docker 中运行（您应该这样做），您可以使用[.bazelrc](https://docs.bazel.build/versions/master/guide.html#where-are-the-bazelrc-files)配置文件配置自动执行此操作的配置。
 >
 > ```bash
 > build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
@@ -431,7 +432,7 @@ git commit -m "Add docker support"
 
 ## 发布镜像到 DockerHub
 
-您可能注意到您的容器名称以`bazel/`为前缀，这不仅丑陋，而且无法推送：
+您可能注意到您的容器名称是以`bazel/`为前缀的，这不仅丑陋，而且无法推送到镜像库：
 
 ```bash
 $ docker push bazel/cmd/api
@@ -441,9 +442,9 @@ e90f26cebdee: Preparing
 denied: requested access to the resource is denied
 ```
 
-此外，在我们的例子中，标签是目标的名称。这在部署此镜像时也不是很有用。
+此外，在我们的例子中，镜像的标签是构建目标的名称（`image`）。这在部署此镜像时也不是很有用。
 
-为了解决第一个问题，我们可以使用中规则中的`repository`属性。替换为您的 `DockerHub ID` 或任何`存储库 ID`：`container_imagecmd/api/BUILD.bazel<username>`
+为了解决第一个问题，我们可以使用`cmd/api/BUILD.bazel`文件中的`container_image`规则的`repository`属性。将`<username>`替换为您的 `DockerHub ID` 或任何存储库ID：
 
 ```python
 container_image(
@@ -457,7 +458,7 @@ container_image(
 
 现在，当您运行`bazel run //cmd/api:image`时，它会将镜像另存为`<username>/cmd/api:image`。
 
-同样，我们可以手动调用`docker push <username>/cmd/api`来推送我们的镜像，但我们也可以使用`docker_push`规则为我们自动执行此操作。将它添加到`cmd/api/BUILD.bazel`：
+同样，要推送我们的镜像，我们可以手动调用`docker push <username>/cmd/api`命令，我们也可以使用`docker_push`规则为我们自动执行此操作。将它添加到`cmd/api/BUILD.bazel`：
 
 ```python
 container_push(
@@ -496,7 +497,7 @@ git commit -m "Add push support to bazel"
 
 ## 结论
 
-您现在可以使用 bazel 来管理您的容器镜像开发生命周期：它可以构建镜像并将其推送到存储库，并具有 bazel 的所有优势：快速且可重现的构建。
+您现在可以使用 bazel 来管理您的容器镜像开发生命周期：它可以构建镜像并将其推送到镜像库，并具有 bazel 的所有优势：快速且可重现的构建。
 
 在像这样的小示例中，您可能不会立即看到好处，但在由多个微服务（在容器内运行）组成的更复杂的项目中，这是减少构建和 CI 时间的好方法。
 
