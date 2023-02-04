@@ -1,4 +1,4 @@
-# Kratos微服务框架实现IoT功能：设备实时地图
+# Kratos微服务框架物联网IoT实战：设备实时地图
 
 IoT，也就是物联网，万物互联，在未来肯定是一个热点——实际上，现在物联网已经很热了。
 
@@ -43,7 +43,7 @@ Proto.Actor该示例有一个在线演示：<https://realtimemap.skyrise.cloud/>
 - [gRPC](https://grpc.io/)
 - [RESTful](https://www.runoob.com/w3cnote/restful-architecture.html)
 
-示例程序的后端基于Kratos开发，需要有一定的Kratos的基础。前端基于Vue3和Typescript进行开发，需要有一定的相关基础。
+示例程序的后端基于Kratos微服务框架开发，需要有一定的Kratos的基础。前端基于Vue3和Typescript进行开发，需要有一定的相关基础。
 
 ## 它是如何工作的？
 
@@ -63,12 +63,14 @@ Proto.Actor该示例有一个在线演示：<https://realtimemap.skyrise.cloud/>
 
 此数据已根据 © Helsinki Region Transport 2021、Creative Commons BY 4.0 International 获得许可
 
-Topic定义如下：
+Topic的定义如下：
 
 ```text
 0/1       /2        /3             /4              /5           /6               /7            /8               /9         /10            /11        /12          /13         /14             /15       /16
  /<prefix>/<version>/<journey_type>/<temporal_type>/<event_type>/<transport_mode>/<operator_id>/<vehicle_number>/<route_id>/<direction_id>/<headsign>/<start_time>/<next_stop>/<geohash_level>/<geohash>/<sid>/#
 ```
+
+Topic的Go定义：
 
 ```go
 type Topic struct {
