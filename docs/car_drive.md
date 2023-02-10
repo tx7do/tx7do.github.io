@@ -4,8 +4,8 @@
 
 两轮驱动，即是由发动机通过变速箱等直接驱动前轮或者后轮，使汽车前进。
 
-- **前轮驱动（Front-Wheel Drive）** - 
-- **后轮驱动（Rear-Wheel Drive）** - 
+- **前轮驱动（Front-Wheel Drive）** - 发动机驱动前面一对车轮
+- **后轮驱动（Rear-Wheel Drive）** - 发动机驱动后面一对车轮
 
 ## 四轮驱动（4-Wheel Drive，4WD）
 
