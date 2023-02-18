@@ -150,6 +150,7 @@ create user "admin" with password '123456789' with all privileges
 
 ```bash
 docker pull timescale/timescaledb:latest-pg14
+docker pull timescale/timescaledb:latest-pg15
 docker pull timescale/timescaledb-postgis:latest-pg13
 docker pull timescale/pg_prometheus:latest-pg11
 
@@ -157,7 +158,7 @@ docker run -itd \
     --name timescale-test \
     -p 5432:5432 \
     -e POSTGRES_PASSWORD=123456 \
-    timescale/timescaledb-postgis:latest-pg13
+    timescale/timescaledb:latest-pg15
 ```
 
 - 默认账号：postgres  
@@ -278,7 +279,7 @@ docker pull bitnami/redis:latest
 docker pull bitnami/redis-exporter:latest
 
 docker run -itd \
-    --name redis-test \
+    --name redis-server \
     -p 6379:6379 \
     -e ALLOW_EMPTY_PASSWORD=yes \
     bitnami/redis:latest
@@ -730,7 +731,7 @@ docker pull daprio/dapr:latest
 ```bash
 docker pull jaegertracing/all-in-one:latest
 
-docker run -d \
+docker run -itd \
     --name jaeger \
     -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
     -e COLLECTOR_OTLP_ENABLED=true \
@@ -746,6 +747,20 @@ docker run -d \
     -p 9411:9411 \
     jaegertracing/all-in-one:latest
 ```
+
+| 端口号	  | 协议	  | 组件	       | 功能                                                          |
+|-------|------|-----------|-------------------------------------------------------------|
+| 6831  | UDP  | Agent     | Thrift-compact协议，接收`jaeger.thrift`数据（大多数 SDK 使用）            |
+| 6832  | UDP  | Agent     | Thrift-binary协议，接收`jaeger.thrift`数据（由 Node.js SDK 使用）       |
+| 5775  | UDP  | Agent     | ~~Thrift-compact协议，接收`zipkin.thrift`数据（仅供旧客户端使用）~~**（已弃用）** |
+| 5778  | HTTP | Agent     | 服务配置接口（采样等）                                                 |
+| 16686 | HTTP | Query     | Jaeger Web UI的服务前端                                          |
+| 4317  | HTTP | Collector | 如果启用，通过 gRPC 接收 OpenTelemetry 协议 (OTLP)                     |
+| 4318  | HTTP | Collector | 如果启用，通过 HTTP 接收 OpenTelemetry 协议 (OTLP)                     |
+| 14268 | HTTP | Collector | 直接接收`jaeger.thrift`客户端                                      |
+| 14269 | HTTP | Collector | 提供：健康检查`/`、性能检查`/metrics`                                   |
+| 14250 | HTTP | Collector | 接收`model.proto`                                             |
+| 9411  | HTTP | Collector | 兼容Zipkin的http端点（可选）                                         |
 
 - API：<http://localhost:14268/api/traces>  
 - Zipkin API：<http://localhost:9411/api/v2/spans>
@@ -931,7 +946,6 @@ docker run -itd \
 
 ```bash
 docker pull bitnami/minio:latest
-docker pull bitnami/minio-client:latest
 
 docker network create app-tier --driver bridge
 
@@ -944,19 +958,29 @@ docker run -itd \
     -p 9001:9001 \
     --env MINIO_ROOT_USER="root" \
     --env MINIO_ROOT_PASSWORD="123456789" \
-    --env MINIO_DEFAULT_BUCKETS='my-bucket' \
+    --env MINIO_DEFAULT_BUCKETS='images,videos' \
     --env MINIO_FORCE_NEW_KEYS="yes" \
     --env BITNAMI_DEBUG=true \
+    --volume /usr/local/minio/data:/data \
     --network app-tier \
     bitnami/minio:latest
+```
+
+- 管理后台: <http://localhost:9001/login>
+
+```bash
+docker pull minio/minio:latest
 
 docker run -itd \
-    --name minio-client \
-    --env MINIO_SERVER_HOST="minio-server" \
-    --env MINIO_SERVER_ACCESS_KEY="root" \
-    --env MINIO_SERVER_SECRET_KEY="123456789" \
+    --name minio-server \
+    -p 9000:9000 \
+    -p 9001:9001 \
+    -e MINIO_ROOT_USER="root" \
+    -e MINIO_ROOT_PASSWORD="123456789" \
+    -e MINIO_DEFAULT_BUCKETS='images,videos' \
+    -v /usr/local/minio/data:/data \
     --network app-tier \
-    bitnami/minio-client:latest
+    minio/minio server /data --console-address ':9001'
 ```
 
 - 管理后台: <http://localhost:9001/login>
