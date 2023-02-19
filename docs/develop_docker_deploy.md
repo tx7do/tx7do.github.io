@@ -949,8 +949,8 @@ docker pull bitnami/minio:latest
 
 docker network create app-tier --driver bridge
 
-# MINIO_ROOT_USER最少3个字符
-# MINIO_ROOT_PASSWORD最少8个字符
+# MINIO_ROOT_USER 最少3个字符
+# MINIO_ROOT_PASSWORD 最少8个字符
 # 第一次运行的时候,服务会自动关闭,手动再启动就可以正常运行了.
 docker run -itd \
     --name minio-server \
@@ -971,13 +971,14 @@ docker run -itd \
 ```bash
 docker pull minio/minio:latest
 
+# MINIO_ROOT_USER 最少3个字符，默认为：minioadmin
+# MINIO_ROOT_PASSWORD 最少8个字符，默认为：minioadmin
 docker run -itd \
     --name minio-server \
     -p 9000:9000 \
     -p 9001:9001 \
-    -e MINIO_ROOT_USER="root" \
-    -e MINIO_ROOT_PASSWORD="123456789" \
-    -e MINIO_DEFAULT_BUCKETS='images,videos' \
+    -e "MINIO_ROOT_USER=root" \
+    -e "MINIO_ROOT_PASSWORD=123456789" \
     -v /usr/local/minio/data:/data \
     --network app-tier \
     minio/minio server /data --console-address ':9001'
