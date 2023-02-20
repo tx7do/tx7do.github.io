@@ -7,7 +7,7 @@
 ```bash
 yum groupinstall "Development Tools" -y
 
-yum install cmake gcc gtk2-devel numpy pkconfig -y
+yum install cmake3 gcc gtk2-devel numpy pkconfig -y
 ```
 
 ## 第 2 步：下载 OpenCV x.x.x 代码
@@ -31,7 +31,7 @@ mkdir build
 
 cd build
 
-cmake -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX=/usr/local ..
+cmake3 -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX=/usr/local ..
 
 make
 
