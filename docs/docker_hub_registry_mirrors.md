@@ -24,7 +24,7 @@
     "https://dockerproxy.com",
     "https://hub-mirror.c.163.com",
     "https://mirror.baidubce.com",
-    "https://ccr.ccs.tencentyun.com",
+    "https://ccr.ccs.tencentyun.com"
   ]
 }
 ```
