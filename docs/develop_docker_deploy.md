@@ -832,7 +832,7 @@ docker run -d \
     --name kibana \
     -p 5601:5601 \
     -e KIBANA_ELASTICSEARCH_URL=elasticsearch \
-    -e KIBANA_ELASTICSEARCH_PORT_NUMBER=9200
+    -e KIBANA_ELASTICSEARCH_PORT_NUMBER=9200 \
     bitnami/kibana:latest
 ```
 
