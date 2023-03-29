@@ -621,6 +621,22 @@ docker run -itd \
     apachepulsar/pulsar-manager:latest
 ```
 
+```bash
+docker pull apachepulsar/pulsar-standalone:latest
+
+docker run -itd \
+    -p 6650:6650 \
+    -p 8080:8080 \
+    -p 9527:9527 \
+    --name pulsar-standalone \
+    apachepulsar/pulsar:latest bin/pulsar standalone
+```
+
+```bash
+docker pull apachepulsar/pulsar-all:latest
+
+```
+
 - 管理后台 <http://localhost:9527>
 
 ### HiveMQ
