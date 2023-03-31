@@ -133,6 +133,59 @@ docker run -d \
     bitnami/kibana:latest
 ```
 
+## Docker Compose
+
+```yml
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  elasticsearch:
+    image: docker.io/bitnami/elasticsearch:latest
+    networks:
+      - app-tier
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=elastic
+      - xpack.security.enabled=true
+      - discovery.type=single-node
+      - http.cors.enabled=true
+      - http.cors.allow-origin=http://localhost:13580,http://127.0.0.1:13580
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+
+  fluentd:
+    image: docker.io/bitnami/fluentd:latest
+    networks:
+      - app-tier
+    depends_on:
+      - "elasticsearch"
+    volumes:
+      - /data/fluentd/conf:/opt/bitnami/fluentd/conf
+      - /data/fluentd/log:/opt/bitnami/fluentd/log
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  kibana:
+    image: docker.io/bitnami/kibana:latest
+    networks:
+      - app-tier
+    depends_on:
+      - "elasticsearch"
+    ports:
+      - "5601:5601"
+    environment:
+      - KIBANA_ELASTICSEARCH_URL=elasticsearch
+      - KIBANA_ELASTICSEARCH_PORT_NUMBER=9200
+```
+
 ## 参考资料
 
 - [Fluentd 配置](https://blog.csdn.net/weixin_37887248/article/details/82772199)

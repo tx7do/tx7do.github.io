@@ -859,18 +859,18 @@ docker pull bitnami/prometheus:latest
 docker pull bitnami/pushgateway:latest
 
 docker run -d \
-    --name = prometheus-gateway \
-    -p 5051:9091 \
+    --name prometheus-gateway \
+    -p 9091:9091 \
     bitnami/pushgateway:latest
 
 docker run -d \
-    --name = prometheus \
-    -p 5050:9090 \
+    --name prometheus \
+    -p 9090:9090 \
     bitnami/prometheus:latest
 ```
 
-- Prometheus 后台: <http://localhost:5050>  
-- Pushgateway 后台: <http://localhost:5051>
+- Prometheus 后台: <http://localhost:9090>  
+- Pushgateway 后台: <http://localhost:9091>
 
 ### Grafana
 
@@ -880,6 +880,7 @@ docker pull bitnami/grafana:latest
 docker run -d \
     --name grafana \
     -p 3000:3000 \
+    -e GF_SECURITY_ADMIN_PASSWORD=pass \
     bitnami/grafana:latest
 ```
 
@@ -890,6 +891,7 @@ docker pull bitnami/logstash:latest
 docker pull bitnami/logstash-exporter:latest
 
 docker run -d \
+    --name logstash \
     -p 8080:8080 \
     bitnami/logstash:latest
 ```
@@ -898,9 +900,9 @@ docker run -d \
 
 ```bash
 docker pull bitnami/fluentd:latest
-docker pull bitnami/fluentd-exporter:latest
 
 docker run -d \
+    --name fluentd \
     -p 24224:24224 \
     -p 24224:24224/udp \
     -v /data:/opt/bitnami/fluentd/log \
