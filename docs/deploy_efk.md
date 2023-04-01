@@ -88,7 +88,7 @@ docker run -d \
 @include config.d/*.conf
 ```
 
-如果我们要吧日志写入到ElasticSearch，我们需要`fluent-plugin-elasticsearch`插件，并且需要在配置里面添加一个`<match>`节点：
+如果我们要把日志写入到ElasticSearch，我们需要`fluent-plugin-elasticsearch`插件，并且需要在配置里面添加一个`<match>`节点：
 
 ```xml
 <match **>
@@ -100,7 +100,7 @@ docker run -d \
 </match>
 ```
 
-然后，我们就可以从Elea中查询日志数据：<http://localhost:9200/fluentd/_search>
+然后，我们就启动服务，产生日志，然后就可以从ElasticSearch中查询日志数据：<http://localhost:9200/fluentd/_search>
 
 另外，如果我们要把日志写入到MongoDB，我们可以添加一个`<match>`节点：
 
