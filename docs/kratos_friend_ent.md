@@ -523,12 +523,12 @@ func deleteUser(tx *ent.Tx, u UserData) *ent.UserDelete {
 		)
 }
 
-func batchCreateUser(tx *ent.Tx, users []UserData) error {
+func batchCreateUser(ctx context.Context, tx *ent.Tx, users []UserData) error {
 	userCreates := make([]*ent.UserCreate, 0)
 	for _, u := range users {
 		userCreates = append(userCreates, createUser(tx, u))
 	}
-	if _, err := tx.User.CreateBulk(userCreates...).Save(r.ctx); err != nil {
+	if _, err := tx.User.CreateBulk(userCreates...).Save(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -536,7 +536,7 @@ func batchCreateUser(tx *ent.Tx, users []UserData) error {
 
 func DoBatchCreateUser(ctx context.Context, client *ent.Client) {
     if err := WithTx(ctx, client, func(tx *ent.Tx) error {
-        return batchCreateUser(tx, users)
+        return batchCreateUser(ctx, tx, users)
     }); err != nil {
         log.Fatal(err)
     }
