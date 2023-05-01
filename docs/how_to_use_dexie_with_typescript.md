@@ -106,6 +106,33 @@ db.users.count()
 db.users.orderBy('id').reverse().offset(0).limit(100).toArray()
 ```
 
+## Typescript简单封装
+
+```typescript
+export interface StoreUserData {
+  id?: number
+  userName: string
+}
+
+export class UserDataBase extends Dexie {
+  users!: Table<StoreUserData>
+
+  localVersions = 1
+
+  constructor() {
+    super('UserDataBase')
+
+    this.version(this.localVersions).stores({
+      users: '++id, userName'
+    })
+
+    this.users = this.table('users')
+  }
+}
+
+export const usersDB = new UserDataBase()
+```
+
 ## 怎么查看IndexedDB的数据？
 
 打开浏览器的`开发者工具`：
