@@ -109,6 +109,9 @@ db.users.orderBy('id').reverse().offset(0).limit(100).toArray()
 ## Typescript简单封装
 
 ```typescript
+import type { Table } from 'dexie'
+import Dexie from 'dexie'
+
 export interface StoreUserData {
   id?: number
   userName: string

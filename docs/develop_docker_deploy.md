@@ -239,7 +239,7 @@ docker pull yandex/clickhouse-server:latest
 # 8123为http接口 9000为tcp接口 9004为mysql接口
 # 推荐使用DBeaver作为客户端
 docker run -itd \
-    --name clickhouse-server-test \
+    --name clickhouse-server \
     -p 8123:8123 \
     -p 9000:9000 \
     -p 9004:9004 \
@@ -250,6 +250,40 @@ docker run -itd \
 
 - 默认账号: default  
 - 密码：无
+
+### Doris
+
+```bash
+docker pull apache/doris:1.2.2-be-x86_64
+docker pull apache/doris:1.2.2-fe-x86_64
+
+docker network create --driver bridge --subnet=127.0.0.1/24 doris-network
+
+docker run -itd \
+    --name=fe \
+    --env FE_SERVERS="fe1:127.0.0.1:9010" \
+    --env FE_ID=1 \
+    -p 8030:8030 \
+    -p 9030:9030 \
+    -v /data/fe/doris-meta:/opt/apache-doris/fe/doris-meta \
+    -v /data/fe/conf:/opt/apache-doris/fe/conf \
+    -v /data/fe/log:/opt/apache-doris/fe/log \
+    --network=doris-network \
+    --ip=127.0.0.1 \
+    apache/doris:1.2.2-fe-x86_64
+
+docker run -itd \
+    --name=be \
+    --env FE_SERVERS="fe1:127.0.0.1:9010" \
+    --env BE_ADDR="127.0.0.1:9050" \
+    -p 8040:8040 \
+    -v /data/be/storage:/opt/apache-doris/be/storage \
+    -v /data/be/conf:/opt/apache-doris/be/conf \
+    -v /data/be/log:/opt/apache-doris/be/log \
+    --network=doris-network \
+    --ip=127.0.0.1 \
+    apache/doris:1.2.2-be-x86_64
+```
 
 ## NoSQL数据库
 
