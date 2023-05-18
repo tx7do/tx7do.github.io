@@ -63,7 +63,7 @@ order by month;
 ## 周
 
 ```sql
-select to_char(to_timestamp(1683742216358 / 1000) - (extract(dow from to_timestamp(1683742216358 / 1000))-1 || 'day')::interval, 'YYYY-mm-dd') as week, COUNT(*) as num
+select to_char(to_timestamp(create_time / 1000) - (extract(dow from to_timestamp(create_time / 1000))-1 || 'day')::interval, 'YYYY-mm-dd') as week, COUNT(*) as num
 from "user"
 where to_char(to_timestamp(create_time / 1000), 'yyyy-mm-dd') >= '2023-01-01'
   and to_char(to_timestamp(create_time / 1000), 'yyyy-mm-dd') <= '2024-01-01'
