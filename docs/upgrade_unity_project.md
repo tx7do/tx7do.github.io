@@ -21,7 +21,7 @@ uiImage.pixelInset
 修改为：
 
 ```csharp
-uiImage.rectTransform
+uiImage.rectTransform.rect
 ```
 
 ## 不存在`.texture`
