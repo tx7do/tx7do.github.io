@@ -508,20 +508,22 @@ docker pull bitnami/kafka:latest
 docker pull bitnami/kafka-exporter:latest
 
 docker run -itd \
-    --name zookeeper-test \
+    --name zookeeper-server \
+    --network app-tier \
     -p 2181:2181 \
     -e ALLOW_ANONYMOUS_LOGIN=yes \
     bitnami/zookeeper:latest
 
 docker run -itd \
     --name kafka-standalone \
-    --link zookeeper-test \
+    --link zookeeper-server \
+    --network app-tier \
     -p 9092:9092 \
     -v /home/data/kafka:/bitnami/kafka \
     -e KAFKA_BROKER_ID=1 \
     -e KAFKA_LISTENERS=PLAINTEXT://:9092 \
     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
-    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper-test:2181 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     --user root \
     bitnami/kafka:latest
