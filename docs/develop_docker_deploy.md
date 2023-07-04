@@ -12,6 +12,17 @@
 
 - -p 宿主机端口:容器端口
 
+需要设置Host：
+
+```text
+# Added by Docker Desktop
+192.168.1.6 host.docker.internal
+192.168.1.6 gateway.docker.internal
+# To allow the same kube context to work on the host and the container:
+192.168.1.6 kubernetes.docker.internal
+# End of section
+```
+
 ## 关系型数据库
 
 -----
@@ -235,6 +246,7 @@ http://localhost:13580/
 
 ```bash
 docker pull yandex/clickhouse-server:latest
+docker pull clickhouse/clickhouse-server:latest
 
 # 8123为http接口 9000为tcp接口 9004为mysql接口
 # 推荐使用DBeaver作为客户端
@@ -243,9 +255,10 @@ docker run -itd \
     -p 8123:8123 \
     -p 9000:9000 \
     -p 9004:9004 \
+    --network=app-tier \
     --ulimit \
     nofile=262144:262144 \
-    yandex/clickhouse-server:latest
+    clickhouse/clickhouse-server:latest
 ```
 
 - 默认账号: default  
@@ -520,9 +533,10 @@ docker run -itd \
     --network app-tier \
     -p 9092:9092 \
     -v /home/data/kafka:/bitnami/kafka \
+    -e KAFKA_ENABLE_KRAFT=no \
     -e KAFKA_BROKER_ID=1 \
-    -e KAFKA_LISTENERS=PLAINTEXT://:9092 \
-    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
+    -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:9092 \
     -e KAFKA_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     --user root \
@@ -544,10 +558,10 @@ docker run -itd \
     -e KAFKA_BROKER_ID=1 \
     -e KAFKA_CFG_PROCESS_ROLES=broker,controller \
     -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
-    -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093 \
+    -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@host.docker.internal:9093 \
     -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
     -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
-    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:9092 \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     bitnami/kafka:latest
 ```
