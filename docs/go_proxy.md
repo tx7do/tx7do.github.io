@@ -80,6 +80,22 @@ go env -w GOPROXY=https://goproxy.bj.bcebos.com/,direct
 # 不支持 GOSUMDB
 ```
 
+## warning: go env -w GOPROXY=... does not override conflicting OS environment variable
+
+**原因：**
+
+之前安装go的时候，用环境变量的方式设置过代理地址，go13提供了-w参数来设置GOPROXY变量，但无法覆盖OS级别的环境变量
+
+**解决方法：**
+
+```bash
+unset GOPROXY
+
+# or 
+
+Clear-Variable GOPROXY
+```
+
 ## 参考资料
 
 * [goproxy.io文档](https://goproxy.io/zh/docs/)
