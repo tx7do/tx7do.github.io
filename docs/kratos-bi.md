@@ -76,12 +76,6 @@ UBA常用的分析模型有以下这些：
 4. Logger Service，主要是消费Kafka消息，然后入库ClickHouse，这个可有可无，如果采用其他方式消费Kafka消息的话，就可以不开启；
 5. Report Service，对入库的埋点数据进行分析并且生成报表。
 
-其中，Kafka消息的消费方式有3种：
-
-1. ClickHouse内置Kafka Engine（推荐使用）；
-2. 自己实现一个服务（在这里是Logger Service）；
-3. Flink。
-
 ## 技术栈
 
 ### 后端技术栈
@@ -260,11 +254,91 @@ CREATE OR REPLACE TABLE realtime_warehousing
 
 推荐使用的数据库工具是JetBrains家的DataGrip，好用的很。
 
+## 实现埋点代理服务
+
+其接口定义如下：
+
+```protobuf
+
+// 上报数据服务
+service ReportService {
+  // 提交事件
+  rpc PostReport (PostReportRequest) returns (PostReportResponse) {
+    option (google.api.http) = {
+      post: "/agent/v1/report"
+      body: "*"
+    };
+  }
+}
+
+message PostReportRequest {
+  string reportType = 1; // 类型
+  string appId = 2;// 应用ID
+  string appKey = 3;// 应用Key
+  string eventName = 4;// 事件名
+  int32 debug = 5;// 调试
+  string content = 6;// 事件内容
+}
+
+message PostReportResponse {
+  int32 code = 1;
+  string msg = 2;
+}
+```
+
+接着我们在`data`包下面创建Kafka的Broker：
+
+```go
+func NewKafkaBroker(cfg *conf.Bootstrap) broker.Broker {
+	b := kafka.NewBroker(
+		broker.WithAddress(cfg.Data.Kafka.Addrs...),
+		broker.WithCodec(cfg.Data.Kafka.Codec),
+	)
+	if b == nil {
+		return nil
+	}
+
+	_ = b.Init()
+
+	if err := b.Connect(); err != nil {
+		return nil
+	}
+
+	return b
+}
+```
+
+在Service下我们就可以调用Broker去发布消息给Kafka了：
+
+```go
+func (s *ReportService) PostReport(_ context.Context, req *v1.PostReportRequest) (*v1.PostReportResponse, error) {
+
+	_ = s.kafkaBroker.Publish(topic.EventReportData, reportV1.RealTimeWarehousingData{
+		EventName:  &req.EventName,
+		ReportData: &req.Content,
+		CreateTime: util.UnixMilliToStringPtr(trans.Int64(time.Now().UnixMilli())),
+	})
+	return &v1.PostReportResponse{
+		Code: 0,
+		Msg:  "success",
+	}, nil
+}
+```
+
+这样埋点数据就流入了我们的系统了，接下来的事情就是系统内部事务了。
+
 ## 消费Kafka中的埋点数据消息
 
-其实不需要用Kafka也是可以的，另外还可以用RabbitMQ、NATS等。但是本文只实现Kafka，其他的MQ实现起来也并不复杂。
+其实，消息队列并不需局限于Kafka，使用其他的MQ也是没问题的，实现起来也并不复杂，比如ClickHouse另外支持的RabbitMQ、NATS等。
 
-在上面我们提到了，消费Kafka消息并入库到ClickHouse有三种方式，下面我们将一一的讲解：
+但是，本文仅仅使用Kafka来实现。
+
+在本文，我们要介绍到的Kafka消息的消费方式有两种，实际上，入库还有很多方法可以办到，但是，本文只介绍以下这两种：
+
+1. ClickHouse内置Kafka Engine（推荐使用）；
+2. 自己实现一个服务（在这里是Logger Service）；
+
+这两种方式可以只取一种，也可以两种一起并行，推荐只取其中一种。
 
 ### 1. ClickHouse内置Kafka Engine
 
@@ -290,7 +364,9 @@ CREATE OR REPLACE TABLE realtime_warehousing_kafka
             kafka_skip_broken_messages = 1;
 ```
 
-然后就是创建一个物化视图，物化视图的作用是把Kafka表和目标表`realtime_warehousing`进行绑定，并将Kafka表里面的消息入库。
+我们监听`host.docker.internal:9092`这个Broker，使用`ck-saver`消费组来消费`logger.report.event`消息。消息的格式是`JSONEachRow`，也就是每一行的数据都是JSON。`kafka_skip_broken_messages`表示的是如果遇到了损坏的消息，需要跳过的条数。
+
+然后，就是创建一个物化视图，物化视图的作用是把Kafka表和目标表`realtime_warehousing`进行绑定，并将Kafka表里面的消息入库。
 
 ```sql
 -- realtime_warehousing kafka表 物化视图
@@ -301,9 +377,9 @@ SELECT createTime as create_time,
 FROM realtime_warehousing_kafka;
 ```
 
-执行了以上两条SQL语句之后，ClickHouse就可以消费Kafka的消息并且入库了。
+执行了以上两条SQL语句之后，ClickHouse就可以消费Kafka的消息，并且入库了。
 
-### 2. 自己实现一个服务
+### 2. 自己实现一个Kratos服务
 
 在这里，我们实现的服务叫做Logger Service，当然，叫什么都无所谓的。可以叫Sinker、Saver等都可以。
 
@@ -324,10 +400,11 @@ srv := kafka.NewServer(
 )
 ```
 
-然后，我们再订阅主题：
+然后，我们就可以订阅主题：
 
 ```go
 func EventReportCreator() broker.Any { return &v1.RealTimeWarehousingData{} }
+
 type EventReportHandler func(_ context.Context, topic string, headers broker.Headers, msg *v1.RealTimeWarehousingData) error
 
 _ = srv.RegisterSubscriber(ctx,
@@ -337,7 +414,7 @@ _ = srv.RegisterSubscriber(ctx,
 )
 ```
 
-然后，实现订阅处理器：
+最后，实现订阅处理器：
 
 ```go
 func (s *SaverService) SaveEventReport(_ context.Context, _ string, _ broker.Headers, msg *v1.RealTimeWarehousingData) error {
@@ -345,9 +422,25 @@ func (s *SaverService) SaveEventReport(_ context.Context, _ string, _ broker.Hea
 }
 ```
 
-最后，我们实现ClickHouse数据入库的Repo：
+在处理器里面，我们调用Repo执行入库操作。
+
+到这里，Kafka入口处理就完成了，接着，我们就就可以去实现ClickHouse的数据库相关操作了。
+
+首先安装ClickHouse的驱动：
+
+```bash
+go get -u github.com/ClickHouse/clickhouse-go/v2
+```
+
+创建ClickHouse客户端：
 
 ```go
+import (
+	"database/sql"
+
+	_ "github.com/ClickHouse/clickhouse-go/v2"
+)
+
 // NewClickHouseClient 创建数据库客户端
 func NewClickHouseClient(cfg *conf.Bootstrap, logger log.Logger) *sql.DB {
 	l := log.NewHelper(log.With(logger, "module", "ent/data/logger-service"))
@@ -365,6 +458,25 @@ func NewClickHouseClient(cfg *conf.Bootstrap, logger log.Logger) *sql.DB {
 
 	return conn
 }
+```
+
+在这里我们使用`database/sql`来实现ClickHouse的客户端，这样，我们就可以使用DSN字符串来连接ClickHouse了。
+
+最后，就是实现Repo了，我们只需要实现`Insert`的操作：
+
+```go
+type RealtimeWarehousingRepo struct {
+	data *Data
+	log  *log.Helper
+}
+
+func NewRealtimeWarehousingRepo(data *Data, logger log.Logger) *RealtimeWarehousingRepo {
+	l := log.NewHelper(log.With(logger, "module", "realtime-warehousing/repo/logger-service"))
+	return &RealtimeWarehousingRepo{
+		data: data,
+		log:  l,
+	}
+}
 
 func (r *RealtimeWarehousingRepo) Create(req *v1.RealTimeWarehousingData) error {
 	query := "INSERT INTO realtime_warehousing (event_name, report_data) VALUES (?, ?)"
@@ -377,9 +489,80 @@ func (r *RealtimeWarehousingRepo) Create(req *v1.RealTimeWarehousingData) error 
 }
 ```
 
-这样，就大功告成了，启动服务即可实现消息的消费。
+到这里，这个服务就大功告成了，使用`kratos run`启动服务，即可实现Kafka消息的消费以及入库了。
 
-### 3. Flink
+## 数据的展示
+
+数据的分析展示也是有很多方法的，比如用开源的BI软件连接ClickHouse：Superset、Tableau等。还有就是自己写微服务去分析数据。
+
+### Superset
+
+我们使用Docker的方式安装Superset。需要注意的是，不同的版本，可能界面会有些微的不同。
+
+```bash
+# 拉取镜像
+docker pull apache/superset:latest
+
+# 创建容器
+docker run -itd \
+    -p 8088:8088 \
+    --name superset \
+    --network=app-tier \
+    -e "SUPERSET_SECRET_KEY=your_secret_key_here" \
+    apache/superset
+
+# 创建账户
+docker exec -it superset superset fab create-admin \
+    --username admin \
+    --firstname Superset \
+    --lastname Admin \
+    --email admin@superset.com \
+    --password admin
+
+# 升级数据库
+docker exec -it superset superset db upgrade
+
+# 加载示例
+docker exec -it superset superset load_examples
+
+# 初始化
+docker exec -it superset superset init
+
+# 安装ClickHouse驱动
+docker exec -it superset pip install clickhouse-connect
+```
+
+安装完ClickHouse驱动之后，重启Superset。
+
+现在，Superset就算安装好了，我们可以通过链接：<http://localhost:8088/login/> 访问Superset，账户名和密码都是admin。
+
+下面添加ClickHouse到Superset：
+
+点击`+ DATABASE`按钮
+
+![Superset_+DataBase_Button.png](/assets/images/bi/Superset_+DataBase_Button.png)
+
+选中`ClickHouse Connect`
+
+![Superset_connect_a_database.png](/assets/images/bi/Superset_connect_a_database.png)
+
+填写ClickHouse的连接信息
+
+![Superset_fill_clickhouse_info.png](/assets/images/bi/Superset_fill_clickhouse_info.png)
+
+添加ClickHouse中的`realtime_warehousing`表到DataSet：
+
+![Superset_add_dataset.png](/assets/images/bi/Superset_add_dataset.png)
+
+添加一个图表
+
+![Superset_create_a_new_chart.png](/assets/images/bi/Superset_create_a_new_chart.png)
+
+简单的根据需要添加了纬度和统计方式就会得到下面的图表：
+
+![Superset_pie_chart.png](/assets/images/bi/Superset_pie_chart.png)
+
+## 自己实现微服务
 
 ## 实现代码
 
@@ -402,3 +585,4 @@ func (r *RealtimeWarehousingRepo) Create(req *v1.RealTimeWarehousingData) error 
 - [ClickHouse基础&实践&调优全视角解析](https://xie.infoq.cn/article/37886f3baca09057580bdd5aa)
 - [从维护几百张表到只需维护一张表，一个UEI模型就够了](https://zhuanlan.zhihu.com/p/623182999)
 - [BI花5天完成的分析，UBA只需30秒](https://zhuanlan.zhihu.com/p/629574865)
+- [Connect Superset to ClickHouse](https://clickhouse.com/docs/en/integrations/superset)
