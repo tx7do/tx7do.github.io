@@ -1,4 +1,4 @@
-# 跟我一起用Golang微服务框架Kratos实现一个BI系统
+# 跟我一起用Golang微服务框架Kratos实现一个用户行为分析系统（UBA）
 
 本文将带你了解什么是 **BI（商业智能）** 和 **UBA（用户行为分析）**，并且使用go语言和微服务框架kratos去实现一个UBA系统。
 
@@ -698,3 +698,7 @@ eventReport.track("访问网站", {feeling: "Hello World!"})
 - [从维护几百张表到只需维护一张表，一个UEI模型就够了](https://zhuanlan.zhihu.com/p/623182999)
 - [BI花5天完成的分析，UBA只需30秒](https://zhuanlan.zhihu.com/p/629574865)
 - [Connect Superset to ClickHouse](https://clickhouse.com/docs/en/integrations/superset)
+- [UBA需要知道的几个埋点小技巧](https://www.modb.pro/db/629250)
+- [ClickHouse 在 UBA 系统中的字典编码优化实践](https://xie.infoq.cn/article/f4b5764abd36e22590575793e)
+- [数据基建：埋点体系从认知到解决方案搭建](https://xie.infoq.cn/article/e53548f8f282dc9e8d72022ad)
+- [用户行为分析模型实践（一）—— 路径分析模型](https://xie.infoq.cn/article/c16402dd3e87aa4967121969a)
