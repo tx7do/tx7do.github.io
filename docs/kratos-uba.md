@@ -678,8 +678,8 @@ eventReport.track("访问网站", {feeling: "Hello World!"})
 
 ## 实现代码
 
-- [Kratos BI - github](https://github.com/tx7do/kratos-bi)
-- [Kratos BI - gitee](https://gitee.com/tx7do/kratos-bi)
+- [Kratos UBA - github](https://github.com/tx7do/kratos-uba)
+- [Kratos UBA - gitee](https://gitee.com/tx7do/kratos-uba)
 
 ## 参考资料
 
@@ -702,3 +702,7 @@ eventReport.track("访问网站", {feeling: "Hello World!"})
 - [ClickHouse 在 UBA 系统中的字典编码优化实践](https://xie.infoq.cn/article/f4b5764abd36e22590575793e)
 - [数据基建：埋点体系从认知到解决方案搭建](https://xie.infoq.cn/article/e53548f8f282dc9e8d72022ad)
 - [用户行为分析模型实践（一）—— 路径分析模型](https://xie.infoq.cn/article/c16402dd3e87aa4967121969a)
+- [用户数据分析详解](https://zhuanlan.zhihu.com/p/117519541)
+- [user behavior analytics (UBA) definition](https://www.techtarget.com/searchsecurity/definition/user-behavior-analytics-UBA)
+- [What Is User Behavior Analytics (UBA)/User Entity Behavior Analytics (UEBA)?](https://www.splunk.com/en_us/data-insider/user-behavior-analytics-ueba.html)
+- [B站基于ClickHouse的海量用户行为分析应用实践](http://blog.itpub.net/70024420/viewspace-2931902/)
