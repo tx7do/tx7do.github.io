@@ -133,7 +133,7 @@ db.Model(&user).Updates(map[string]interface{}{"user_name": "NewUserName", "nick
 ### 查
 
 ```go
-  var user User
+var user User
 
 // 获取第一条记录（主键升序）
 // SELECT * FROM users ORDER BY id LIMIT 1;

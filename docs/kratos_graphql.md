@@ -1,4 +1,4 @@
-# Kratos微服务框架下实现GraphQL服务
+# golang微服务框架Kratos实现GraphQL服务
 
 GraphQL 是一种用于应用编程接口（API）的查询语言和服务器端运行时，它可以使客户端准确地获得所需的数据，没有任何冗余。
 

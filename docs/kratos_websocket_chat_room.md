@@ -1,4 +1,4 @@
-# Kratos微服务框架下实现Websocket聊天室
+# golang微服务框架Kratos实现Websocket聊天室
 
 ## 什么是WebSocket
 
