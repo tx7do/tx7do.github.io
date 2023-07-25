@@ -1,4 +1,4 @@
-# Kratos微服务与它的小伙伴系列 - ORM框架 - Ent
+# Golang微服框架Kratos与它的小伙伴系列 - ORM框架 - Ent
 
 ## 什么是ORM？
 
@@ -666,7 +666,7 @@ service UserService {
 |- server  
 ```
 
-那么，我们可以把ent放进data文件夹下面去：
+那么，我们可以把`ent`放进`data`文件夹去：
 
 ```bash
 |- data  
@@ -682,7 +682,7 @@ service UserService {
 
 ### 创建数据库客户端
 
-在`data/data.go`文件中添加创建数据库客户端的代码，并将之注入到`ProviderSet`：
+在`data/data.go`文件中添加创建Ent数据库客户端的方法`NewEntClient`：
 
 ```go
 package data
@@ -710,13 +710,23 @@ func NewEntClient(conf *conf.Data, logger log.Logger) *ent.Client {
 		l.Fatalf("failed opening connection to db: %v", err)
 	}
 	// 运行数据库迁移工具
-	if true {
+	if conf.Database.Migrate {
 		if err := client.Schema.Create(context.Background(), migrate.WithForeignKeys(false)); err != nil {
 			l.Fatalf("failed creating schema resources: %v", err)
 		}
 	}
 	return client
 }
+```
+
+并将之注入到`ProviderSet`
+
+```go
+// ProviderSet is data providers.
+var ProviderSet = wire.NewSet(
+    NewEntClient,
+    ...
+)
 ```
 
 需要说明的是数据库迁移工具，如果数据库中不存在表，迁移工具会创建一个；如果字段存在改变，迁移工具会对字段进行修改。
@@ -729,11 +739,11 @@ func NewEntClient(conf *conf.Data, logger log.Logger) *ent.Client {
 package biz
 
 type UserRepo interface {
-	List(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error)
-	Get(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error)
-	Create(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error)
-	Update(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error)
-	Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool, error)
+	ListUser(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error)
+	GetUser(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error)
+	CreateUser(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error)
+	UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error)
+	DeleteUser(ctx context.Context, req *v1.DeleteUserRequest) (bool, error)
 }
 
 type UserUseCase struct {
@@ -746,23 +756,23 @@ func NewUserUseCase(repo UserRepo, logger log.Logger) *UserUseCase {
 	return &UserUseCase{repo: repo, log: l}
 }
 
-func (uc *UserUseCase) List(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
+func (uc *UserUseCase) ListUser(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
 	return uc.repo.ListUser(ctx, req)
 }
 
-func (uc *UserUseCase) Get(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
+func (uc *UserUseCase) GetUser(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
 	return uc.repo.GetUser(ctx, req)
 }
 
-func (uc *UserUseCase) Create(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
+func (uc *UserUseCase) CreateUser(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
 	return uc.repo.CreateUser(ctx, req)
 }
 
-func (uc *UserUseCase) Update(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
+func (uc *UserUseCase) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
 	return uc.repo.UpdateUser(ctx, req)
 }
 
-func (uc *UserUseCase) Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool, error) {
+func (uc *UserUseCase) DeleteUser(ctx context.Context, req *v1.DeleteUserRequest) (bool, error) {
 	return uc.repo.DeleteUser(ctx, req)
 }
 ```
@@ -801,14 +811,127 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool, error) {
+func (r *UserRepo) convertEntToProto(in *ent.User) *v1.User {
+	if in == nil {
+		return nil
+	}
+	return &v1.User{
+		Id:         in.ID,
+		UserName:   in.UserName,
+		NickName:   in.NickName,
+		Password:   in.Password,
+		CreateTime: util.UnixMilliToStringPtr(in.CreateTime),
+		UpdateTime: util.UnixMilliToStringPtr(in.UpdateTime),
+	}
+}
+
+func (r *UserRepo) Count(ctx context.Context, whereCond entgo.WhereConditions) (int, error) {
+	builder := r.data.db.User.Query()
+	if len(whereCond) != 0 {
+		for _, cond := range whereCond {
+			builder = builder.Where(cond)
+		}
+	}
+	return builder.Count(ctx)
+}
+
+func (r *UserRepo) List(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
+	whereCond, orderCond := entgo.QueryCommandToSelector(req.GetQuery(), req.GetOrderBy())
+
+	builder := r.data.db.User.Query()
+
+	if len(whereCond) != 0 {
+		for _, cond := range whereCond {
+			builder = builder.Where(cond)
+		}
+	}
+	if len(orderCond) != 0 {
+		for _, cond := range orderCond {
+			builder = builder.Order(cond)
+		}
+	} else {
+		builder.Order(ent.Desc(user.FieldCreateTime))
+	}
+	if req.GetPage() > 0 && req.GetPageSize() > 0 && !req.GetNopaging() {
+		builder.
+			Offset(paging.GetPageOffset(req.GetPage(), req.GetPageSize())).
+			Limit(int(req.GetPageSize()))
+	}
+	results, err := builder.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*v1.User, 0, len(results))
+	for _, res := range results {
+		item := r.convertEntToProto(res)
+		items = append(items, item)
+	}
+
+	count, err := r.Count(ctx, whereCond)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1.ListUserResponse{
+		Total: int32(count),
+		Items: items,
+	}, nil
+}
+
+func (r *UserRepo) Get(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
+	res, err := r.data.db.User.Get(ctx, req.GetId())
+	if err != nil && !ent.IsNotFound(err) {
+		return nil, err
+	}
+
+	return r.convertEntToProto(res), err
+}
+
+func (r *UserRepo) Create(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
+	cryptoPassword, err := crypto.HashPassword(req.User.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.data.db.User.Create().
+		SetNillableUserName(req.User.UserName).
+		SetNillableNickName(req.User.NickName).
+		SetPassword(cryptoPassword).
+		SetCreateTime(time.Now().UnixMilli()).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.convertEntToProto(res), err
+}
+
+func (r *UserRepo) Update(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
+	cryptoPassword, err := crypto.HashPassword(req.User.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	builder := r.data.db.User.UpdateOneID(req.Id).
+		SetNillableNickName(req.User.NickName).
+		SetPassword(cryptoPassword).
+		SetUpdateTime(time.Now().UnixMilli())
+
+	res, err := builder.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.convertEntToProto(res), err
+}
+
+func (r *UserRepo) Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool, error) {
 	err := r.data.db.User.
 		DeleteOneID(req.GetId()).
 		Exec(ctx)
 	return err != nil, err
 }
-
-...
 ```
 
 注入到`data.ProviderSet`
@@ -843,35 +966,71 @@ func NewUserService(logger log.Logger, uc *biz.UserUseCase) *UserService {
 	}
 }
 
-// ListUser 列表
+// ListUser 获取用户列表
 func (s *UserService) ListUser(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
-	return s.uc.List(ctx, req)
+	return s.uc.ListUser(ctx, req)
 }
 
-// GetUser 获取
+// GetUser 获取一个用户
 func (s *UserService) GetUser(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
-	return s.uc.Get(ctx, req)
+	return s.uc.GetUser(ctx, req)
 }
 
-// CreateUser 创建
+// CreateUser 创建一个用户
 func (s *UserService) CreateUser(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
-	return s.uc.Create(ctx, req)
+	return s.uc.CreateUser(ctx, req)
 }
 
-// UpdateUser 更新
+// UpdateUser 更新一个用户
 func (s *UserService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
-	return s.uc.Update(ctx, req)
+	return s.uc.UpdateUser(ctx, req)
 }
 
-// DeleteUser 删除
+// DeleteUser 删除一个用户
 func (s *UserService) DeleteUser(ctx context.Context, req *v1.DeleteUserRequest) (*emptypb.Empty, error) {
-	_, err := s.uc.Delete(ctx, req)
+	_, err := s.uc.DeleteUser(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 ```
+
+注入到`service.ProviderSet`
+
+```go
+package service
+
+// ProviderSet is data providers.
+var ProviderSet = wire.NewSet(
+    NewUserService,
+    ...
+)
+```
+
+将服务注册到gRPC服务器当中去：
+
+```go
+package server
+
+// NewGRPCServer new a gRPC server.
+func NewGRPCServer(cfg *conf.Bootstrap, logger log.Logger,
+	userSvc *service.UserService,
+) *grpc.Server {
+	srv := bootstrap.CreateGrpcServer(cfg, logging.Server(logger))
+
+	userV1.RegisterUserServiceServer(srv, userSvc)
+
+	return srv
+}
+```
+
+这样，我们就有了一个完整的`用户服务`。
+
+## 实例代码
+
+- <https://github.com/tx7do/kratos-ent-example>
+- <https://gitee.com/tx7do/kratos-ent-example>
 
 ## 结语
 
