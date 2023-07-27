@@ -1,4 +1,4 @@
-# golang微服务框架kratos实现SSE服务
+# Golang微服务框架kratos实现SSE服务
 
 我也是最近才知道SSE的，问了下周围的人，发现知道的人也着实不多的。我是怎么知道SSE的呢？我看了下OpenAI的API，有一个Stream模式，就是使用的SSE实现的。说白了，这就是一个HTTP长连接通过服务端持续发送数据到前端的协议。在网络不稳定的情况下，它比Websocket要更好。
 

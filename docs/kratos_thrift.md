@@ -1,4 +1,4 @@
-# golang微服务框架Kratos实现Thrift服务
+# Golang微服务框架Kratos实现Thrift服务
 
 ## 什么是Thrift
 

@@ -1,4 +1,4 @@
-# golang微服务框架kratos实现Socket.IO服务
+# Golang微服务框架kratos实现Socket.IO服务
 
 Socket.IO 是一个面向实时 web 应用的 实时通讯库。它使得服务器和客户端之间实时双向的通信成为可能。底层使用EngineIO。SocketIO的的客户端使用Engine.IO-Client，服务端使用Engine.IO实现。
 

@@ -1,4 +1,4 @@
-# golang微服务框架kratos实现SignalR服务
+# Golang微服务框架kratos实现SignalR服务
 
 基于 SignalR 可以实现客户端和服务器之间进行即时通信。
 
