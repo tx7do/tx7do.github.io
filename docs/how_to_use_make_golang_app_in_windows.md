@@ -1,12 +1,20 @@
 # 怎么样在Windows下使用Make编译Golang程序
 
-GNU的Make是一个又古老又强大的构建工具，就Makefile的语法而言也不算复杂，没有特别复杂的需求的话，拿来做程序构建是一个好主意。更复杂一点的构建就可以选择Google的Bazel，但是通常的工程都没有这么复杂的需求。
+GNU的Make是一个又古老又强大的构建工具，在我们的开发当中用得普遍。就Makefile的语法而言也不算复杂，没有特别复杂的需求的话，很容易就上手了，维护起来也容易，拿Make来做程序构建是一个好主意。
 
-在Unix、Linux、BSD、macOS使用Make是很方便的，很自然的。可是，在Windows下面却存在着兼容性的问题，在其他操作系统可以顺利执行的Makefile，在Windows却跑不了。这体验很糟糕。虽然微软在努力解决不兼容的问题，比如最新的PowerShell，但是操作系统毕竟还是存在着巨大的差异，要完全解决几乎是不可能完成的任务。所以，在Makefile多少是需要做一些适配。
+更复杂一点的项目构建可以选择Google的[Bazel](https://bazel.build/)，但是通常的项目(至少70%-80%的项目)都没有这么复杂的需求。
+
+在Unix、Linux、BSD、macOS等xNix下面使用Make是很方便的，很自然的，因为是出厂自带。
+
+可是，在Windows下面却不是这么一回事儿。Windows毕竟和xNix不是一路人。首先不预装，安装就存在着巨大的阻碍——太费劲了——网上一搜，大部分人都告诉你，你得先装一个MinGW，然后又要搞环境变量，然后才能用。
+
+其次，还存在着兼容性的问题，在其他操作系统可以顺利执行的Makefile，在Windows却跑不了。这体验很糟糕。虽然微软在努力解决不兼容的问题，比如最新的PowerShell，比如提供了Linux的子系统WSL，但是操作系统毕竟还是存在着巨大的差异，要完全解决几乎是不可能完成的任务。所以，在Makefile多少也需要做一些适配。
+
+另外，还需要知道的是，Make要用起来，也不是说，就是一个Make而已，xNix下面有一个很大的软软包做支撑，Make才会那么的好用，grep awk sed touch……这些，在Windows下也都是需要自行去安装的。
 
 ## 安装Make
 
-常规的做法，大家都是使用安装MinGW包的方法来安装Make，但是这很繁琐，我并不推荐，我推荐使用[Choco](https://chocolatey.org/)和[Scoop](https://scoop.sh/)来安装管理Make。
+常规的做法，大家都是使用安装MinGW包的方法来安装Make，但是这很繁琐，我并不推荐，我推荐使用[Choco](https://chocolatey.org/)或者[Scoop](https://scoop.sh/)这两个软件包管理器的其中一个来安装管理和Make。
 
 ### Choco
 
@@ -52,7 +60,7 @@ scoop install grep gawk sed touch
 
 下载好之后，解压，把bin文件夹加入到Windows的环境变量里面，使之可以全局运行。
 
-然后，还需要把`mingw32-make.exe`文件改名成`make.exe`。
+然后，把`mingw32-make.exe`文件改名或者拷贝一个备份为`make.exe`。
 
 此方法比较繁琐，不如使用软件包管理器去直接安装make还方便多了。
 
@@ -60,6 +68,11 @@ scoop install grep gawk sed touch
 
 ```powershell
 choco install mingw
+```
+
+或者
+
+```powershell
 scoop install mingw
 ```
 
@@ -67,19 +80,22 @@ scoop install mingw
 
 在Windows下使用Make和在Linux下面使用Make是有区别的，而这个差异性倒不是来自于Make，而是来自于依赖的命令。
 
-Bash里面很多的命令，在CMD下都没有，PowerShell倒是增加了一些，像：`man`、`ls`、`rm`、`pwd`这些常用的倒是都已经有了，但是差异还是有，兼容性永远是个大问题。
+`Bash`里面很多的命令，在古老的`CMD`下都没有，`PowerShell`倒是增加了一些，像：`man`、`ls`、`rm`、`pwd`这些在xNix下常用的命令，有是有了，但是差异还是有，兼容性永远是个大问题，文件系统就是一个巨大的鸿沟。
 
-常用的Linux工具倒是有，像`grep`、`awk`、`sed`……都可以通过上面的软件管理器choco、scoop安装到。但是，像`uname`这些平台严重相关的命令是肯定没有办法的。
+日常开发中常用的Linux工具，像`grep`、`awk`、`sed`……这些，都可以通过上面踢到的两个软件管理器`choco`、`scoop`安装到。但是，像`uname`这些操作系统严重相关的命令是肯定没有办法的。
 
-简单举一些例子：
+关于兼容性，我简单的举一些例子：
 
 1. 文件路径分隔符，Windows是`\`，而Linux是`/`;
-2. Linux的`mkdir`是有`-p`选项的，而Windows没有。
-3. `echo`的行为也跟Linux的不同。
+2. Windows的根目录是`C:\\`、`D:\\`……，而xNix是`/`；
+3. Linux的`mkdir`是有`-p`选项的，而Windows没有。
+4. `echo`的行为也跟Linux的不同。
 
-现在PowerShell倒是在提高与Bash的兼容性，但是毕竟系统差异性太大，兼容性是肯定存在的，那么，怎么办呢？我们可以在Makefile里面判断操作系统的版本，来做差异化处理。
+现在PowerShell倒是在提高与Bash的兼容性，可毕竟系统差异性太大，所以兼容性是肯定存在的。
 
-简单的探测系统版本：
+那么，怎么办呢？我们可以在Makefile里面判断操作系统的类型，然后根据操作系统来做差异化处理。
+
+简单的探测系统类型的Makefile：
 
 ```makefile
 detected_OS :=
@@ -120,7 +136,7 @@ mac:
 	$(call BUILD_CMD,darwin,$(GOARCH),test)
 ```
 
-上面这段代码里面使用`ifeq ($(OS),Windows_NT)`来判断操作系统，得到一个`IS_WINDOWS`的变量。
+在上面这段代码里，我们使用`ifeq ($(OS),Windows_NT)`来判断操作系统，得到一个`IS_WINDOWS`的变量。
 
 然后，定义了一个`BUILD_CMD`的函数，它调用了内置的`if`函数，它的语法是：
 
@@ -128,7 +144,7 @@ mac:
 $(if <condition>,<then-part>,<else-part>)
 ```
 
-第一个分支是走的Windows的编译，第二个分支是走的其他操作系统的编译。
+第一个分支是走的Windows的编译，第二个分支是走的其他操作系统（xNix）的编译。
 
 需要注意的是：路径分隔符，参数设置前面需要加`SET`，语句之间需要用`&`间隔。
 
