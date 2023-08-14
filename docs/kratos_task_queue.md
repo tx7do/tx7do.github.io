@@ -1,6 +1,6 @@
 # golang微服务框架Kratos实现分布式任务队列
 
-**任务队列（Task Queue）**一般用于线程或计算机之间分配工作的一种机制。其本质是生产者消费者模型，生产者发送任务到消息队列，消费者负责处理任务。
+**任务队列（Task Queue）** 一般用于线程或计算机之间分配工作的一种机制。其本质是生产者消费者模型，生产者发送任务到消息队列，消费者负责处理任务。
 
 提起**分布式任务队列（Distributed Task Queue）**，就不得不提Python的Celery。而Asynq和Machinery就是GO当中类似于Celery的分布式任务队列。
 
@@ -32,7 +32,17 @@
 
 ## Kratos下实现分布式任务队列
 
-我们将分布式任务队列以transport.Server的形式整合进微服务框架Kratos。
+我们将分布式任务队列以`transport.Server`的形式整合进微服务框架`Kratos`。
+
+目前，go里面有两个分布式任务队列可用：
+
+- [Asynq](https://github.com/hibiken/asynq)
+- [Machinery](https://github.com/RichardKnop/machinery)
+
+我已经对这两个库进行了支持：
+
+- [kratos-transport/Asynq](https://github.com/tx7do/kratos-transport/tree/main/transport/asynq)
+- [kratos-transport/Machinery](https://github.com/tx7do/kratos-transport/tree/main/transport/machinery)
 
 ### Asynq
 
@@ -83,17 +93,21 @@ docker run -d \
 
 ![AsynqMon Metrics](/assets/images/task_queue/asynq_web_ui_metrics.png)
 
-#### 创建Kratos服务
+#### 创建Kratos服务端
+
+首先安装依赖库：
+
+```bash
+go get -u github.com/tx7do/kratos-transport/transport/asynq
+```
+
+然后引入库，并且创建出来`Server`：
 
 ```go
 import github.com/tx7do/kratos-transport/transport/asynq
 
 const (
 	localRedisAddr = "127.0.0.1:6379"
-
-	testTask1        = "test_task_1"
-	testDelayTask    = "test_task_delay"
-	testPeriodicTask = "test_periodic_task"
 )
 
 ctx := context.Background()
@@ -111,9 +125,18 @@ defer srv.Stop(ctx)
 
 #### 创建新任务
 
+```go
+const (
+	testTask1        = "test_task_1"
+	testDelayTask    = "test_delay_task"
+	testPeriodicTask = "test_periodic_task"
+)
+```
+
 * 普通任务
 
 ```go
+
 // 最多重试3次，10秒超时，20秒后过期
 err = srv.NewTask(testTask1, []byte("test string"),
     asynq.MaxRetry(10),
@@ -193,18 +216,19 @@ Machinery一共提供了三种任务编排方式：
 * Chord：执行一组同步任务，执行完成后，在调用一个回调函数。
 * Chain：执行一组同步任务，任务有次序之分，上个任务的出参可作为下个任务的入参。
 
-#### 创建Kratos服务
+#### 创建Kratos服务器
+
+首先安装依赖库：
+
+```bash
+go get -u github.com/tx7do/kratos-transport/transport/machinery
+```
 
 ```go
 import github.com/tx7do/kratos-transport/transport/machinery
 
 const (
 	localRedisAddr = "127.0.0.1:6379"
-
-	testTask1        = "test_task_1"
-	testDelayTask    = "test_delay_task"
-	testPeriodicTask = "test_periodic_task"
-	sumTask          = "sum_task"
 )
 
 ctx := context.Background()
@@ -222,41 +246,58 @@ defer srv.Stop(ctx)
 
 #### 创建新任务
 
+```go
+const (
+	testTask1        = "test_task_1"
+	testDelayTask    = "test_delay_task"
+	testPeriodicTask = "test_periodic_task"
+
+	addTask         = "add"
+	multiplyTask    = "multiply"
+	sumIntTask      = "sum_ints"
+	sumFloatTask    = "sum_floats"
+	concatTask      = "concat"
+	splitTask       = "split"
+	panicTask       = "panic_task"
+	longRunningTask = "long_running_task"
+)
+```
+
 * 普通任务
 
 ```go
-var args = map[string]interface{}{}
-args["int64"] = 1
-err = srv.NewTask(sumTask, args)
+err = srv.NewTask(sumTask, WithArgument("int64", 1))
 ```
 
 * 延迟任务
 
 ```go
 // 延迟5秒执行任务
-var args = map[string]interface{}{}
-err = srv.NewTask(testDelayTask, args, WithDelayTime(time.Now().UTC().Add(time.Second*5)))
+err = srv.NewTask(testDelayTask, WithDelayTime(time.Now().UTC().Add(time.Second*5)))
 ```
 
 * 周期性任务（需要注意的是，延迟任务的精度只能到秒级）
 
 ```go
-var args = map[string]interface{}{}
 // 每分钟执行一次
-err = srv.NewPeriodicTask("*/1 * * * ?", testPeriodicTask, args)
+err = srv.NewPeriodicTask("*/1 * * * ?", testPeriodicTask)
 ```
 
 #### 注册任务回调
 
 ```go
-
-func handleTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
+func handleTask1() error {
+	fmt.Println("################ 执行任务Task1 #################")
 	return nil
 }
 
-func handleDelayTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
+func handleDelayTask() error {
+	fmt.Println("################ 执行延迟任务DelayTask #################")
+	return nil
+}
+
+func handlePeriodicTask() error {
+	fmt.Println("################ 执行周期任务PeriodicTask #################")
 	return nil
 }
 
@@ -269,15 +310,10 @@ func handleAdd(args ...int64) (int64, error) {
 	return sum, nil
 }
 
-func handlePeriodicTask() error {
-	fmt.Println("################ 执行周期任务PeriodicTask #################")
-	return nil
-}
-
 err = srv.HandleFunc(testTask1, handleTask)
 err = srv.HandleFunc(testTaskDelay, handleDelayTask)
 err = srv.HandleFunc(testPeriodicTask, handlePeriodicTask)
-err = srv.HandleFunc(sumTask, handleAdd)
+err = srv.HandleFunc(addTask, handleAdd)
 ```
 
 #### 示例代码
@@ -286,14 +322,14 @@ err = srv.HandleFunc(sumTask, handleAdd)
 
 ## 参考资料
 
+* [Celery - Github](https://github.com/celery/celery)
+* [Machinery - Github](https://github.com/RichardKnop/machinery)
+* [Asynq - Github](https://github.com/hibiken/asynq)
 * [Celery 简介](https://www.celerycn.io/ru-men/celery-jian-jie)
 * [分布式任务队列Celery的实践](https://cloud.tencent.com/developer/article/1898147)
 * [Asynq: Golang distributed task queue library](https://nickest14.medium.com/asynq-golang-distributed-task-queue-library-75de3424a830)
 * [异步任务处理系统，如何解决业务长耗时、高并发难题？](https://www.51cto.com/article/707654.html)
 * [分布式任务队列 Celery](https://blog.51cto.com/u_15301988/3080859)
-* [Celery - Github](https://github.com/celery/celery)
-* [Machinery - Github](https://github.com/RichardKnop/machinery)
-* [Asynq - Github](https://github.com/hibiken/asynq)
 * [machinery中文文档](https://zhuanlan.zhihu.com/p/270640260)
 * [Go 语言分布式任务处理器 Machinery – 架构，源码详解篇](https://marksuper.xyz/2022/04/20/machinery1/)
 * [Task orchestration in Go Machinery.](https://medium.com/swlh/task-orchestration-in-go-machinery-66a0ddcda548)
