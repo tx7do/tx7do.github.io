@@ -394,10 +394,10 @@ import axios from 'axios';
 export class PostFile {
   static xhr(file: File, url: string, data: object) {
     const formData = new FormData();
-    formData.append('file', file);
     Object.entries(data).forEach(([k, v]) => {
       formData.append(k, v);
     });
+    formData.append('file', file);
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
@@ -414,10 +414,10 @@ export class PostFile {
 
   static fetch(file: File, url: string, data: object) {
     const formData = new FormData();
-    formData.append('file', file);
     Object.entries(data).forEach(([k, v]) => {
       formData.append(k, v);
     });
+    formData.append('file', file);
 
     fetch(url, {
       method: 'POST',
@@ -433,10 +433,10 @@ export class PostFile {
 
   static axios(file: File, url: string, data: object) {
     const formData = new FormData();
-    formData.append('file', file);
     Object.entries(data).forEach(([k, v]) => {
       formData.append(k, v);
     });
+    formData.append('file', file);
 
     axios.post(
       url,
@@ -534,10 +534,47 @@ Content-Type: application/zip
 
 直接使用`XMLHttpRequest`和`Fetch API`都会自动填写成为文件真实的`Content-Type`。而`Axios`则不会，需要自己填写进去，或许是我不会使用`Axios`，但是这是一个需要注意的地方，否则在MinIO里边的`Content-Type`会被填写成为`Axios`默认的`Content-Type`。
 
+### 4. 使用`POST`方法提交`FormData`的时候，`file`表单域必须在最后一位
+
+这个是在：<https://help.aliyun.com/zh/oss/how-to-handle-common-errors-when-the-postobject-operation-is-called#title-ye0-74w-7h8> 里面发现的解决方法。
+
+我一开始把`file`表单域放在的第一位，然后，报错了：
+
+```xml
+The body of your POST request is not well-formed multipart/form-data
+```
+
+或者
+
+```xml
+The name of the uploaded key is missing
+```
+
+完全摸不着头脑，其实，就是因为这个`file`表单域的次序问题。
+
+### 5. 403错误码的问题
+
+用Put方法上传文件，碰到了403的报错，死活传不上去文件。MinIO的服务器连接地址用外网地址也好，127.0.0.1也好，都报错。只有`localhost`才能够成功上传。真是百思不得其解。
+
+当你打开管理后台，通过：Administrator -> Monitoring -> Metrics的访问路径到达汇总页面，你会发现在`Servers`下面，本机地址是`localhost:9001`，原因就在这里了。
+
+MinIO是不对外开放的，而MinIO的验证是通过主机名来做签名的，主机名不一致，自然是通过不了签名验证的。那么，我们可以怎么办解决这个问题呢？
+
+我们可以修改环境变量`MINIO_SERVER_URL`来达成。
+
+我们在docker创建的时候注入环境变量，如果不是Docker创建的服务可以用`export`的方式注入。
+
+它可以是域名（比如：`http://minio.xxxx.com`），也可以直接ip+端口（比如：`http://1.1.1.1:9000`）。需要注意的是，一定要加`http://`或者`https://`的主机头，不然无法访问。
+
+相关的配置有两个环境变量，可以用来进行域名的绑定：
+
+- MINIO_SERVER_URL，它指向的是API的端口，默认为9000端口；
+- MINIO_BROWSER_REDIRECT_URL，它指向的是控制台的端口，默认为9001端口。
+
 ## 示例代码
 
 Github: <https://github.com/tx7do/minio-typescript-example>  
 Gitee: <https://gitee.com/tx7do/minio-typescript-example>
 
-* 后端采用go+gin实现；
-* 前端有React和Vue的实现，要实现进度条和多文件上传也是容易的。
+- 后端采用go+gin实现；
+- 前端有React和Vue的实现，要实现进度条和多文件上传也是容易的。
