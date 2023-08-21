@@ -572,6 +572,8 @@ MinIO是不对外开放的，而MinIO的验证是通过主机名来做签名的�
 - MINIO_SERVER_URL，它指向的是API的端口，默认为9000端口；
 - MINIO_BROWSER_REDIRECT_URL，它指向的是控制台的端口，默认为9001端口。
 
+另，我发现，访问时候的端点会对Put预签名方法传出的链接有影响，故而，写成外网IP即可。
+
 ## 示例代码
 
 Github: <https://github.com/tx7do/minio-typescript-example>  
