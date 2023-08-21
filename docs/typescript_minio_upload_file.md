@@ -31,13 +31,14 @@ docker run -itd \
     --name minio-server \
     -p 9000:9000 \
     -p 9001:9001 \
+    --env MINIO_SERVER_URL="http://127.0.0.1:9000" \
+    --env MINIO_BROWSER_REDIRECT_URL="http://127.0.0.1:9001" \    
     --env MINIO_ROOT_USER="root" \
     --env MINIO_ROOT_PASSWORD="123456789" \
     --env MINIO_DEFAULT_BUCKETS='images' \
     --env MINIO_FORCE_NEW_KEYS="yes" \
     --env BITNAMI_DEBUG=true \
     bitnami/minio:latest
-
 ```
 
 ## TypeScript实现文件上传
