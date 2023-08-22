@@ -555,24 +555,34 @@ The name of the uploaded key is missing
 
 ### 5. 403错误码的问题
 
-用Put方法上传文件，碰到了403的报错，死活传不上去文件。MinIO的服务器连接地址用外网地址也好，127.0.0.1也好，都报错。只有`localhost`才能够成功上传。真是百思不得其解。
+用Put方法上传文件，碰到了403的报错，死活传不上去文件，本质上，是因为验证不通过。验证不通过的原因有很多，比如：时间不对，链接还没开始就过期了、主机不匹配……
 
-当你打开管理后台，通过：Administrator -> Monitoring -> Metrics的访问路径到达汇总页面，你会发现在`Servers`下面，本机地址是`localhost:9001`，原因就在这里了。
+我碰到的403问题是主机不匹配导致的——当然，这是事后才知道的——MinIO的服务器连接地址用外网地址也好，127.0.0.1也好，都报错。只有`localhost`才能够成功上传。一开始，我真是百思不得其解。
 
-MinIO是不对外开放的，而MinIO的验证是通过主机名来做签名的，主机名不一致，自然是通过不了签名验证的。那么，我们可以怎么办解决这个问题呢？
+我们来看Put提交的表单项里面有一条：
 
-我们可以修改环境变量`MINIO_SERVER_URL`来达成。
+```xml
+X-Amz-SignedHeaders: host
+```
 
-我们在docker创建的时候注入环境变量，如果不是Docker创建的服务可以用`export`的方式注入。
+根据亚马逊的文档：[Authenticating Requests: Using Query Parameters (AWS Signature Version 4)](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html) 里面的描述，这一条的意思是，签名里面加了服务器的主机名，作为验证的条件之一。
 
-它可以是域名（比如：`http://minio.xxxx.com`），也可以直接ip+端口（比如：`http://1.1.1.1:9000`）。需要注意的是，一定要加`http://`或者`https://`的主机头，不然无法访问。
+当你打开管理后台，通过：Administrator -> Monitoring -> Metrics的访问路径到达汇总页面，你会发现在`Servers`下面，本机地址是`localhost:9001`。
 
-相关的配置有两个环境变量，可以用来进行域名的绑定：
+那么，原因就在这里了，主机名不一致，自然是通过不了签名验证的。那么，我们可以怎么去解决这个问题呢？
+
+我经过了尝试，发现预签名产生的预签名链接地址居然是MinIO客户端连接MinIO所使用的endpoint，我之前以为我反正go服务和MinIO服务在一台机器上，那么我自然是通过`localhost`来连接会更好一些，不想会有这样的副作用——一切，都是我想当然的结果——总之，连接MinIO的时候，填写外网IP就搞定了。
+
+现在，这个问题是解决了，但是我又出来了另外一个问题：如果我想用域名访问呢？那该怎么办？能不能够有像Nignx那样绑定虚拟主机的方法来绑定域名？后来查资料，还真可以：
+
+我们可以修改环境变量`MINIO_SERVER_URL`和`MINIO_BROWSER_REDIRECT_URL`来达成，它们可以用来进行域名的绑定：
 
 - MINIO_SERVER_URL，它指向的是API的端口，默认为9000端口；
 - MINIO_BROWSER_REDIRECT_URL，它指向的是控制台的端口，默认为9001端口。
 
-另，我发现，访问时候的端点会对Put预签名方法传出的链接有影响，故而，写成外网IP即可。
+我们如果使用Docker进行部署，可以在创建的时候注入环境变量，如果不使用Docker部署则可以用`export`的方式注入。
+
+它可以是域名（比如：`http://minio.xxxx.com`），也可以直接ip+端口（比如：`http://1.1.1.1:9000`）。 **但，需要注意的是，一定要加`http://`或者`https://`主机头，不然无法访问。**
 
 ## 示例代码
 
