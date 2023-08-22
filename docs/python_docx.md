@@ -58,12 +58,10 @@ doc.save("generated_doc.docx")
 
 它使用了一个类似于Python模板引擎`Jinja2`的模板语法，玩过各种服务器渲染的模板引擎的玩家对此种语法都不陌生，上手也是容易的：
 
-```bash
-{%p jinja2_tag %} for paragraphs
-{%tr jinja2_tag %} for table rows
-{%tc jinja2_tag %} for table columns
-{%r jinja2_tag %} for runs
-```
+>{%p jinja2_tag %} for paragraphs  
+>{%tr jinja2_tag %} for table rows  
+>{%tc jinja2_tag %} for table columns  
+>{%r jinja2_tag %} for runs
 
 ## docx 转 pdf
 
