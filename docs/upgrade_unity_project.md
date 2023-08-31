@@ -78,6 +78,10 @@ GetComponent<Text>().material.color = labelColor;
 GetComponent<Image>().material.mainTexture = textOver;
 ```
 
+```csharp
+BlendWeights is obsolete. Use SkinWeights instead (UnityUpgradable) -> SkinWeights
+```
+
 ## 参考资料
 
 - [Unity导入旧版本游戏工程出现的问题集](http://blog.mangolovecarrot.net/2021/04/09/231)
