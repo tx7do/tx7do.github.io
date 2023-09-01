@@ -69,8 +69,44 @@ Asynq是一个go语言实现的分布式任务队列和异步处理库，基于R
 #### 安装命令行工具
 
 ```shell
-go install github.com/hibiken/asynq/tools/asynq
+go install github.com/hibiken/asynq/tools/asynq@latest
 ```
+
+它能够进行如下的操作：
+
+```bash
+Command line tool to inspect tasks and queues managed by Asynq
+
+USAGE
+  asynq <command> <subcommand> [flags]
+
+COMMANDS
+  cron:           Manage cron
+  dash:           View dashboard
+  group:          Manage groups
+  queue:          Manage queues
+  server:         Manage servers
+  stats:          View current state
+  task:           Manage tasks
+
+FLAGS
+  --cluster       Connect to redis cluster
+  --cluster_addrs List of comma-separated redis server addresses
+  --config        Config file to set flag defaut values (default is $HOME/.asynq.yaml)
+  --db            Redis database number (default is 0)
+  --help          Help for asynq
+  --password      Password to use when connecting to redis server
+  --tls_server    Server name for TLS validation
+  --uri           Redis server URI
+  --version       Version for asynq
+
+EXAMPLES
+  $ asynq stats
+  $ asynq queue pause myqueue
+  $ asynq task list --queue=myqueue --state=archived
+```
+
+我平时不怎么用这个命令行工具，毕竟，它还提供了一个Web的工具，更好用。
 
 #### Docker安装Web UI
 
@@ -159,7 +195,7 @@ func handlePeriodicTask(taskType string, taskData *DelayTask) error {
 
 var err error
 
-err = srv.RegisterMessageHandler(testTask1,
+err = srv.RegisterSubscriber(testTask1,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:
@@ -172,7 +208,7 @@ err = srv.RegisterMessageHandler(testTask1,
     DelayTaskBinder,
 )
 
-err = srv.RegisterMessageHandler(testDelayTask,
+err = srv.RegisterSubscriber(testDelayTask,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:
@@ -185,7 +221,7 @@ err = srv.RegisterMessageHandler(testDelayTask,
     DelayTaskBinder,
 )
 
-err = srv.RegisterMessageHandler(testPeriodicTask,
+err = srv.RegisterSubscriber(testPeriodicTask,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:

@@ -34,6 +34,74 @@
 4. 解耦任务：可以将任务与主程序解耦，以提高代码的可读性和可维护性，解耦应用程序最直接的好处就是可扩展性和并发性能的提高。支持并发执行任务，同时支持自动动态扩展。
 5. 实时处理：可以支持实时处理任务，例如即时通讯、消息队列等。
 
+## Asynq概述
+
+Asynq是一个使用Go语言实现的分布式任务队列和异步处理库，它由Redis提供支持，它提供了轻量级的、易于使用的API，并且具有高可扩展性和高可定制化性。其作者Ken Hibino，任职于Google。
+
+Asynq主要由以下几个组件组成：
+
+- 任务(Task)：需要被异步执行的操作；
+- 处理器(Processor)：负责执行任务的工作进程；
+- 队列(Queue)：存放待执行任务的队列；
+- 调度器(Scheduler)：根据规则将任务分配给不同的处理器进行执行。
+
+![Asynq Framework](/assets/images/task_queue/asynq_framework.png)
+
+通过使用Asynq，我们可以非常轻松的实现异步任务处理，同时还可以提供高效率、高可扩展性和高自定义性的处理方案。
+
+## Asynq的特点
+
+* 保证至少执行一次任务
+* 任务写入Redis后可以持久化
+* 任务失败之后，会自动重试
+* worker崩溃自动恢复
+* 可是实现任务的优先级
+* 任务可以进行编排
+* 任务可以设定执行时间或者最长可执行的时间
+* 支持中间件
+* 可以使用 unique-option 来避免任务重复执行，实现唯一性
+* 支持 Redis Cluster 和 Redis Sentinels 以达成高可用性
+* 作者提供了Web UI & CLI Tool让大家查看任务的执行情况
+
+## Asynq可视化监控
+
+Asynq提供了两种监控手段：CLI和Web UI。
+
+### 命令行工具CLI
+
+```bash
+go install github.com/hibiken/asynq/tools/asynq@latest
+```
+
+### Web UI
+
+[Asynqmon](https://github.com/hibiken/asynqmon)是一个基于Web的工具，用于监视管理Asynq的任务和队列，有关详细的信息可以参阅工具的README。
+
+Web UI我们可以通过Docker的方式来进行安装：
+
+```bash
+docker pull hibiken/asynqmon:latest
+
+docker run -d \
+    --name asynq \
+    -p 8080:8080 \
+    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379
+```
+
+安装好Web UI之后，我们就可以打开浏览器访问管理后台了：<http://localhost:8080>
+
+* 仪表盘
+
+![AsynqMon Dashboard](/assets/images/task_queue/asynq_web_ui_dashboard.png)
+
+* 任务视图
+
+![AsynqMon Task View](/assets/images/task_queue/asynq_web_ui_task_view.png)
+
+* 性能
+
+![AsynqMon Metrics](/assets/images/task_queue/asynq_web_ui_metrics.png)
+
 ## Kratos下实现分布式任务队列
 
 我们将分布式任务队列以`transport.Server`的形式整合进微服务框架`Kratos`。
@@ -48,64 +116,27 @@
 - [kratos-transport/Asynq](https://github.com/tx7do/kratos-transport/tree/main/transport/asynq)
 - [kratos-transport/Machinery](https://github.com/tx7do/kratos-transport/tree/main/transport/machinery)
 
-### Asynq
+### 创建Kratos服务端
 
-Asynq是一个go语言实现的分布式任务队列和异步处理库，基于Redis。类似于Python的Celery。作者Ken Hibino，任职于Google。
+因为它依赖Redis，因此，我们可以使用Docker的方式安装Redis的服务器：
 
-#### 特点
+```bash
+docker pull bitnami/redis:latest
 
-* 保证至少执行一次任务
-* 任务写入Redis后可以持久化
-* 任务失败之后，会自动重试
-* worker崩溃自动恢复
-* 可是实现任务的优先级
-* 任务可以进行编排
-* 任务可以设定执行时间或者最长可执行的时间
-* 支持中间件
-* 可以使用 unique-option 来避免任务重复执行，实现唯一性
-* 支持 Redis Cluster 和 Redis Sentinels 以达成高可用性
-* 作者提供了Web UI & CLI Tool让大家查看任务的执行情况
-
-#### 安装命令行工具
-
-```shell
-go install github.com/hibiken/asynq/tools/asynq
+docker run -itd \
+    --name redis-test \
+    -p 6379:6379 \
+    -e ALLOW_EMPTY_PASSWORD=yes \
+    bitnami/redis:latest
 ```
 
-#### Docker安装Web UI
-
-```shell
-docker pull hibiken/asynqmon:latest
-
-docker run -d \
-    --name asynq \
-    -p 8080:8080 \
-    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379
-```
-
-管理后台：<http://localhost:8080>
-
-* 仪表盘
-
-![AsynqMon Dashboard](/assets/images/task_queue/asynq_web_ui_dashboard.png)
-
-* 任务视图
-
-![AsynqMon Task View](/assets/images/task_queue/asynq_web_ui_task_view.png)
-
-* 性能
-
-![AsynqMon Metrics](/assets/images/task_queue/asynq_web_ui_metrics.png)
-
-#### 创建Kratos服务端
-
-首先安装依赖库：
+然后，我们需要在项目中安装Asynq的依赖库：
 
 ```bash
 go get -u github.com/tx7do/kratos-transport/transport/asynq
 ```
 
-然后引入库，并且创建出来`Server`：
+接着，我们在代码当中引入库，并且创建出来`Server`：
 
 ```go
 import github.com/tx7do/kratos-transport/transport/asynq
@@ -127,7 +158,7 @@ if err := srv.Start(ctx); err != nil {
 defer srv.Stop(ctx)
 ```
 
-#### 注册任务回调
+### 注册任务回调
 
 ```go
 const (
@@ -159,7 +190,7 @@ func handlePeriodicTask(taskType string, taskData *DelayTask) error {
 
 var err error
 
-err = srv.RegisterMessageHandler(testTask1,
+err = srv.RegisterSubscriber(testTask1,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:
@@ -172,7 +203,7 @@ err = srv.RegisterMessageHandler(testTask1,
     DelayTaskBinder,
 )
 
-err = srv.RegisterMessageHandler(testDelayTask,
+err = srv.RegisterSubscriber(testDelayTask,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:
@@ -185,7 +216,7 @@ err = srv.RegisterMessageHandler(testDelayTask,
     DelayTaskBinder,
 )
 
-err = srv.RegisterMessageHandler(testPeriodicTask,
+err = srv.RegisterSubscriber(testPeriodicTask,
     func(taskType string, payload MessagePayload) error {
         switch t := payload.(type) {
         case *DelayTask:
@@ -199,9 +230,25 @@ err = srv.RegisterMessageHandler(testPeriodicTask,
 )
 ```
 
-#### 创建新任务
+此步骤，相当于是异步队列中订阅了某一类型任务。最终它由`asynq.Server`来执行。
 
-* 普通任务
+### 创建新任务
+
+新建任务，有两个方法：`NewTask`和`NewPeriodicTask`，内部分别对应着`asynq.Client`和`asynq.Scheduler`。
+
+`NewTask`是通过`asynq.Client`将任务直接入了队列。
+
+#### 普通任务
+
+普通任务通常是入列后立即执行的（如果不需要排队的），下面就是最简单的任务，一个类型(Type)，一个负载数据(Payload)就构成了一个最简单的任务：
+
+```go
+err = srv.NewTask(testTask1, 
+    &DelayTask{Message: "delay task"},
+)
+```
+
+当然，你也可以添加一些的参数，比如重试次数、超时时间、过期时间等……
 
 ```go
 // 最多重试3次，10秒超时，20秒后过期
@@ -213,7 +260,11 @@ err = srv.NewTask(testTask1,
 )
 ```
 
-* 延迟任务
+#### 延迟任务(Delay Task)
+
+延迟任务，顾名思义，也就是推迟到指定时间执行的任务，我们可以有两个参数可以注入：`ProcessAt`和`ProcessIn`。
+
+`ProcessIn`指的是从现在开始推迟多少时间执行：
 
 ```go
 // 3秒后执行
@@ -223,7 +274,20 @@ err = srv.NewTask(testDelayTask,
 )
 ```
 
-* 周期性任务
+`ProcessAt`指的是在指定的某一个具体时间执行：
+
+```go
+// 1小时后的时间点执行
+oneHourLater := now.Add(time.Hour)
+err = srv.NewTask(testDelayTask,
+    &DelayTask{Message: "delay task"},
+    asynq.ProcessAt(oneHourLater),
+)
+```
+
+#### 周期性任务(Periodic Task)
+
+周期性任务`asynq.Scheduler`内部是通过Crontab来实现定时的，定时器到点之后，就调度任务。它默认使用的是UTC时区。
 
 ```go
 // 每分钟执行一次
@@ -234,7 +298,9 @@ _, err = srv.NewPeriodicTask(
 )
 ```
 
-#### 示例代码
+需要注意的是，若要保证周期性任务的持续调度执行，`asynq.Scheduler`必须要一直运行着，否则调度将不会发生。调度器本身不参与任务的执行，但是没有它的存在，调度将不不复存在，也不会发生。
+
+## 示例代码
 
 示例代码可以在单元测试代码中找到：<https://github.com/tx7do/kratos-transport/tree/main/transport/asynq/server_test.go>
 
