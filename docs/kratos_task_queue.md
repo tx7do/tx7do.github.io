@@ -1,8 +1,10 @@
 # golang微服务框架Kratos实现分布式任务队列
 
-**任务队列（Task Queue）** 一般用于线程或计算机之间分配工作的一种机制。其本质是生产者消费者模型，生产者发送任务到消息队列，消费者负责处理任务。
+**任务队列（Task Queue）** 一般用于跨线程或跨计算机分配工作的一种机制。其本质是生产者消费者模型，生产者发送任务到消息队列，消费者负责处理任务。
 
-提起**分布式任务队列（Distributed Task Queue）**，就不得不提Python的Celery。而Asynq和Machinery就是GO当中类似于Celery的分布式任务队列。
+任务队列的输入是称为`任务(Task)`的工作单元。专用的工作进程不断监视任务队列以查找要执行的新工作。
+
+在Golang语言里面，我们有像[Asynq](https://github.com/hibiken/asynq)和[Machinery](https://github.com/RichardKnop/machinery)这样的类似于`Celery`的分布式任务队列。
 
 ## 什么是任务队列
 
@@ -12,23 +14,25 @@
 
 这两个概念是有关系的，他们是怎样的关系呢？任务队列（Task Queue）是消息队列（Message Queue）的超集。任务队列是构建在消息队列之上的。消息队列是任务队列的一部分。
 
-下面我们来看Celery的架构图，以此来讲解。其他的任务队列也并不会与之有太大的差异性，至少原理是一致的。
+提起**分布式任务队列（Distributed Task Queue）**，就不得不提`Python`的[Celery](https://github.com/celery/celery)。故而，下面我们来看Celery的架构图，以此来讲解。其他的任务队列也并不会与之有太大的差异性，基础的原理是一致的。
 
 ![Celery架构图](/assets/images/task_queue/celery_framework.png)
 
-在 Celery 的架构中，由多台 Server 发起异步任务（Async Task），发送任务到 Broker 的队列中，其中的 Celery Beat 进程可负责发起定时任务。当 Task 到达 Broker 后，会将其分发给相应的 Celery Worker 进行处理。当 Task 处理完成后，其结果存储至 Backend。
+在 `Celery` 的架构中，由多台 Server 发起`异步任务（Async Task）`，发送任务到 `Broker` 的队列中，其中的 `Celery Beat` 进程可负责发起定时任务。当 `Task` 到达 `Broker` 后，会将其分发给相应的 `Celery Worker` 进行处理。当 `Task` 处理完成后，其结果存储至 `Backend`。
 
-在上述过程中的 Broker 和 Backend，Celery 没有实现，而是使用了现有开源实现，例如 RabbitMQ 作为 Broker 提供消息队列服务，Redis 作为 Backend 提供结果存储服务。Celery 就像是抽象了消息队列架构中 Producer、Consumer 的实现，将消息队列中基本单位“消息”抽象成了任务队列中的“任务”，并将异步、定时任务的发起和结果存储等操作进行了封装，让开发者可以忽略 AMQP、RabbitMQ 等实现细节，为开发带来便利。
+在上述过程中的 `Broker` 和 `Backend`，`Celery` 并没有去实现，而是使用了已有的开源实现，例如 `RabbitMQ` 作为 `Broker` 提供消息队列服务，`Redis` 作为 `Backend` 提供结果存储服务。Celery 就像是抽象了消息队列架构中 `Producer`、`Consumer` 的实现，将消息队列中基本单位`“消息”`抽象成了任务队列中的“任务”，并将异步、定时任务的发起和结果存储等操作进行了封装，让开发者可以忽略 AMQP、RabbitMQ 等实现细节，为开发带来便利。
 
 综上所述，Celery 作为任务队列是基于消息队列的进一步封装，其实现依赖消息队列。
 
 ## 任务队列的应用场景
 
-* **即时响应需求**：网页的响应时间是用户体验的关键，Amazon 曾指出响应时间每提高 100ms，他们的收入便会增加 1%。对于一些需要长时间执行的任务，大多会采用异步调用的方式来释放用户操作。Celery 的异步调用特性，和前端使用 Ajax 异步加载类似，能够有效缩短响应时间。
+我们现在知道了任务队列是什么，也知道了它的工作原理。但是，我们并不知道它可以用来做什么。下面，我们就来看看，它到底用在什么样的场景下。
 
-* **周期性任务需求（Periodic Task）**：对于心跳测试、日志归档、运维巡检这类指定时间周期执行的任务，可以应用任务队列的定时队列，支持 crontab 定时模式，简单方便。
-
-* **高并发及可扩展性需求**：解耦应用程序最直接的好处就是可扩展性和并发性能的提高。支持并发执行任务，同时支持自动动态扩展。
+1. 分布式任务：可以将任务分发到多个工作者进程或机器上执行，以提高任务处理速度。
+2. 定时任务：可以在指定时间执行任务。例如：每天定时备份数据、日志归档、心跳测试、运维巡检。支持 crontab 定时模式
+3. 后台任务：可以在后台执行耗时任务，例如图像处理、数据分析等，不影响用户界面的响应。
+4. 解耦任务：可以将任务与主程序解耦，以提高代码的可读性和可维护性，解耦应用程序最直接的好处就是可扩展性和并发性能的提高。支持并发执行任务，同时支持自动动态扩展。
+5. 实时处理：可以支持实时处理任务，例如即时通讯、消息队列等。
 
 ## Kratos下实现分布式任务队列
 
@@ -123,7 +127,7 @@ if err := srv.Start(ctx); err != nil {
 defer srv.Stop(ctx)
 ```
 
-#### 创建新任务
+#### 注册任务回调
 
 ```go
 const (
@@ -131,53 +135,103 @@ const (
 	testDelayTask    = "test_delay_task"
 	testPeriodicTask = "test_periodic_task"
 )
+
+type DelayTask struct {
+	Message string `json:"message"`
+}
+
+func DelayTaskBinder() Any { return &DelayTask{} }
+
+func handleTask1(taskType string, taskData *DelayTask) error {
+	LogInfof("Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
+	return nil
+}
+
+func handleDelayTask(taskType string, taskData *DelayTask) error {
+	LogInfof("Delay Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
+	return nil
+}
+
+func handlePeriodicTask(taskType string, taskData *DelayTask) error {
+	LogInfof("Periodic Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
+	return nil
+}
+
+var err error
+
+err = srv.RegisterMessageHandler(testTask1,
+    func(taskType string, payload MessagePayload) error {
+        switch t := payload.(type) {
+        case *DelayTask:
+            return handleTask1(taskType, t)
+        default:
+            LogError("invalid payload struct type:", t)
+            return errors.New("invalid payload struct type")
+        }
+    },
+    DelayTaskBinder,
+)
+
+err = srv.RegisterMessageHandler(testDelayTask,
+    func(taskType string, payload MessagePayload) error {
+        switch t := payload.(type) {
+        case *DelayTask:
+            return handleDelayTask(taskType, t)
+        default:
+            LogError("invalid payload struct type:", t)
+            return errors.New("invalid payload struct type")
+        }
+    },
+    DelayTaskBinder,
+)
+
+err = srv.RegisterMessageHandler(testPeriodicTask,
+    func(taskType string, payload MessagePayload) error {
+        switch t := payload.(type) {
+        case *DelayTask:
+            return handlePeriodicTask(taskType, t)
+        default:
+            LogError("invalid payload struct type:", t)
+            return errors.New("invalid payload struct type")
+        }
+    },
+    DelayTaskBinder,
+)
 ```
+
+#### 创建新任务
 
 * 普通任务
 
 ```go
-
 // 最多重试3次，10秒超时，20秒后过期
-err = srv.NewTask(testTask1, []byte("test string"),
+err = srv.NewTask(testTask1, 
+    &DelayTask{Message: "delay task"},
     asynq.MaxRetry(10),
     asynq.Timeout(10*time.Second),
-    asynq.Deadline(time.Now().Add(20*time.Second)))
+    asynq.Deadline(time.Now().Add(20*time.Second)),
+)
 ```
 
 * 延迟任务
 
 ```go
-err = srv.NewTask(testDelayTask, []byte("delay task"), asynq.ProcessIn(3*time.Second))
+// 3秒后执行
+err = srv.NewTask(testDelayTask,
+    &DelayTask{Message: "delay task"},
+    asynq.ProcessIn(3*time.Second),
+)
 ```
 
 * 周期性任务
 
 ```go
 // 每分钟执行一次
-err = srv.NewPeriodicTask("*/1 * * * ?", testPeriodicTask, []byte("periodic task"))
-```
-
-#### 注册任务回调
-
-```go
-func handleTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
-	return nil
-}
-
-func handleDelayTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Delay Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
-	return nil
-}
-
-func handlePeriodicTask(_ context.Context, task *asynq.Task) error {
-	log.Infof("Periodic Task Type: [%s], Payload: [%s]", task.Type(), string(task.Payload()))
-	return nil
-}
-
-err := srv.HandleFunc(testTask1, handleTask)
-err = srv.HandleFunc(testTaskDelay, handleDelayTask)
-err = srv.HandleFunc(testPeriodicTask, handlePeriodicTask)
+_, err = srv.NewPeriodicTask(
+    "*/1 * * * ?",
+    testPeriodicTask,
+    &DelayTask{Message: "periodic task"},
+)
 ```
 
 #### 示例代码
