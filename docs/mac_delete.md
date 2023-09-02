@@ -41,3 +41,7 @@
 <p>
     <input maxlength="60" type="text" value="小明昨天去游泳池，教练教他蛙式游泳">
 </p>
+
+## 原文地址：
+
+- [Mac 刪除鍵（delete）這三招你會嗎？大幅加快打字速度！](https://applealmond.com/posts/1202#google_vignette)
