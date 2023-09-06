@@ -19,7 +19,7 @@
 
 ![Command + delete](/assets/images/mac/command_delete.png)
 
-一次删除一行大概是最有效率的方式了，想要这么做的话，直接按下`「Command + delete」`即可。
+一次删除一行大概是最有效率的方式了，使用此快捷键，可以删除从光标键所在位置到行首的整行字符。想要这么做的话，直接按下`「Command + delete」`即可。
 
 ## 原文地址
 
