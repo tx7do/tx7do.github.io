@@ -16,15 +16,19 @@ docker system df
 docker system df -v
 ```
 
-查看系统整体的磁盘占用情况
+查看系统整体的磁盘占用情况:
 
 ```shell
 df -h
 ```
 
+查看当前文件夹下所有子文件夹的磁盘占用情况：
+
 ```shell
 du -h --max-depth=1
 ```
+
+查看当前文件夹以及所有子文件夹的磁盘占用汇总：
 
 ```shell
 du -sh *
