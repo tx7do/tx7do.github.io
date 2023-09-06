@@ -25,13 +25,19 @@ df -h
 查看当前文件夹下所有子文件夹的磁盘占用情况：
 
 ```shell
-du -h --max-depth=1
+du -ah --max-depth=1
+
+# 按照文件大小从大到小排序
+du -ah --max-depth=1 .|sort -hr
 ```
 
 查看当前文件夹以及所有子文件夹的磁盘占用汇总：
 
 ```shell
 du -sh *
+
+# 按照文件大小从大到小排序
+du -sh *|sort -nr
 ```
 
 ## Docker命令常规清除
