@@ -23,3 +23,21 @@ git config --global --unset http.proxy
 ```bash
 git config --global --unset https.proxy
 ```
+
+## 查看系统配置信息
+
+```bash
+git config --system --list
+```
+
+## 查看当前用户配置信息
+
+```bash
+git config --global  --list
+```
+
+## 查看当前仓库配置信息
+
+```bash
+git config --local  --list
+```
