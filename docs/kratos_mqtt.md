@@ -282,8 +282,8 @@ rabbitmq-plugins enable rabbitmq_auth_backend_http
 ```
 
 管理后台: <http://localhost:15672>  
-默认账号: user  
-默认密码: bitnami
+默认账号: `user`  
+默认密码: `bitnami`
 
 ### mosquitto
 
@@ -313,8 +313,8 @@ docker run -itd \
 ```
 
 管理后台: <http://localhost:18083>  
-默认账号: admin  
-默认密码: public
+默认账号: `admin`  
+默认密码: `public`
 
 ### HiveMQ
 
@@ -541,8 +541,8 @@ func (s *SaverService) SaveEventReport(_ context.Context, _ string, _ broker.Hea
 
 以上代码以及接口定义，可以在我的另外一个开源项目里面找到：
 
-- <github.com/tx7do/kratos-uba>
-- <gitee.com/tx7do/kratos-uba>
+- <https://github.com/tx7do/kratos-uba>
+- <https://gitee.com/tx7do/kratos-uba>
 
 需要注意的是，这个项目使用的是Kafka，但是差异不大，因为接口是一致的，只是注入的参数有差异罢了。
 

@@ -323,8 +323,8 @@ func (s *SaverService) SaveEventReport(_ context.Context, _ string, _ broker.Hea
 
 以上代码以及接口定义，可以在我的另外一个开源项目里面找到：
 
-- <github.com/tx7do/kratos-uba>
-- <gitee.com/tx7do/kratos-uba>
+- <https://github.com/tx7do/kratos-uba>
+- <https://gitee.com/tx7do/kratos-uba>
 
 ## 参考资料
 
