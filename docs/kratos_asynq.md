@@ -16,7 +16,7 @@
 
 提起**分布式任务队列（Distributed Task Queue）**，就不得不提`Python`的[Celery](https://github.com/celery/celery)。故而，下面我们来看Celery的架构图，以此来讲解。其他的任务队列也并不会与之有太大的差异性，基础的原理是一致的。
 
-![Celery架构图](/assets/images/task_queue/celery_framework.png)
+![Celery架构图](https://tx7do.github.io/assets/images/task_queue/celery_framework.png)
 
 在 `Celery` 的架构中，由多台 Server 发起`异步任务（Async Task）`，发送任务到 `Broker` 的队列中，其中的 `Celery Beat` 进程可负责发起定时任务。当 `Task` 到达 `Broker` 后，会将其分发给相应的 `Celery Worker` 进行处理。当 `Task` 处理完成后，其结果存储至 `Backend`。
 
@@ -45,7 +45,7 @@ Asynq主要由以下几个组件组成：
 - 队列(Queue)：存放待执行任务的队列；
 - 调度器(Scheduler)：根据规则将任务分配给不同的处理器进行执行。
 
-![Asynq Framework](/assets/images/task_queue/asynq_framework.png)
+![Asynq Framework](https://tx7do.github.io/assets/images/task_queue/asynq_framework.png)
 
 通过使用Asynq，我们可以非常轻松的实现异步任务处理，同时还可以提供高效率、高可扩展性和高自定义性的处理方案。
 
@@ -92,17 +92,17 @@ docker run -d \
 
 * 仪表盘
 
-![AsynqMon Dashboard](/assets/images/task_queue/asynq_web_ui_dashboard.png)
+![AsynqMon Dashboard](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_dashboard.png)
 
 * 任务视图
 
-![AsynqMon Task View](/assets/images/task_queue/asynq_web_ui_task_view.png)
+![AsynqMon Task View](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_task_view.png)
 
 * 性能
 
-![AsynqMon Metrics](/assets/images/task_queue/asynq_web_ui_metrics.png)
+![AsynqMon Metrics](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_metrics.png)
 
-## Kratos下实现分布式任务队列
+## Kratos下如何应用Asynq？
 
 我们将分布式任务队列以`transport.Server`的形式整合进微服务框架`Kratos`。
 
@@ -116,9 +116,9 @@ docker run -d \
 - [kratos-transport/Asynq](https://github.com/tx7do/kratos-transport/tree/main/transport/asynq)
 - [kratos-transport/Machinery](https://github.com/tx7do/kratos-transport/tree/main/transport/machinery)
 
-### 创建Kratos服务端
+### Docker部署依赖组件
 
-因为它依赖Redis，因此，我们可以使用Docker的方式安装Redis的服务器：
+因为它依赖Redis，因此，我们使用Docker的方式安装Redis的服务器：
 
 ```bash
 docker pull bitnami/redis:latest
@@ -130,35 +130,45 @@ docker run -itd \
     bitnami/redis:latest
 ```
 
-然后，我们需要在项目中安装Asynq的依赖库：
+### 安装依赖库
+
+我们需要在项目中安装Asynq的依赖库：
 
 ```bash
 go get -u github.com/tx7do/kratos-transport/transport/asynq
 ```
 
-接着，我们在代码当中引入库，并且创建出来`Server`：
+### 创建Kratos服务端
+
+我们在代码当中引入库，并且创建出来`Server`：
+
+首先，我们要创建`Server`：
 
 ```go
-import github.com/tx7do/kratos-transport/transport/asynq
+package server
 
-const (
-	localRedisAddr = "127.0.0.1:6379"
+import (
+    ...
+	"github.com/tx7do/kratos-transport/transport/asynq"
 )
 
-ctx := context.Background()
+// NewAsynqServer create a asynq server.
+func NewAsynqServer(cfg *conf.Bootstrap, _ log.Logger, svc *service.TaskService) *machinery.Server {
+	ctx := context.Background()
 
-srv := asynq.NewServer(
-    asynq.WithAddress(localRedisAddr),
-)
+	srv := asynq.NewServer(
+        asynq.WithAddress(cfg.Server.Asynq.Broker),
+	)
 
-if err := srv.Start(ctx); err != nil {
-    panic(err)
+	registerAsynqTasks(ctx, srv, svc)
+
+	return srv
 }
-
-defer srv.Stop(ctx)
 ```
 
 ### 注册任务回调
+
+然后，把回调函数注册进服务器：
 
 ```go
 const (
@@ -167,70 +177,80 @@ const (
 	testPeriodicTask = "test_periodic_task"
 )
 
-type DelayTask struct {
+type TaskPayload struct {
 	Message string `json:"message"`
 }
 
-func DelayTaskBinder() Any { return &DelayTask{} }
-
-func handleTask1(taskType string, taskData *DelayTask) error {
-	LogInfof("Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
-	return nil
+func registerAsynqTasks(ctx context.Context, srv *asynq.Server, svc *service.TaskService) {
+    var err error
+    err = asynq.RegisterSubscriber(srv, testTask1, svc.HandleTask1)
+    err = asynq.RegisterSubscriber(srv, testDelayTask, svc.HandleDelayTask)
+    err = asynq.RegisterSubscriber(srv, testPeriodicTask, svc.HandlePeriodicTask)
 }
-
-func handleDelayTask(taskType string, taskData *DelayTask) error {
-	LogInfof("Delay Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
-	return nil
-}
-
-func handlePeriodicTask(taskType string, taskData *DelayTask) error {
-	LogInfof("Periodic Task Type: [%s], Payload: [%s]", taskType, taskData.Message)
-	return nil
-}
-
-var err error
-
-err = srv.RegisterSubscriber(testTask1,
-    func(taskType string, payload MessagePayload) error {
-        switch t := payload.(type) {
-        case *DelayTask:
-            return handleTask1(taskType, t)
-        default:
-            LogError("invalid payload struct type:", t)
-            return errors.New("invalid payload struct type")
-        }
-    },
-    DelayTaskBinder,
-)
-
-err = srv.RegisterSubscriber(testDelayTask,
-    func(taskType string, payload MessagePayload) error {
-        switch t := payload.(type) {
-        case *DelayTask:
-            return handleDelayTask(taskType, t)
-        default:
-            LogError("invalid payload struct type:", t)
-            return errors.New("invalid payload struct type")
-        }
-    },
-    DelayTaskBinder,
-)
-
-err = srv.RegisterSubscriber(testPeriodicTask,
-    func(taskType string, payload MessagePayload) error {
-        switch t := payload.(type) {
-        case *DelayTask:
-            return handlePeriodicTask(taskType, t)
-        default:
-            LogError("invalid payload struct type:", t)
-            return errors.New("invalid payload struct type")
-        }
-    },
-    DelayTaskBinder,
-)
 ```
 
-此步骤，相当于是异步队列中订阅了某一类型任务。最终它由`asynq.Server`来执行。
+### Asynq服务器注册到Kratos
+
+接着，调用`kratos.Server`把Asynq服务器注册到Kratos里去：
+
+```go
+func newApp(ll log.Logger, rr registry.Registrar, ks *asynq.Server) *kratos.App {
+	return kratos.New(
+		kratos.ID(Service.GetInstanceId()),
+		kratos.Name(Service.Name),
+		kratos.Version(Service.Version),
+		kratos.Metadata(Service.Metadata),
+		kratos.Logger(ll),
+		kratos.Server(
+			ks,
+		),
+		kratos.Registrar(rr),
+	)
+}
+```
+
+### 实现任务回调方法
+
+最后，我们就可以在`Service`里愉快的玩耍了：
+
+```go
+package service
+
+type TaskService struct {
+	log          *log.Helper
+}
+
+func NewTaskService(
+	logger log.Logger,
+) *TaskService {
+	l := log.NewHelper(log.With(logger, "module", "task/service/logger-service"))
+	return &TaskService{
+		log:          l,
+		statusRepo:   statusRepo,
+		realtimeRepo: realtimeRepo,
+	}
+}
+
+func (s *TaskService) HandleTask1() error {
+	fmt.Println("################ 执行任务Task1 #################")
+	return nil
+}
+
+func (s *TaskService) HandleTask1(taskType string, taskData *TaskPayload) error {
+	s.log.Infof("[%s] Task Type: [%s], Payload: [%s]", time.Now().Format("2006-01-02 15:04:05"), taskType, taskData.Message)
+	return nil
+}
+
+func (s *TaskService) HandleDelayTask(taskType string, taskData *TaskPayload) error {
+	s.log.Infof("[%s] Delay Task Type: [%s], Payload: [%s]", time.Now().Format("2006-01-02 15:04:05"), taskType, taskData.Message)
+	return nil
+}
+
+func (s *TaskService) HandlePeriodicTask(taskType string, taskData *TaskPayload) error {
+	s.log.Infof("[%s] Periodic Task Type: [%s], Payload: [%s]", time.Now().Format("2006-01-02 15:04:05"), taskType, taskData.Message)
+	return nil
+}
+```
 
 ### 创建新任务
 
