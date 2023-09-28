@@ -121,8 +121,10 @@ echo "======== end clean docker overlays logs ========"
 ```bash
 #!/bin/bash
 
+echo "======== start clean docker ========"
 sudo docker image prune -f
 sudo docker builder prune -f
+echo "======== end clean docker ========"
 
 echo "======== start clean docker containers logs ========"
 logs=$(find /var/lib/docker/containers/ -name *-json.log)
@@ -141,6 +143,16 @@ for log in $logs
                 cat /dev/null > $log
         done
 echo "======== end clean docker overlays logs ========"
+
+# restart all docker containers.
+echo "======== start restart all docker containers ========"
+sudo docker restart $(docker ps -a -q)
+echo "======== end restart all docker containers ========"
+
+# restart all not-docker services.
+echo "======== start restart all not-docker services ========"
+sudo supervisorctl restart all
+echo "======== end restart all not-docker services ========"
 ```
 
 ## 参考资料
