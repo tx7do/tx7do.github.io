@@ -25,6 +25,23 @@
 
 如果启动的时候不加`-k _`参数，则不使用`key`也可以连接服务器。
 
+## pm2 常用命令
+
+- 启动进程 `pm2 start bin/www` 或 `pm2 start app.js`
+- 重命名进程 `pm2 start app.js --name wb123`
+- 添加进程 `pm2 start bin/www --watch`
+- 结束进程 `pm2 stop www`
+- 结束所有进程 `pm2 stop all`
+- 删除进程 `pm2 delete www`
+- 删除所有进程 `pm2 delete all`
+- 列出所有进程 `pm2 list`
+- 查看某个进程具体情况 `pm2 describe www`
+- 进程监视器 `pm2 monit`
+- 查看pm2的日志 `pm2 logs`
+- 查看某个进程的日志 `pm2 logs www`
+- 重新启动进程 `pm2 restart www`
+- 重新启动所有进程 `pm2 restart all`
+
 ## CentOS
 
 ```shell
@@ -43,11 +60,15 @@ node -v
 npm -v
 
 # 安装pm2
-sudo npm install -g pm2
+npm install -g pm2
+# 查看pm2的版本
+pm2 --version
+# tab补全
+pm2 completion install
 # 创建pm2开机启动脚本
-sudo pm2 startup
+pm2 startup
 # 设置pm2的开机启动
-sudo systemctl enable pm2-root
+sudo systemctl enable pm2-${USER}
 
 # 查询RustDesk-Server的最新版本
 REPO="rustdesk/rustdesk-server"
@@ -75,6 +96,57 @@ pm2 save
 
 ## Ubuntu
 
+```shell
+# 设置时区为东八区的上海
+sudo timedatectl set-timezone Asia/Shanghai
+date +%Z
+
+# 更新软件库
+sudo apt update; sudo apt upgrade
+sudo apt install htop wget unzip
+
+# 安装nodejs和npm
+sudo apt install nodejs npm -y
+
+node -v
+npm -v
+
+# 安装pm2
+sudo npm install -g pm2
+# 查看pm2的版本
+pm2 --version
+# tab补全
+pm2 completion install
+# 创建pm2开机启动脚本，会有提示信息，循着提示信息去做就好。
+pm2 startup
+# 设置pm2的开机启动
+sudo env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u ${USER} --hp ${HOME}
+sudo systemctl enable pm2-${USER}
+
+# 查询RustDesk-Server的最新版本
+REPO="rustdesk/rustdesk-server"
+latest_tag=$(curl -s https://api.github.com/repos/$REPO/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+echo "Using rustdesk-server version $latest_tag"
+
+# 使用wget进行下载最新版RustDesk-Server
+wget https://github.com/$REPO/releases/download/$latest_tag/rustdesk-server-linux-amd64.zip
+
+# 解压缩RustDesk-Server
+unzip rustdesk-server-linux-amd64.zip
+
+# 文件夹改名
+mv amd64 RustDesk
+
+# 移除掉压缩文件
+rm -f rustdesk-server-linux-amd64.zip
+
+# pm2启动RustDesk-Server服务
+cd ~/RustDesk
+pm2 start hbbs -- -k _
+pm2 start hbbr -- -k _
+pm2 save
+```
+
 ## MacOS
 
 ## Windows
@@ -84,9 +156,23 @@ pm2 save
 ```shell
 sudo docker image pull rustdesk/rustdesk-server
 
-sudo docker run --name hbbs -p 21115:21115 -p 21116:21116 -p 21116:21116/udp -p 21118:21118 -v `pwd`:/root -td --net=host rustdesk/rustdesk-server hbbs -r <relay-server-ip[:port]>
+sudo docker run \
+    --name hbbs \
+    -p 21115:21115 \
+    -p 21116:21116 \
+    -p 21116:21116/udp \
+    -p 21118:21118 \
+    -v `pwd`:/root \
+    -td --net=host \
+    rustdesk/rustdesk-server hbbs -r <relay-server-ip[:port]>
 
-sudo docker run --name hbbr -p 21117:21117 -p 21119:21119 -v `pwd`:/root -td --net=host rustdesk/rustdesk-server hbbr
+sudo docker run \
+    --name hbbr \
+    -p 21117:21117 \
+    -p 21119:21119 \
+    -v `pwd`:/root \
+    -td --net=host \
+    rustdesk/rustdesk-server hbbr
 ```
 
 ## 参考资料
