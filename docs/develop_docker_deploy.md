@@ -304,10 +304,16 @@ docker run -itd \
 
 ### MongoDB
 
+下载镜像：
+
 ```bash
 docker pull bitnami/mongodb:latest
 docker pull bitnami/mongodb-exporter:latest
+```
 
+带密码安装：
+
+```bash
 docker run -itd \
     --name mongodb-test \
     -p 27017:27017 \
@@ -318,6 +324,21 @@ docker run -itd \
     -e MONGODB_DATABASE=test \
     bitnami/mongodb:latest
 ```
+
+不带密码安装：
+
+```bash
+docker run -itd \
+    --name mongodb-test \
+    -p 27017:27017 \
+    -e ALLOW_EMPTY_PASSWORD=yes \
+    bitnami/mongodb:latest
+```
+
+有两点需要注意：
+
+1. 如果需要映射数据卷，需要把本地路径的所有权改到1001：`sudo chown -R 1001:1001 data/db`，否则会报错：`‘mkdir: cannot create directory ‘/bitnami/mongodb’: Permission denied’`；
+2. MongoDB 5.0开始有些机器运行会报错：`Illegal instruction`，这是因为机器硬件不支持 **AVX 指令集** 的缘故，没办法，MongoDB降级吧。
 
 ### Redis
 
