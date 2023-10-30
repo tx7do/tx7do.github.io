@@ -152,7 +152,7 @@ Broker 有几个重要的子模块：
 
 ## Docker部署开发环境
 
-#### RocketMQ4.x
+### RocketMQ4.x
 
 至少启动一个NameServer，一个Broker。
 
@@ -210,7 +210,7 @@ vi /home/rocketmq/rocketmq-5.1.4/conf/broker.conf
 brokerIP1 = host.docker.internal
 ```
 
-#### RocketMQ5.x
+### RocketMQ5.x
 
 至少启动一个NameServer，一个Broker。
 
