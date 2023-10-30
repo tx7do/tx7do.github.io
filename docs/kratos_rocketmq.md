@@ -152,49 +152,56 @@ Broker 有几个重要的子模块：
 
 ## Docker部署开发环境
 
-必须要至少启动一个NameServer，一个Broker。
+#### RocketMQ4.x
 
-```shell
-docker pull apache/rocketmq:latest
+至少启动一个NameServer，一个Broker。
+
+```bash
+docker pull apache/rocketmq:4.9.2
 
 # NameServer
 docker run -d \
-      --name rmqnamesrv \
-      -e "JAVA_OPT_EXT=-Xms512M -Xmx512M -Xmn128m" \
-      -p 9876:9876 \
-      apache/rocketmq:latest \
-      sh mqnamesrv
+    --name rocketmq-namesrv \
+    -e "JAVA_OPT_EXT=-server -Xms512M -Xmx512M -Xmn128m" \
+    -p 9876:9876 \
+    apache/rocketmq:4.9.2 \
+    sh mqnamesrv
 
 # Broker
 docker run -d \
-      --name rmqbroker \
-      -p 10911:10911 \
-      -p 10909:10909 \
-      -p 10912:10912 \
-      --link rmqnamesrv \
-      -e "JAVA_OPT_EXT=-Xms512M -Xmx512M -Xmn128m" \
-      -e "NAMESRV_ADDR=rmqnamesrv:9876" \
-      apache/rocketmq:latest \
-      sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/broker.conf
+    --name rocketmq-broker \
+    -p 10911:10911 \
+    -p 10909:10909 \
+    -p 10912:10912 \
+    --link rocketmq-namesrv \
+    -e "JAVA_OPT_EXT=-server -Xms512M -Xmx512M -Xmn128m" \
+    -e "NAMESRV_ADDR=rocketmq-namesrv:9876" \
+    apache/rocketmq:4.9.2 \
+    sh mqbroker -c /home/rocketmq/rocketmq-4.9.2/conf/broker.conf
 ```
 
-```shell
+以及Web控制台：
+
+```bash
 docker pull styletang/rocketmq-console-ng:latest
 
 docker run -d \
-    --name rmqconsole \
+    --name rocketmq-console \
     -p 9800:8080 \
-    --link rmqnamesrv \
-    -e "JAVA_OPTS=-Drocketmq.namesrv.addr=rmqnamesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" \
+    --link rocketmq-namesrv \
+    -e "JAVA_OPT_EXT=-server -Xms512M -Xmx512M -Xmn128m" \
+    -e "JAVA_OPTS=-Xmx256M -Xms256M -Xmn128M -Drocketmq.namesrv.addr=rocketmq-namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" \
     -t styletang/rocketmq-console-ng:latest
 ```
 
-控制台访问地址： <http://localhost:9800/#/>
+RocketMQ Console 是 rocketmq 的第三方扩展组件，提供图形界面便于管理和监控rocketmq。
 
-另外，NameServer下发的是Docker容器的内网IP地址，从宿主机的外网访问是访问不了的，需要进行配置：
+- 控制台访问地址： <http://localhost:9800/#/>
+
+**需要注意的是**，NameServer下发的是Docker容器的内网IP地址，从宿主机的外网访问是访问不了的，需要进行配置：
 
 ```bash
-vi /home/rocketmq/rocketmq-4.9.2/conf/broker.conf
+vi /home/rocketmq/rocketmq-5.1.4/conf/broker.conf
 ```
 
 添加如下配置，brokerIP1可以是ip也可以是dns，hostname：
@@ -202,6 +209,56 @@ vi /home/rocketmq/rocketmq-4.9.2/conf/broker.conf
 ```ini
 brokerIP1 = host.docker.internal
 ```
+
+#### RocketMQ5.x
+
+至少启动一个NameServer，一个Broker。
+
+5.x版本下，官方建议使用Local模式部署，即Broker和Proxy同进程部署。
+
+```bash
+docker pull apache/rocketmq:5.1.4
+
+# NameServer
+docker run -d \
+    --name rocketmq-namesrv \
+    -e "MAX_HEAP_SIZE=256M" \
+    -e "HEAP_NEWSIZE=128M" \
+    -p 9876:9876 \
+    apache/rocketmq:5.1.4 \
+    sh mqnamesrv
+
+# Broker
+docker run -d \
+    --name rocketmq-broker \
+    --link rocketmq-namesrv \
+    -p 10911:10911 \
+    -p 10909:10909 \
+    -p 10912:10912 \
+    -p 8080:8080 \
+    -p 8081:8081 \
+    -e "MAX_HEAP_SIZE=256M" \
+    -e "HEAP_NEWSIZE=128M" \
+    -e "JAVA_OPTS=-server -Xmx256M -Xms256M -Xmn128M" \
+    -e "NAMESRV_ADDR=rocketmq-namesrv:9876" \
+    apache/rocketmq:5.1.4 \
+    sh mqbroker --enable-proxy autoCreateTopicEnable=true autoCreateSubscriptionGroup=true \
+    -c /home/rocketmq/rocketmq-5.1.4/conf/broker.conf
+```
+
+以及Web控制台：
+
+```bash
+docker run -d \
+    --restart=always \
+    --name rocketmq-dashboard \
+    --link rocketmq-namesrv \
+    -e "JAVA_OPTS=-Xmx256M -Xms256M -Xmn128M -Drocketmq.namesrv.addr=rocketmq-namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" \
+    -p 9800:8080 \
+    apacherocketmq/rocketmq-dashboard
+```
+
+- 控制台访问地址： <http://localhost:9800/#/>
 
 ## Kratos下如何应用RocketMQ？
 
