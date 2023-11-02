@@ -342,6 +342,8 @@ message Person {
 
 OpenAPI是一个用于描述REST API的描述格式，包含端点、参数、输入输出格式、说明、认证等，本质上它是一个JSON或者YAML格式文档，而文件内的Schema则是有OpenAPI所定义的。
 
+#### OpenAPI JSON范例
+
 以下是一个OpenAPI v3的JSON文件范例：
 
 ```json
@@ -523,6 +525,8 @@ OpenAPI是一个用于描述REST API的描述格式，包含端点、参数、�
 }
 ```
 
+#### OpenAPI YAML范例
+
 以及OpenAPI v3 的 YAML文件范例：
 
 ```yml
@@ -638,7 +642,9 @@ components:
           type: string
 ```
 
-以上文本当中的Schema，有些可以望文生义，也有一些根本看不出来意义。可是，真要让人去阅读，只会有一个感受：头大。它主要还是给程序读取的，展现在UI之上，才能够让人感受到愉快。
+#### OpenAPI工具
+
+以上文本当中的Schema，有些可以望文生义，也有一些根本看不出来意义。可是，真要让人去阅读，只会有一个感受：头大。它主要还是给程序读取的，展现在UI之上，才能够真正的应用起来。
 
 现在，市面上有非常非常多的工具可以读取OpenAPI JSON / YAML文档：
 
@@ -651,11 +657,9 @@ components:
 - [Postman](https://www.postman.com)
 - [Apifox](https://www.apifox.cn)
 
-这些工具当中，最常见的是本家的Swagger UI（OpenAPI在成为开放标准之前是Swagger产品线当中的一部分），Kratos原生支持Swagger UI：<https://github.com/go-kratos/swagger-api>
+这些工具当中，最常见的是本家的Swagger UI（OpenAPI在成为开放标准之前是Swagger产品线当中的一部分），它经常被内嵌到Web框架里面。
 
-![swagger](/assets/images/api/swagger.png)
-
-在本文接着后面，我要着重讲的，要推荐的是国产神器：Apifox。我这人对国产软件一向都是抱有藐视的态度，但是Apifox是真好使，绝对的开发利器，使得我一改对国产软件的态度，大力推荐。
+#### Protobuf生成OpenAPI工具
 
 现在OpenAPI有两个版本：v2和v3。
 
@@ -664,407 +668,363 @@ components:
 1. OpenAPI v2使用grpc-gateway出的[protoc-gen-openapiv2](github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2)；
 2. OpenAPI v3使用谷歌出品的gnostic下的[protoc-gen-openapi](github.com/google/gnostic/cmd/protoc-gen-openapi)。
 
-正常来说，只要是使用了`google.api.http`这个`option`定义的API，使用这两个插件就能够生成OpenAPI的文档。
+正常来说，只要是使用了`google.api.http`这个`option`定义的API，使用这两个插件就能够生成OpenAPI文档。
 
 但是，实际应用中，我们还希望能够提供更多更丰富的一些信息，比如：描述信息、版本号、版权信息、认证信息……显然，光凭着`google.api.http`的定义是不够的。这两个插件提供了各自的`option`，可以定义这些信息。
 
-我们可以看一看都是怎样定义的：
+#### Protobuf中如何定义OpenAPI V2注解
 
-- OpenAPI v2
+```protobuf
+syntax = "proto3";
 
-    ```protobuf
-    syntax = "proto3";
-    
-    package grpc.gateway.examples.internal.proto.examplepb;
-    
-    import "protoc-gen-openapiv2/options/annotations.proto";
-    
-    option go_package = "github.com/grpc-ecosystem/grpc-gateway/v2/examples/internal/proto/examplepb";
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-      info: {
-        title: "A Bit of Everything";
-        version: "1.0";
-        contact: {
-          name: "gRPC-Gateway project";
-          url: "https://github.com/grpc-ecosystem/grpc-gateway";
-          email: "none@example.com";
-        };
-        license: {
-          name: "BSD 3-Clause License";
-          url: "https://github.com/grpc-ecosystem/grpc-gateway/blob/master/LICENSE.txt";
-        };
-        extensions: {
-          key: "x-something-something";
-          value {
-            string_value: "yadda";
-          }
-        }
-      };
-      // Overwriting host entry breaks tests, so this is not done here.
-      external_docs: {
-        url: "https://github.com/grpc-ecosystem/grpc-gateway";
-        description: "More about gRPC-Gateway";
+package grpc.gateway.examples.internal.proto.examplepb;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/grpc-ecosystem/grpc-gateway/v2/examples/internal/proto/examplepb";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "A Bit of Everything";
+    version: "1.0";
+    contact: {
+      name: "gRPC-Gateway project";
+      url: "https://github.com/grpc-ecosystem/grpc-gateway";
+      email: "none@example.com";
+    };
+    license: {
+      name: "BSD 3-Clause License";
+      url: "https://github.com/grpc-ecosystem/grpc-gateway/blob/master/LICENSE.txt";
+    };
+    extensions: {
+      key: "x-something-something";
+      value {
+        string_value: "yadda";
       }
-      schemes: HTTP;
-      schemes: HTTPS;
-      schemes: WSS;
-      consumes: "application/json";
-      consumes: "application/x-foo-mime";
-      produces: "application/json";
-      produces: "application/x-foo-mime";
-      security_definitions: {
-        security: {
-          key: "BasicAuth";
-          value: {
-            type: TYPE_BASIC;
+    }
+  };
+  // Overwriting host entry breaks tests, so this is not done here.
+  external_docs: {
+    url: "https://github.com/grpc-ecosystem/grpc-gateway";
+    description: "More about gRPC-Gateway";
+  }
+  schemes: HTTP;
+  schemes: HTTPS;
+  schemes: WSS;
+  consumes: "application/json";
+  consumes: "application/x-foo-mime";
+  produces: "application/json";
+  produces: "application/x-foo-mime";
+  security_definitions: {
+    security: {
+      key: "BasicAuth";
+      value: {
+        type: TYPE_BASIC;
+      }
+    }
+    security: {
+      key: "ApiKeyAuth";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "X-API-Key";
+        extensions: {
+          key: "x-amazon-apigateway-authtype";
+          value {
+            string_value: "oauth2";
           }
         }
-        security: {
-          key: "ApiKeyAuth";
-          value: {
-            type: TYPE_API_KEY;
-            in: IN_HEADER;
-            name: "X-API-Key";
-            extensions: {
-              key: "x-amazon-apigateway-authtype";
-              value {
-                string_value: "oauth2";
+        extensions: {
+          key: "x-amazon-apigateway-authorizer";
+          value {
+            struct_value {
+              fields {
+                key: "type";
+                value {
+                  string_value: "token";
+                }
               }
-            }
-            extensions: {
-              key: "x-amazon-apigateway-authorizer";
-              value {
-                struct_value {
-                  fields {
-                    key: "type";
-                    value {
-                      string_value: "token";
-                    }
-                  }
-                  fields {
-                    key: "authorizerResultTtlInSeconds";
-                    value {
-                      number_value: 60;
-                    }
-                  }
+              fields {
+                key: "authorizerResultTtlInSeconds";
+                value {
+                  number_value: 60;
                 }
               }
             }
           }
         }
-        security: {
-          key: "OAuth2";
-          value: {
-            type: TYPE_OAUTH2;
-            flow: FLOW_ACCESS_CODE;
-            authorization_url: "https://example.com/oauth/authorize";
-            token_url: "https://example.com/oauth/token";
-            scopes: {
-              scope: {
-                key: "read";
-                value: "Grants read access";
-              }
-              scope: {
-                key: "write";
-                value: "Grants write access";
-              }
-              scope: {
-                key: "admin";
-                value: "Grants read and write access to administrative information";
-              }
-            }
-          }
-        }
       }
-      security: {
-        security_requirement: {
-          key: "BasicAuth";
-          value: {};
-        }
-        security_requirement: {
-          key: "ApiKeyAuth";
-          value: {};
-        }
-      }
-      security: {
-        security_requirement: {
-          key: "OAuth2";
-          value: {
-            scope: "read";
-            scope: "write";
-          }
-        }
-        security_requirement: {
-          key: "ApiKeyAuth";
-          value: {};
-        }
-      }
-      responses: {
-        key: "403";
-        value: {
-          description: "Returned when the user does not have permission to access the resource.";
-        }
-      }
-      responses: {
-        key: "404";
-        value: {
-          description: "Returned when the resource does not exist.";
-          schema: {
-            json_schema: {
-              type: STRING;
-            }
-          }
-        }
-      }
-      responses: {
-        key: "418";
-        value: {
-          description: "I'm a teapot.";
-          schema: {
-            json_schema: {
-              ref: ".grpc.gateway.examples.internal.proto.examplepb.NumericEnum";
-            }
-          }
-        }
-      }
-      responses: {
-        key: "500";
-        value: {
-          description: "Server error";
-          headers: {
-            key: "X-Correlation-Id"
-            value: {
-              description: "Unique event identifier for server requests"
-              type: "string"
-              format: "uuid"
-              default: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
-              pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
-            }
-          };
-          schema: {
-            json_schema: {
-              ref: ".grpc.gateway.examples.internal.proto.examplepb.ErrorResponse";
-            }
-          }
-        }
-      }
-      tags: {
-        name: "echo rpc"
-        description: "Echo Rpc description"
-        extensions: {
-          key: "x-traitTag";
-          value {
-            bool_value: true;
-          }
-        }
-      }
-      extensions: {
-        key: "x-grpc-gateway-foo";
-        value {
-          string_value: "bar";
-        }
-      }
-      extensions: {
-        key: "x-grpc-gateway-baz-list";
-        value {
-          list_value: {
-            values: {
-              string_value: "one";
-            }
-            values: {
-              bool_value: true;
-            }
-          }
-        }
-      }
-    };
-    
-    message ErrorResponse {
-      string correlationId = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-        pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
-        title: "x-correlation-id",
-        description: "Unique event identifier for server requests",
-        format: "uuid",
-        example: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
-      }];
-      ErrorObject error = 2;
     }
-    
-    message ErrorObject {
-      int32 code = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-        pattern: "^[0-9]$",
-        title: "code",
-        description: "Response code",
-        format: "integer"
-      }];
-      string message = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-        pattern: "^[a-zA-Z0-9]{1, 32}$",
-        title: "message",
-        description: "Response message"
-      }];
+    security: {
+      key: "OAuth2";
+      value: {
+        type: TYPE_OAUTH2;
+        flow: FLOW_ACCESS_CODE;
+        authorization_url: "https://example.com/oauth/authorize";
+        token_url: "https://example.com/oauth/token";
+        scopes: {
+          scope: {
+            key: "read";
+            value: "Grants read access";
+          }
+          scope: {
+            key: "write";
+            value: "Grants write access";
+          }
+          scope: {
+            key: "admin";
+            value: "Grants read and write access to administrative information";
+          }
+        }
+      }
     }
-    
-    // ABitOfEverything service is used to validate that APIs with complicated
-    // proto messages and URL templates are still processed correctly.
-    service ABitOfEverythingService {
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
-        description: "ABitOfEverythingService description -- which should not be used in place of the documentation comment!"
-        external_docs: {
-          url: "https://github.com/grpc-ecosystem/grpc-gateway";
-          description: "Find out more about EchoService";
+  }
+  security: {
+    security_requirement: {
+      key: "BasicAuth";
+      value: {};
+    }
+    security_requirement: {
+      key: "ApiKeyAuth";
+      value: {};
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "OAuth2";
+      value: {
+        scope: "read";
+        scope: "write";
+      }
+    }
+    security_requirement: {
+      key: "ApiKeyAuth";
+      value: {};
+    }
+  }
+  responses: {
+    key: "403";
+    value: {
+      description: "Returned when the user does not have permission to access the resource.";
+    }
+  }
+  responses: {
+    key: "404";
+    value: {
+      description: "Returned when the resource does not exist.";
+      schema: {
+        json_schema: {
+          type: STRING;
+        }
+      }
+    }
+  }
+  responses: {
+    key: "418";
+    value: {
+      description: "I'm a teapot.";
+      schema: {
+        json_schema: {
+          ref: ".grpc.gateway.examples.internal.proto.examplepb.NumericEnum";
+        }
+      }
+    }
+  }
+  responses: {
+    key: "500";
+    value: {
+      description: "Server error";
+      headers: {
+        key: "X-Correlation-Id"
+        value: {
+          description: "Unique event identifier for server requests"
+          type: "string"
+          format: "uuid"
+          default: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
+          pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
         }
       };
-    
-      // Create a new ABitOfEverything
-      //
-      // This API creates a new ABitOfEverything
-      rpc Create(ABitOfEverything) returns (ABitOfEverything) {
-        option (google.api.http) = {
-          post: "/v1/example/a_bit_of_everything/{float_value}/{double_value}/{int64_value}/separator/{uint64_value}/{int32_value}/{fixed64_value}/{fixed32_value}/{bool_value}/{string_value=strprefix/*}/{uint32_value}/{sfixed32_value}/{sfixed64_value}/{sint32_value}/{sint64_value}/{nonConventionalNameValue}/{enum_value}/{path_enum_value}/{nested_path_enum_value}/{enum_value_annotation}"
-        };
-      }
-      rpc CreateBody(ABitOfEverything) returns (ABitOfEverything) {
-        option (google.api.http) = {
-          post: "/v1/example/a_bit_of_everything"
-          body: "*"
-        };
+      schema: {
+        json_schema: {
+          ref: ".grpc.gateway.examples.internal.proto.examplepb.ErrorResponse";
+        }
       }
     }
-    ```
-
-- OpenAPI v3
-
-    ```protobuf
-    syntax = "proto3";
-    
-    package tests.openapiv3annotations.message.v1;
-    
-    import "google/api/annotations.proto";
-    import "openapiv3/annotations.proto";
-    
-    option go_package = "github.com/google/gnostic/apps/protoc-gen-openapi/examples/tests/openapiv3annotations/message/v1;message";
-    
-    option (openapi.v3.document) = {
-      info: {
-        title: "Title from annotation";
-        version: "Version from annotation";
-        description: "Description from annotation";
-        contact: {
-          name: "Contact Name";
-          url: "https://github.com/google/gnostic";
-          email: "gnostic@google.com";
+  }
+  tags: {
+    name: "echo rpc"
+    description: "Echo Rpc description"
+    extensions: {
+      key: "x-traitTag";
+      value {
+        bool_value: true;
+      }
+    }
+  }
+  extensions: {
+    key: "x-grpc-gateway-foo";
+    value {
+      string_value: "bar";
+    }
+  }
+  extensions: {
+    key: "x-grpc-gateway-baz-list";
+    value {
+      list_value: {
+        values: {
+          string_value: "one";
         }
-        license: {
-          name: "Apache License";
-          url: "https://github.com/google/gnostic/blob/master/LICENSE";
+        values: {
+          bool_value: true;
         }
       }
-      components: {
-        security_schemes: {
-          additional_properties: [
-            {
-              name: "BasicAuth";
-              value: {
-                security_scheme: {
-                  type: "http";
-                  scheme: "basic";
-                }
-              }
-            }
-          ]
-        }
-      }
+    }
+  }
+};
+
+message ErrorResponse {
+  string correlationId = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
+    title: "x-correlation-id",
+    description: "Unique event identifier for server requests",
+    format: "uuid",
+    example: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
+  }];
+  ErrorObject error = 2;
+}
+
+message ErrorObject {
+  int32 code = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern: "^[0-9]$",
+    title: "code",
+    description: "Response code",
+    format: "integer"
+  }];
+  string message = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern: "^[a-zA-Z0-9]{1, 32}$",
+    title: "message",
+    description: "Response message"
+  }];
+}
+
+// ABitOfEverything service is used to validate that APIs with complicated
+// proto messages and URL templates are still processed correctly.
+service ABitOfEverythingService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "ABitOfEverythingService description -- which should not be used in place of the documentation comment!"
+    external_docs: {
+      url: "https://github.com/grpc-ecosystem/grpc-gateway";
+      description: "Find out more about EchoService";
+    }
+  };
+
+  // Create a new ABitOfEverything
+  //
+  // This API creates a new ABitOfEverything
+  rpc Create(ABitOfEverything) returns (ABitOfEverything) {
+    option (google.api.http) = {
+      post: "/v1/example/a_bit_of_everything/{float_value}/{double_value}/{int64_value}/separator/{uint64_value}/{int32_value}/{fixed64_value}/{fixed32_value}/{bool_value}/{string_value=strprefix/*}/{uint32_value}/{sfixed32_value}/{sfixed64_value}/{sint32_value}/{sint64_value}/{nonConventionalNameValue}/{enum_value}/{path_enum_value}/{nested_path_enum_value}/{enum_value_annotation}"
     };
-    
-    service Messaging1 {
-      rpc UpdateMessage(Message) returns(Message) {
-        option(google.api.http) = {
-            patch: "/v1/messages/{message_id}"
-            body: "*"
-        };
-        option(openapi.v3.operation) = {
-            security: [
+  }
+  rpc CreateBody(ABitOfEverything) returns (ABitOfEverything) {
+    option (google.api.http) = {
+      post: "/v1/example/a_bit_of_everything"
+      body: "*"
+    };
+  }
+}
+```
+
+#### Protobuf中如何定义OpenAPI V3注解
+
+```protobuf
+syntax = "proto3";
+
+package tests.openapiv3annotations.message.v1;
+
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
+
+option go_package = "github.com/google/gnostic/apps/protoc-gen-openapi/examples/tests/openapiv3annotations/message/v1;message";
+
+option (openapi.v3.document) = {
+  info: {
+    title: "Title from annotation";
+    version: "Version from annotation";
+    description: "Description from annotation";
+    contact: {
+      name: "Contact Name";
+      url: "https://github.com/google/gnostic";
+      email: "gnostic@google.com";
+    }
+    license: {
+      name: "Apache License";
+      url: "https://github.com/google/gnostic/blob/master/LICENSE";
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BasicAuth";
+          value: {
+            security_scheme: {
+              type: "http";
+              scheme: "basic";
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+service Messaging1 {
+  rpc UpdateMessage(Message) returns(Message) {
+    option(google.api.http) = {
+        patch: "/v1/messages/{message_id}"
+        body: "*"
+    };
+    option(openapi.v3.operation) = {
+        security: [
+          {
+            additional_properties: [
               {
-                additional_properties: [
-                  {
-                    name: "BasicAuth";
-                    value: {
-                      value: []
-                    }
-                  }
-                ]
+                name: "BasicAuth";
+                value: {
+                  value: []
+                }
               }
             ]
-        };
-      }
+          }
+        ]
+    };
+  }
+}
+
+service Messaging2 {
+  rpc UpdateMessage(Message) returns (Message) {}
+}
+
+message Message {
+  option (openapi.v3.schema) = {
+    title: "This is an overridden message schema title";
+  };
+
+  int64 id = 1;
+  string label = 2 [
+    (openapi.v3.property) = {
+      title: "this is an overriden field schema title";
+      max_length: 255;
     }
-    
-    service Messaging2 {
-      rpc UpdateMessage(Message) returns (Message) {}
-    }
-    
-    message Message {
-      option (openapi.v3.schema) = {
-        title: "This is an overridden message schema title";
-      };
-    
-      int64 id = 1;
-      string label = 2 [
-        (openapi.v3.property) = {
-          title: "this is an overriden field schema title";
-          max_length: 255;
-        }
-      ];
-    }
-    ```
+  ];
+}
+```
 
-## 管理生成API
+## 代码生成
 
-Protobuf生成代码使用的工具是protoc，它是基于插件机制开发的，实际生成代码全靠插件，生成代码的命令如下所示：
+Protobuf生成目标语言的代码使用的工具是protoc，它是基于插件机制开发的，实际生成代码全靠插件。
 
-- 生成 go 代码（struct和enum等基础类型）
-
-    ```bash
-    protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
-    ```
-
-- 生成 grpc 服务代码
-
-    ```bash
-    protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
-    ```
-
-- 生成 rest 服务代码
-
-    ```bash
-    protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
-    ```
-
-- 生成 gRPC状态码映射代码
-
-    ```bash
-    protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
-    ```
-
-- 生成 消息参数校验代码
-
-    ```bash
-    protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
-    ```
-
-- 生成 OpenAPI v2 json文档
-
-    ```bash
-    protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
-    ```
-
-- 生成 OpenAPI v3 yaml文档
-
-    ```bash
-    protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
-    ```
-
-插件生成文件一览表
+### 插件生成文件一览表
 
 |   插件名  |   生成文件名  |
 |-----|-----|
@@ -1102,7 +1062,53 @@ message NonStandardMessageWithJSONNames {
 
 你一定发现了`json_name`这个参数，没错，就是为了它，proto那两个参数就是它的开关。如果，字段定义了`json_name`参数之后，REST的JSON字段名便会采用`json_name`所定义的字段名。这是一个非常有用的特性，因为前后端的命名规则不一致是常态，golang用的是驼峰命名法，而前端用蛇形命名法的是很多，这就可以用上了。
 
-### 实施工程化
+### 生成代码的命令
+
+#### 生成 基础类型的GO代码
+
+```bash
+protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
+```
+
+以上命令主要是struct和enum等基础类型
+
+#### 生成 grpc 服务的GO代码
+
+```bash
+protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
+```
+
+#### 生成 rest 服务的GO代码
+
+```bash
+protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
+```
+
+#### 生成 gRPC状态码映射的GO代码
+
+```bash
+protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
+```
+
+#### 生成 参数校验的GO代码
+
+```bash
+protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
+```
+
+#### 生成 OpenAPI v2 json文档
+
+```bash
+protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
+```
+
+#### 生成 OpenAPI v3 yaml文档
+
+```bash
+protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
+```
+
+## 实施工程化
 
 好，我们现在已经知道如何去生成API的代码和文档了。但是，这还远远不够。因为我们不可能每次都去手打命令生成代码，这是不科学，不人道的，不现实的。
 
@@ -1117,63 +1123,63 @@ message NonStandardMessageWithJSONNames {
 
 **结论在前：推荐使用[buf.build](https://buf.build/)**
 
-#### BAT批处理脚本（Windows）或者Shell脚本（非Windows）
+### 1. BAT批处理脚本（Windows）或者Shell脚本（非Windows）
 
-- BAT批处理脚本
+#### BAT批处理脚本
 
-    ```shell
-    :: generate go struct code
-    protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
-        
-    :: generate grpc service code
-    protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
-        
-    :: generate rest service code
-    protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
-        
-    :: generate kratos errors code
-    protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
-        
-    :: generate message validator code
-    protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
-        
-    :: generate openapi v2 json doc
-    protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
-        
-    :: generate openapi v3 yaml doc
-    protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
-    ```
-
-- Shell脚本
-
-    ```shell
-    #!/bin/bash
+```shell
+:: generate go struct code
+protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
     
-    # generate go struct code
-    protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
-        
-    # generate grpc service code
-    protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
-        
-    # generate rest service code
-    protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
-        
-    # generate kratos errors code
-    protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
-        
-    # generate message validator code
-    protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
-        
-    # generate openapi v2 json doc
-    protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
-        
-    # generate openapi v3 yaml doc
-    protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
-    ```
+:: generate grpc service code
+protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
+    
+:: generate rest service code
+protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
+    
+:: generate kratos errors code
+protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
+    
+:: generate message validator code
+protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
+    
+:: generate openapi v2 json doc
+protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
+    
+:: generate openapi v3 yaml doc
+protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
+```
+
+#### Shell脚本
+
+```shell
+#!/bin/bash
+
+# generate go struct code
+protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
+    
+# generate grpc service code
+protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
+    
+# generate rest service code
+protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
+    
+# generate kratos errors code
+protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
+    
+# generate message validator code
+protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
+    
+# generate openapi v2 json doc
+protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
+    
+# generate openapi v3 yaml doc
+protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
+```
 
 这个方法除了能用，没有别的好处了。它需要在每一组proto文件的同级目录下都冗余放一对脚本，如果要执行所有的生成脚本，另外还需要写一个脚本来调用生成脚本，维护起来很痛苦。
 
-#### 2. Makefile
+### 2. Makefile
 
 [Kratos官方layout](https://github.com/go-kratos/kratos-layout)就是使用的Makefile的方法来生成代码的。
 
@@ -1206,68 +1212,68 @@ conf:
 
 MonoRepo的项目结构下，因为会有多个Makefile入口，所以没办法一键执行全部的Makefile，必须借助第三方工具，比如Shell脚本。偷懒如我，总觉得很麻烦。
 
-#### 3. go:generate注解
+### 3. go:generate注解
 
 go1.4版本之后，可以通过`go generate`命令执行一些`go:generate`注解下的预处理命令，可以拿来生成API代码之用。因为在非Windows系统下，命令如果带通配符，会执行出错，需要加`sh -c`才行，而Windows系统不存在这样的问题，可以直接执行，所以需要使用`go:build`注解来区分操作系统，`go generate`命令会根据操作系统执行相对应的go代码文件。所以，我写了两个go文件：
 
-- generate_windows.go
+#### generate_windows.go
 
-    ```go
-    //go:build windows
-    
-    // generate go struct code
-    //go:generate protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
-    
-    // generate grpc service code
-    //go:generate protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
-    
-    // generate rest service code
-    //go:generate protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
-    
-    // generate kratos errors code
-    //go:generate protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
-    
-    // generate message validator code
-    //go:generate protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
-    
-    // generate openapi v2 json doc
-    //go:generate protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
-    
-    // generate openapi v3 yaml doc
-    //go:generate protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
-    
-    package api
-    ```
+```go
+//go:build windows
 
-- generate_xnix.go
+// generate go struct code
+//go:generate protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto
 
-    ```go
-    //go:build !windows
-    // +build !windows
-    
-    // generate go struct code
-    //go:generate sh -c "protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto"
-    
-    // generate grpc service code
-    //go:generate sh -c "protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto"
-    
-    // generate rest service code
-    //go:generate sh -c "protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto"
-    
-    // generate kratos errors code
-    //go:generate sh -c "protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto"
-    
-    // generate message validator code
-    //go:generate sh -c "protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto"
-    
-    // generate openapi v2 json doc
-    //go:generate sh -c "protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto"
-    
-    // generate openapi v3 yaml doc
-    //go:generate sh -c "protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto"
-    
-    package api
-    ```
+// generate grpc service code
+//go:generate protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto
+
+// generate rest service code
+//go:generate protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto
+
+// generate kratos errors code
+//go:generate protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto
+
+// generate message validator code
+//go:generate protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto
+
+// generate openapi v2 json doc
+//go:generate protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
+
+// generate openapi v3 yaml doc
+//go:generate protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
+
+package api
+```
+
+#### generate_xnix.go
+
+```go
+//go:build !windows
+// +build !windows
+
+// generate go struct code
+//go:generate sh -c "protoc --proto_path=. --go_out=paths=source_relative:../ ./*.proto"
+
+// generate grpc service code
+//go:generate sh -c "protoc --proto_path=. --go-grpc_out=paths=source_relative:../ ./*.proto"
+
+// generate rest service code
+//go:generate sh -c "protoc --proto_path=. --go-http_out=paths=source_relative:../ ./*.proto"
+
+// generate kratos errors code
+//go:generate sh -c "protoc --proto_path=. --go-errors_out=paths=source_relative:../ ./*.proto"
+
+// generate message validator code
+//go:generate sh -c "protoc --proto_path=. --validate_out=paths=source_relative,lang=go:../ ./*.proto"
+
+// generate openapi v2 json doc
+//go:generate sh -c "protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto"
+
+// generate openapi v3 yaml doc
+//go:generate sh -c "protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto"
+
+package api
+```
 
 它可以很好的完成生成代码的任务。主流的IDE（Goland、VSC）都可以很好的支持编辑界面执行注解。
 
@@ -1275,19 +1281,19 @@ go1.4版本之后，可以通过`go generate`命令执行一些`go:generate`注�
 
 但是，有一个很大的问题，它需要在每一组proto文件的同级目录下冗余一套go代码，维护起来就比较糟心了。
 
-#### 4. buf.build
+### 4. buf.build
 
-[buf.build](https://docs.buf.build/)是专门编译管理protobuf API的工具。
+[buf.build](https://docs.buf.build/)是专门用于构建protobuf API的工具。
 
 它总共有3组配置文件：`buf.work.yaml`、`buf.gen.yaml`、`buf.yaml`。
 
-另外，还有一个`buf.lock`文件，但是它不需要进行人工配置，它是由`buf mod update`命令所生成。这跟前端的npm、yarn等的lock文件差不多，golang的go.sum也差不多。
+另外，还有一个`buf.lock`文件，但是它不需要进行人工配置，它是由`buf mod update`命令所生成。这跟前端的npm、yarn等的lock文件差不多，golang的`go.sum`也差不多。
 
 它的配置文件不多，也不复杂，维护起来非常方便，支持远程proto插件，支持远程第三方proto。对构建系统Bazel支持很好，对CI/CD系统也支持得很好。它还有很多优秀的特性。
 
 buf.build非常棒，用它，很方便。值得使用，值得推荐。
 
-##### buf.work.yaml
+#### buf.work.yaml
 
 它一般放在项目的根目录下面，它代表的是一个工作区，通常一个项目也就一个该配置文件。
 
@@ -1295,40 +1301,47 @@ buf.build非常棒，用它，很方便。值得使用，值得推荐。
 
 ```yml
 version: v1
+
 directories:
   - api
   - third_party
 ```
 
-##### buf.gen.yaml
+#### buf.gen.yaml
 
 它一般放在`buf.work.yaml`的同级目录下面，它主要是定义一些protoc生成的规则和插件配置。
 
 ```yml
 # 配置protoc生成规则
 version: v1
+
 managed:
   enabled: false
+
 plugins:
   # generate go struct code
   - name: go
     out: gen/api/go
     opt: paths=source_relative
+
   # generate grpc service code
   - name: go-grpc
     out: gen/api/go
     opt:
       - paths=source_relative
+
   # generate rest service code
   - name: go-http
     out: gen/api/go
     opt:
       - paths=source_relative
+
   # generate kratos errors code
   - name: go-errors
     out: gen/api/go
     opt:
       - paths=source_relative
+
   # generate message validator code
   - name: validate
     out: gen/api/go
@@ -1337,7 +1350,7 @@ plugins:
       - lang=go
 ```
 
-##### buf.yaml
+#### buf.yaml
 
 它放置的路径，你可以视之为`protoc`的`--proto-path`参数指向的路径，也就是proto文件里面`import`的相对路径。
 
@@ -1347,16 +1360,31 @@ plugins:
 
 ```yml
 version: v1
+
 deps:
+  - 'buf.build/googleapis/googleapis'
+  - 'buf.build/envoyproxy/protoc-gen-validate'
+  - 'buf.build/kratos/apis'
+  - 'buf.build/gnostic/gnostic'
+  - 'buf.build/gogo/protobuf'
+
 breaking:
   use:
     - FILE
+
 lint:
   use:
     - DEFAULT
 ```
 
-##### 生成代码
+#### buf的IDE插件安装
+
+在IDE里面（VSC和Goland），远程的proto源码库会被拉取到本地的缓存文件夹里面，而这IDE并不知道，故而无法解析到依赖到的proto文件，但是，Buf官方提供了插件，可以帮助IDE读取并解析proto文件，并且自带Lint。
+
+- VSC的Buf插件: <https://marketplace.visualstudio.com/items?itemName=bufbuild.vscode-buf>
+- Goland的BUf插件：<https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers>
+
+#### 使用Buf生成代码
 
 我有开源了一个Kratos的CMS项目[kratos-blog](https://github.com/tx7do/kratos-blog)，它是一个MonoRepo结构的项目，我们以它的项目结构来做讲解。
 
@@ -1376,93 +1404,172 @@ lint:
 │   │           └── buf.openapi.gen.yaml
 │   │           └── i_user.proto
 │   └── buf.yaml
-└── third_party
-    ├── errors
-    │   └── errors.proto
-    ├── google
-    ├── openapiv3
-    ├── protoc-gen-openapiv2
-    ├── validate
-    └── buf.yaml
 ```
 
-大家可以看到，我只在`根目录`、`api`、`third_party`放了3个`buf.yaml`，整体需求的配置文件并不多。
+大家可以看到，总共所需求的配置文件并不多。
 
-buf.build使用`buf generate`命令进行构建，调用该命令必须在`buf.work.yaml`的同级目录下。执行了`buf generate`命令之后，将会在根目录下产生一个`gen/api/go`的文件夹，生成的代码都将被放在了这个目录下。
+`buf.build`使用`buf generate`命令进行构建，调用该命令必须在`buf.work.yaml`的同级目录下。执行了`buf generate`命令之后，将会在根目录下产生一个`gen/api/go`的文件夹，生成的代码都将被放在了这个目录下。
 
 细心的你肯定早就发现了在`api/admin/service/v1`下面有一个`buf.openapi.gen.yaml`的配置文件，这是什么配置文件呢？我现在把该配置文件放出来：
 
 ```yml
 # 配置protoc生成规则
 version: v1
+
 managed:
-  enabled: false
+  enabled: true
+  optimize_for: SPEED
+
+  go_package_prefix:
+    default: kratos-monolithic-demo/gen/api/go
+    except:
+      - 'buf.build/googleapis/googleapis'
+      - 'buf.build/envoyproxy/protoc-gen-validate'
+      - 'buf.build/kratos/apis'
+      - 'buf.build/gnostic/gnostic'
+      - 'buf.build/gogo/protobuf'
+      - 'buf.build/tx7do/pagination'
+
 plugins:
-  # generate openapi v2 yaml doc
+  # generate openapi v2 json doc
+#  - name: openapiv2
+#    out: ./app/admin/service/cmd/server/assets
+#    opt:
+#      - json_names_for_fields=true
+#      - logtostderr=true
+
+  # generate openapi v3 yaml doc
   - name: openapi
-    out: gen/api/go/admin/service/v1
+    out: ./app/admin/service/cmd/server/assets
     opt:
-      - naming=json
-      - paths=source_relative
+      - naming=json # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
+      - depth=2 # 循环消息的递归深度，默认为：2
+      - default_response=false # 添加默认响应消息。如果为“true”，则自动为使用google.rpc.Status消息的操作添加默认响应。如果您使用envoy或grpc-gateway进行转码，则非常有用，因为它们使用此类型作为默认错误响应。默认为：true。
+      - enum_type=string # 枚举类型的序列化的类型。使用"string"则进行基于字符串的序列化。默认为：integer。
+      - output_mode=merged # 输出文件生成模式。默认情况下，只有一个openapi.yaml文件会生成在输出文件夹。使用“source_relative”则会为每一个'[inputfile].proto'文件单独生成一个“[inputfile].openapi.yaml”文件。默认为：merged。
+      - fq_schema_naming=false # Schema的命名是否加上包名，为true，则会加上包名，例如：system.service.v1.ListDictDetailResponse，否则为：ListDictDetailResponse。默认为：false。
 ```
 
-没错，它是为了生成OpenAPI v3文档。我之前尝试了放在根目录下的`buf.gen.yaml`，但是产生了错误，因为OpenAPI v3文档，它全局只能产生一个`openapi.yaml`文件。所以，没辙，只能单独对待了。那么，怎么使用这个配置文件呢？还是使用`buf generate`命令，但是得带参数：
+没错，它是为了生成[OpenAPI v3文档](https://openapi.apifox.cn/)。我之前尝试了放在根目录下的`buf.gen.yaml`，但是产生了错误，因为OpenAPI v3文档，它全局只能产生一个`openapi.yaml`文件。所以，没辙，只能单独对待了。
+
+那么，怎么使用这个配置文件呢？还是使用`buf generate`命令，该命令还是需要在项目根目录下执行，但是得带`--template`参数去引入`buf.openapi.gen.yaml`这个配置文件：
 
 ```bash
 buf generate --path api/admin/service/v1 --template api/admin/service/v1/buf.openapi.gen.yaml
 ```
 
-该命令还是在项目根目录下执行。
+最终，在`./app/admin/service/cmd/server/assets`这个目录下面，将会生成出来一个文件名为`openapi.yaml`的文件。
 
 ### 与前端协同
 
-与前端协同，全靠一点：OpenAPI。前端只要拿到了OpenAPI的文档，他就可以开始上手干活了。
+API并不是给后端自己把玩的玩物，还需要提供给前端调用的。
 
-在这里，我只介绍两个工具的使用：
+要与前端协同，无非就是为前端提供API文档。有两种途径可以达成这个目标：
 
-1. Apifox
-2. pbts
+1. 提供OpenAPI文档；
+2. 通过Protobuf生成TypeScript或者Javascript代码。
 
-#### Apifox
+方法2是我一开始使用的方法，我使用了[pbts](https://www.npmjs.com/package/pbts?activeTab=readme)，它是[ProtoBuf.js](https://github.com/protobufjs/protobuf.js/)提供的一个Protobuf转Typescript的工具。它可以把Schema转换成Typescript代码。在初期，它的确给予了我一定的支撑。但是，它的缺陷很大，很多Protobuf的语法识别不了，很多内容都导出不了，比如：访问路径导出不了、`gnostic/openapi`的标签被识别为错误语法。总之，也就是一个聊胜于无的工具。可是，它还是无法成为真正有力的生产力工具。
 
-我在前面提到的那些支持OpenAPI的工具，随便拿出来一样都很好使。但本文只介绍国产神器[Apifox](https://www.apifox.cn/)。
+后来，我仔细的研究了OpenAPI。发现，它保存了最为完整的API信息。而且，OpenAPI文档是前端最为熟悉的API文档。给前端使用的工具也相当之多。
 
-为什么要推荐它呢？有这么几点让我很爽：
+我研究了很多的语言的很多Web框架，发现，大家都会将Swagger UI内嵌到项目里面，提供一个在线的文档。我体验了整个的开发流程之后，认可了这种方式提供OpenAPI文档：
 
-1. 可以方便的导入导出OpenAPI文档；
-2. 可以不需要配置Mock就可以使用MockServer，大部分的字段其实都不需要格外去配置，需要配置的字段其实只有微乎其微，而且就算是配置起来也很容易，这极大的提高了开发效率；
-3. MockServer支持本地和云端，当团队成员在异地的时候，当我们需要向客户或者领导演示的时候，云端Mock都很好使；
-4. 同时还支持自动化测试。
+首先，它能够保证提供的文档和在线跑的服务提供的API是一致的。
 
-导入OpenAPI是很简单的，它支持手动和自动，手动就是自己拖动OpenAPI文档进来，一次性导入；自动就是通过url自动导入，它会定时导入，这样接口修改了也不用管了，像不像导弹的射后不管？
+其次，一切都是全自动的，一切都由框架提供支持，不需要自己为此做任何支持性的工作。比如，生成文档，拷贝文档……
 
-手动导入的界面如下：
+最后，在线的方式的好处是，前后端都可以利用Swagger UI来查看API文档，调试接口。OpenAPI文档，也可以在线拿取到，如果前端不适应、不喜欢用Swagger UI，那么他也可以导入到其他的工具里面去，比如：Apifox、PostMan……
 
-![manual import doc](/assets/images/api/apifox_manual_import.png)
+#### 怎样内嵌Swagger UI
 
-自动导入的界面如下：
+Kratos官方本来是有一个[swagger-api](https://github.com/go-kratos/swagger-api)的项目的（现在已经被归档了），集成的是OpenAPI v2的Swagger UI。这个项目呢，不好使，我在应用中，经常会读不出来OpenAPI的文档。还有就是OpenAPI v2不如v3功能强大。
 
-![auto import doc](/assets/images/api/apifox_auto_import.png)
+因为没有支持，而我又需要跟前端进行沟通，所以我只好生成出OpenAPI文档之后，自行导入到ApiFox里面去使用，ApiFox呢，挺好的，支持文件和在线两种方式导入，文档管理，接口测试的功能也都很强大。但是总是要去费神导出文档，这很让人抗拒——在开发的初期，接口变动是很高频的行为——难道就不能够全自动吗？程序只要一发布，接口就自动的跟随程序一起发布出去了。
 
-#### pbts
+对，说的就是集成Swagger UI。
 
-pbts是protobuf.js提供的一个Protobuf转Typescript的工具。
+为了做到这件事，我需要做这么几件事情：
 
-对于自由惯了的前端程序员来说，这会让他很不解，难受，觉得束手束脚的——都已经有了OpenAPI了，还要这个作甚？
+1. 把Buf生成OpenAPI文档，编译运行程序写进MakeFile里面；
+2. 利用golang的`Embedding Files`特性，把`openapi.yaml`嵌入到服务程序里面；
+3. 集成Swagger UI到项目，并且读取内嵌的`openapi.yaml`文档。
 
-要的就是约束。
+那么，我们首先开始编写Makefile：
 
-这么一个场景，我有一个协议做了修改，字段增删改了，但是，我代码里面依赖这个协议的地方很多，如果没有这个约束，改变了IDE也没有办法感知到，现在有了约束之后，IDE立马就可以感知到，并且提醒给前端程序员，循着这个提示去修改代码就变得很轻松了，不至于让一些隐藏很深的bug隐匿在深处，寻，也寻不到。
+```makefile
+# generate protobuf api go code
+api:
+	buf generate
 
-pbts的功能其实还很不够，比如，无法把REST的路径导出。比如，生成协议的REST客户端代码。如果有这样一个工具，必将事半功倍。
+# generate OpenAPI v3 docs.
+openapi:
+	buf generate --path api/admin/service/v1 --template api/admin/service/v1/buf.openapi.gen.yaml
+	buf generate --path api/front/service/v1 --template api/front/service/v1/buf.openapi.gen.yaml
 
-pbts命令的使用非常简单，就是只能一次处理一个proto，需要写一个脚本才好：
+# run application
+run: api openapi
+	@go run ./cmd/server -conf ./configs
+```
+
+这样我们只需要运行`make openapi`就执行OpenAPI的生成了，调试运行的时候，输入`make run`命令就可以生成OpenAPI并运行程序。
+
+Makefile写好了，现在我们来到`./app/admin/service/cmd/server/assets`这个目录下面，我们在这个目录下面创建一个名为`assets.go`的代码文件：
+
+```go
+package assets
+
+import _ "embed"
+
+//go:embed openapi.yaml
+var OpenApiData []byte
+```
+
+就这样，我们就把openapi.yaml内嵌进程序了。
+
+最后，我们就需要来集成Swagger UI进来了。我为此封装了一个项目，要使用它，我们需要安装依赖库：
 
 ```bash
-pbts convert -i ./admin.proto -o ts/admin.d.ts
+go get -u github.com/tx7do/kratos-swagger-ui
 ```
+
+在创建REST服务器的地方调用程序包里面的方法：
+
+```go
+package server
+
+import (
+	rest "github.com/go-kratos/kratos/v2/transport/http"
+	swaggerUI "github.com/tx7do/kratos-swagger-ui"
+
+    "kratos-cms/app/admin/service/cmd/server/assets"
+)
+
+func NewRESTServer() *rest.Server {
+	srv := CreateRestServer()
+
+    swaggerUI.RegisterSwaggerUIServerWithOption(
+        srv,
+        swaggerUI.WithTitle("Admin Service"),
+        swaggerUI.WithMemoryData(assets.OpenApiData, "yaml"),
+    )
+}
+```
+
+自此我们就大功告成了！
+
+假如API服务的端口是8080，那么我们可以访问链接来访问Swagger UI：
+
+<http://localhost:8080/docs/>
+
+同时，openapi.yaml文件也可以在线访问到：
+
+<http://localhost:8080/docs/openapi.yaml>
 
 ## 参考资料
 
 - [mac安装包安装 protoc](https://segmentfault.com/a/1190000039732564)
 - [OpenAPI 打通前後端任督二脈](https://editor.leonh.space/2022/openapi/)
+- [什么是 Swagger](https://apifox.com/apiskills/what-is-swagger/)
+- [OpenAPI 规范（中文版）](https://openapi.apifox.cn/)
+- [Swagger-UI 介绍及基本使用指南](https://developer.aliyun.com/article/1157293)
