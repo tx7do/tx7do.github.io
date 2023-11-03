@@ -53,7 +53,7 @@ $ goctl env check -i -f --verbose
 brew install protobuf
 ```
 
-### Ubuntu安装
+#### Ubuntu安装
 
 ```bash
 sudo apt update; sudo apt upgrade
@@ -1304,7 +1304,6 @@ version: v1
 
 directories:
   - api
-  - third_party
 ```
 
 #### buf.gen.yaml
@@ -1382,7 +1381,7 @@ lint:
 在IDE里面（VSC和Goland），远程的proto源码库会被拉取到本地的缓存文件夹里面，而这IDE并不知道，故而无法解析到依赖到的proto文件，但是，Buf官方提供了插件，可以帮助IDE读取并解析proto文件，并且自带Lint。
 
 - VSC的Buf插件: <https://marketplace.visualstudio.com/items?itemName=bufbuild.vscode-buf>
-- Goland的BUf插件：<https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers>
+- Goland的Buf插件：<https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers>
 
 #### 使用Buf生成代码
 
@@ -1450,7 +1449,7 @@ plugins:
       - fq_schema_naming=false # Schema的命名是否加上包名，为true，则会加上包名，例如：system.service.v1.ListDictDetailResponse，否则为：ListDictDetailResponse。默认为：false。
 ```
 
-没错，它是为了生成[OpenAPI v3文档](https://openapi.apifox.cn/)。我之前尝试了放在根目录下的`buf.gen.yaml`，但是产生了错误，因为OpenAPI v3文档，它全局只能产生一个`openapi.yaml`文件。所以，没辙，只能单独对待了。
+它是为了生成[OpenAPI v3文档](https://openapi.apifox.cn/)。我之前尝试了放在根目录下的`buf.gen.yaml`，但是产生了一个问题，因为我可能一个项目里面有多个BFF服务程序，我不可能一股脑全部输出到一个openapi.yaml里面。虽然，它也可以每一个proto各自生成一个`[inputfile].openapi.yaml`，但是，这样显得太乱了，而且，我没有办法用。所以，没辙，只能单独对待了——每个BFF服务独立生成一个文档。
 
 那么，怎么使用这个配置文件呢？还是使用`buf generate`命令，该命令还是需要在项目根目录下执行，但是得带`--template`参数去引入`buf.openapi.gen.yaml`这个配置文件：
 
