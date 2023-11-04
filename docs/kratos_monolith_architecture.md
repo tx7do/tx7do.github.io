@@ -12,7 +12,7 @@
 4. ORM框架Ent的使用；
 5. OpenAPI在项目开发中的应用；
 6. 完整的CURD开发示例；
-7. 用户登录认证。
+7. 用户登陆认证。
 
 ## 为什么要学要用微服务框架？
 
@@ -546,7 +546,6 @@ type User struct {
 func (User) Fields() []ent.Field {
 
 	return []ent.Field{
-
 		field.Int32("id").SchemaType(map[string]string{
 			dialect.MySQL: "int(10)UNSIGNED", // Override MySQL.
 		}).NonNegative().Unique(),
@@ -659,6 +658,129 @@ ent generate \
 ```bash
 make ent
 ```
+
+### 连接数据库
+
+#### SQLite3
+
+```go
+import (
+	_ "github.com/mattn/go-sqlite3"
+)
+
+client, err := ent.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+if err != nil {
+	log.Fatalf("failed opening connection to sqlite: %v", err)
+}
+defer client.Close()
+```
+
+#### MySQL/MariaDB
+
+- TiDB 高度兼容MySQL 5.7 协议
+- ClickHouse 支持MySQL wire通讯协议
+
+```go
+import (
+	_ "github.com/go-sql-driver/mysql"
+)
+
+client, err := ent.Open("mysql", "<user>:<pass>@tcp(<host>:<port>)/<database>?parseTime=True")
+if err != nil {
+	log.Fatalf("failed opening connection to mysql: %v", err)
+}
+defer client.Close()
+```
+
+#### PostgreSQL
+
+- CockroachDB 兼容PostgreSQL协议
+
+```go
+import (
+	_ "github.com/lib/pq"
+)
+
+client, err := ent.Open("postgresql", "host=<host> port=<port> user=<user> dbname=<database> password=<pass>")
+if err != nil {
+	log.Fatalf("failed opening connection to postgres: %v", err)
+}
+defer client.Close()
+```
+
+#### Gremlin
+
+```go
+import (
+	"<project>/ent"
+)
+
+client, err := ent.Open("gremlin", "http://localhost:8182")
+if err != nil {
+	log.Fatalf("failed opening connection to gremlin: %v", err)
+}
+defer client.Close()
+```
+
+### 自定义驱动sql.DB连接
+
+有以下两种途径可以达成：
+
+```go
+package main
+
+import (
+    "time"
+
+    "<your_project>/ent"
+    "entgo.io/ent/dialect/sql"
+)
+
+func Open() (*ent.Client, error) {
+    drv, err := sql.Open("mysql", "<mysql-dsn>")
+    if err != nil {
+        return nil, err
+    }
+    // Get the underlying sql.DB object of the driver.
+    db := drv.DB()
+    db.SetMaxIdleConns(10)
+    db.SetMaxOpenConns(100)
+    db.SetConnMaxLifetime(time.Hour)
+    return ent.NewClient(ent.Driver(drv)), nil
+}
+```
+
+第二种是：
+
+```go
+package main
+
+import (
+    "database/sql"
+    "time"
+
+    "<your_project>/ent"
+    entsql "entgo.io/ent/dialect/sql"
+)
+
+func Open() (*ent.Client, error) {
+    db, err := sql.Open("mysql", "<mysql-dsn>")
+    if err != nil {
+        return nil, err
+    }
+    db.SetMaxIdleConns(10)
+    db.SetMaxOpenConns(100)
+    db.SetConnMaxLifetime(time.Hour)
+    // Create an ent.Driver from `db`.
+    drv := entsql.OpenDB("mysql", db)
+    return ent.NewClient(ent.Driver(drv)), nil
+}
+```
+
+在实际应用中，使用自定义的方法会更好，有两个原因：
+
+1. 可以定制数据库连接，比如使用连接池；
+2. 如果查询语句太过于复杂，可以直接使用驱动写SQL语句进行查询。
 
 ## OpenAPI的使用
 
@@ -824,7 +946,529 @@ func NewRESTServer() *rest.Server {
 
 ## 完整的CURD开发示例
 
-## 用户登录认证
+Kratos的官方示例的结构是：`data`、`biz`、`service`、`server`，我简化掉了，我把`biz`给摘除掉了。
+
+我们以用户`UserService`为例。
+
+### Data
+
+所有对ORM的调用，对数据库的操作都在这一层做。
+
+```go
+package data
+
+import (
+	"context"
+	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/tx7do/go-utils/crypto"
+	entgo "github.com/tx7do/go-utils/entgo/query"
+	util "github.com/tx7do/go-utils/time"
+	"github.com/tx7do/go-utils/trans"
+
+	"kratos-monolithic-demo/app/admin/service/internal/data/ent"
+	"kratos-monolithic-demo/app/admin/service/internal/data/ent/user"
+
+	pagination "github.com/tx7do/kratos-bootstrap/gen/api/go/pagination/v1"
+	v1 "kratos-monolithic-demo/gen/api/go/user/service/v1"
+)
+
+type UserRepo struct {
+	data *Data
+	log  *log.Helper
+}
+
+func NewUserRepo(data *Data, logger log.Logger) *UserRepo {
+	l := log.NewHelper(log.With(logger, "module", "user/repo/admin-service"))
+	return &UserRepo{
+		data: data,
+		log:  l,
+	}
+}
+
+func (r *UserRepo) convertEntToProto(in *ent.User) *v1.User {
+	if in == nil {
+		return nil
+	}
+
+	var authority *v1.UserAuthority
+	if in.Authority != nil {
+		authority = (*v1.UserAuthority)(trans.Int32(v1.UserAuthority_value[string(*in.Authority)]))
+	}
+
+	return &v1.User{
+		Id:            in.ID,
+		RoleId:        in.RoleID,
+		WorkId:        in.WorkID,
+		OrgId:         in.OrgID,
+		PositionId:    in.PositionID,
+		CreatorId:     in.CreateBy,
+		UserName:      in.Username,
+		NickName:      in.NickName,
+		RealName:      in.RealName,
+		Email:         in.Email,
+		Avatar:        in.Avatar,
+		Phone:         in.Phone,
+		Gender:        (*string)(in.Gender),
+		Address:       in.Address,
+		Description:   in.Description,
+		Authority:     authority,
+		LastLoginTime: in.LastLoginTime,
+		LastLoginIp:   in.LastLoginIP,
+		Status:        (*string)(in.Status),
+		CreateTime:    util.TimeToTimeString(in.CreateTime),
+		UpdateTime:    util.TimeToTimeString(in.UpdateTime),
+		DeleteTime:    util.TimeToTimeString(in.DeleteTime),
+	}
+}
+
+func (r *UserRepo) Count(ctx context.Context, whereCond []func(s *sql.Selector)) (int, error) {
+	builder := r.data.db.Client().User.Query()
+	if len(whereCond) != 0 {
+		builder.Modify(whereCond...)
+	}
+
+	count, err := builder.Count(ctx)
+	if err != nil {
+		r.log.Errorf("query count failed: %s", err.Error())
+	}
+
+	return count, err
+}
+
+func (r *UserRepo) List(ctx context.Context, req *pagination.PagingRequest) (*v1.ListUserResponse, error) {
+	builder := r.data.db.Client().User.Query()
+
+	err, whereSelectors, querySelectors := entgo.BuildQuerySelector(r.data.db.Driver().Dialect(),
+		req.GetQuery(), req.GetOrQuery(),
+		req.GetPage(), req.GetPageSize(), req.GetNoPaging(),
+		req.GetOrderBy(), user.FieldCreateTime)
+	if err != nil {
+		r.log.Errorf("解析条件发生错误[%s]", err.Error())
+		return nil, err
+	}
+
+	if querySelectors != nil {
+		builder.Modify(querySelectors...)
+	}
+
+	if req.GetFieldMask() != nil && len(req.GetFieldMask().GetPaths()) > 0 {
+		builder.Select(req.GetFieldMask().GetPaths()...)
+	}
+
+	results, err := builder.All(ctx)
+	if err != nil {
+		r.log.Errorf("query list failed: %s", err.Error())
+		return nil, err
+	}
+
+	items := make([]*v1.User, 0, len(results))
+	for _, res := range results {
+		item := r.convertEntToProto(res)
+		items = append(items, item)
+	}
+
+	count, err := r.Count(ctx, whereSelectors)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1.ListUserResponse{
+		Total: int32(count),
+		Items: items,
+	}, nil
+}
+
+func (r *UserRepo) Get(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
+	ret, err := r.data.db.Client().User.Get(ctx, req.GetId())
+	if err != nil && !ent.IsNotFound(err) {
+		r.log.Errorf("query one data failed: %s", err.Error())
+		return nil, err
+	}
+
+	u := r.convertEntToProto(ret)
+	return u, err
+}
+
+func (r *UserRepo) Create(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
+	ph, err := crypto.HashPassword(req.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	builder := r.data.db.Client().User.Create().
+		SetNillableUsername(req.User.UserName).
+		SetNillableNickName(req.User.NickName).
+		SetNillableEmail(req.User.Email).
+		SetNillableRealName(req.User.RealName).
+		SetNillablePhone(req.User.Phone).
+		SetNillableOrgID(req.User.OrgId).
+		SetNillableRoleID(req.User.RoleId).
+		SetNillableWorkID(req.User.WorkId).
+		SetNillablePositionID(req.User.PositionId).
+		SetNillableAvatar(req.User.Avatar).
+		SetNillableStatus((*user.Status)(req.User.Status)).
+		SetNillableGender((*user.Gender)(req.User.Gender)).
+		SetCreateBy(req.GetOperatorId()).
+		SetPassword(ph).
+		SetCreateTime(time.Now())
+
+	if req.User.Authority != nil {
+		builder.SetAuthority((user.Authority)(req.User.Authority.String()))
+	}
+
+	ret, err := builder.Save(ctx)
+	if err != nil {
+		r.log.Errorf("insert one data failed: %s", err.Error())
+		return nil, err
+	}
+
+	u := r.convertEntToProto(ret)
+	return u, err
+}
+
+func (r *UserRepo) Update(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
+	cryptoPassword, err := crypto.HashPassword(req.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	builder := r.data.db.Client().User.UpdateOneID(req.Id).
+		SetNillableNickName(req.User.NickName).
+		SetNillableEmail(req.User.Email).
+		SetNillableRealName(req.User.RealName).
+		SetNillablePhone(req.User.Phone).
+		SetNillableOrgID(req.User.OrgId).
+		SetNillableRoleID(req.User.RoleId).
+		SetNillableWorkID(req.User.WorkId).
+		SetNillablePositionID(req.User.PositionId).
+		SetNillableAvatar(req.User.Avatar).
+		SetNillableStatus((*user.Status)(req.User.Status)).
+		SetNillableGender((*user.Gender)(req.User.Gender)).
+		SetPassword(cryptoPassword).
+		SetUpdateTime(time.Now())
+
+	if req.User.Authority != nil {
+		builder.SetAuthority((user.Authority)(req.User.Authority.String()))
+	}
+
+	ret, err := builder.Save(ctx)
+	if err != nil {
+		r.log.Errorf("update one data failed: %s", err.Error())
+		return nil, err
+	}
+
+	u := r.convertEntToProto(ret)
+	return u, err
+}
+
+func (r *UserRepo) Delete(ctx context.Context, req *v1.DeleteUserRequest) (bool, error) {
+	err := r.data.db.Client().User.
+		DeleteOneID(req.GetId()).
+		Exec(ctx)
+	if err != nil {
+		r.log.Errorf("delete one data failed: %s", err.Error())
+	}
+
+	return err == nil, err
+}
+```
+
+增删改，这些都没有什么特别的。
+
+列表查询，有点特别，需要特别的说明一下，我提取了一个通用的分页请求：
+
+| 字段名       | 类型        | 格式                                  | 字段描述    | 示例                                                                                                       | 备注                                                               |
+|-----------|-----------|-------------------------------------|---------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| page      | `number`  |                                     | 当前页码    |                                                                                                          | 默认为`1`，最小值为`1`。                                                  |
+| pageSize  | `number`  |                                     | 每页的行数   |                                                                                                          | 默认为`10`，最小值为`1`。                                                 |
+| query     | `string`  | `json object` 或 `json object array` | AND过滤条件 | json字符串: `{"field1":"val1","field2":"val2"}` 或者`[{"field1":"val1"},{"field1":"val2"},{"field2":"val2"}]` | `map`和`array`都支持，当需要同字段名，不同值的情况下，请使用`array`。具体规则请见：[过滤规则](#过滤规则) |
+| or        | `string`  | `json object` 或 `json object array` | OR过滤条件  | 同 AND过滤条件                                                                                                |                                                                  |
+| orderBy   | `string`  | `json string array`                 | 排序条件    | json字符串：`["-create_time", "type"]`                                                                       | json的`string array`，字段名前加`-`是为降序，不加为升序。具体规则请见：[排序规则](#排序规则)      |
+| nopaging  | `boolean` |                                     | 是否不分页   |                                                                                                          | 此字段为`true`时，`page`、`pageSize`字段的传入将无效用。                          |
+| fieldMask | `string`  | `json string array`                 | 字段掩码    |                                                                                                          | 此字段是`SELECT`条件，为空的时候是为`*`。                                       |
+
+### Service
+
+这一层主要是处理REST的请求和返回信息。
+
+```go
+package service
+
+import (
+	"context"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/tx7do/go-utils/trans"
+	"google.golang.org/protobuf/types/known/emptypb"
+
+	"kratos-monolithic-demo/app/admin/service/internal/data"
+
+	adminV1 "kratos-monolithic-demo/gen/api/go/admin/service/v1"
+	userV1 "kratos-monolithic-demo/gen/api/go/user/service/v1"
+
+	pagination "github.com/tx7do/kratos-bootstrap/gen/api/go/pagination/v1"
+
+	"kratos-monolithic-demo/pkg/middleware/auth"
+)
+
+type UserService struct {
+	adminV1.UserServiceHTTPServer
+
+	uc  *data.UserRepo
+	log *log.Helper
+}
+
+func NewUserService(logger log.Logger, uc *data.UserRepo) *UserService {
+	l := log.NewHelper(log.With(logger, "module", "user/service/admin-service"))
+	return &UserService{
+		log: l,
+		uc:  uc,
+	}
+}
+
+func (s *UserService) ListUser(ctx context.Context, req *pagination.PagingRequest) (*userV1.ListUserResponse, error) {
+	return s.uc.List(ctx, req)
+}
+
+func (s *UserService) GetUser(ctx context.Context, req *userV1.GetUserRequest) (*userV1.User, error) {
+	return s.uc.Get(ctx, req)
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req *userV1.CreateUserRequest) (*userV1.User, error) {
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil {
+		s.log.Errorf("[%d] 用户认证失败[%s]", authInfo, err.Error())
+		return nil, adminV1.ErrorAccessForbidden("用户认证失败")
+	}
+
+	if req.User == nil {
+		return nil, adminV1.ErrorBadRequest("错误的参数")
+	}
+
+	req.OperatorId = authInfo.UserId
+	req.User.CreatorId = trans.Uint32(authInfo.UserId)
+	if req.User.Authority == nil {
+		req.User.Authority = userV1.UserAuthority_CUSTOMER_USER.Enum()
+	}
+
+	ret, err := s.uc.Create(ctx, req)
+	return ret, err
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, req *userV1.UpdateUserRequest) (*userV1.User, error) {
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil {
+		s.log.Errorf("[%d] 用户认证失败[%s]", authInfo, err.Error())
+		return nil, adminV1.ErrorAccessForbidden("用户认证失败")
+	}
+
+	if req.User == nil {
+		return nil, adminV1.ErrorBadRequest("错误的参数")
+	}
+
+	req.OperatorId = authInfo.UserId
+
+	ret, err := s.uc.Update(ctx, req)
+	return ret, err
+}
+
+func (s *UserService) DeleteUser(ctx context.Context, req *userV1.DeleteUserRequest) (*emptypb.Empty, error) {
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil {
+		s.log.Errorf("[%d] 用户认证失败[%s]", authInfo, err.Error())
+		return nil, adminV1.ErrorAccessForbidden("用户认证失败")
+	}
+
+	req.OperatorId = authInfo.UserId
+
+	_, err = s.uc.Delete(ctx, req)
+
+	return &emptypb.Empty{}, err
+}
+```
+
+### Server
+
+在这一层创建REST服务器，`Service`的服务也在这里注册进去。
+
+```go
+package server
+
+import (
+	"context"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/transport/http"
+
+	bootstrap "github.com/tx7do/kratos-bootstrap"
+	conf "github.com/tx7do/kratos-bootstrap/gen/api/go/conf/v1"
+
+	"kratos-monolithic-demo/app/admin/service/cmd/server/assets"
+	"kratos-monolithic-demo/app/admin/service/internal/service"
+
+	adminV1 "kratos-monolithic-demo/gen/api/go/admin/service/v1"
+	"kratos-monolithic-demo/pkg/middleware/auth"
+)
+
+// NewRESTServer new an HTTP server.
+func NewRESTServer(
+	cfg *conf.Bootstrap, logger log.Logger,
+	userSvc *service.UserService,
+) *http.Server {
+	srv := bootstrap.CreateRestServer(cfg)
+	adminV1.RegisterUserServiceHTTPServer(srv, userSvc)
+	return srv
+}
+```
+
+## 用户登陆认证
+
+登陆的协议使用[OAuth 2.0](https://oauth.net/2/grant-types/password/)的密码授权(Password Grant)方式，协议proto定义如下：
+
+```protobuf
+syntax = "proto3";
+
+package admin.service.v1;
+
+// 用户后台登陆认证服务
+service AuthenticationService {
+  // 登陆
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/login"
+      body: "*"
+    };
+  }
+
+  // 登出
+  rpc Logout (LogoutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/admin/v1/logout"
+      body: "*"
+    };
+  }
+
+  // 刷新认证令牌
+  rpc RefreshToken (RefreshTokenRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/admin/v1/refresh_token"
+      body: "*"
+    };
+  }
+}
+
+// 用户后台登陆 - 请求
+message LoginRequest {
+  string username = 1; // 用户名，必选项。
+  string password = 2; // 用户的密码，必选项。
+  string grand_type = 3; // 授权类型，此处的值固定为"password"，必选项。
+  optional string scope = 4; // 以空格分隔的范围列表。如果未提供，scope则授权任何范围，默认为空列表。
+}
+
+// 用户后台登陆 - 回应
+message LoginResponse {
+  string access_token = 1; // 访问令牌，必选项。
+  string refresh_token = 2; // 更新令牌，用来获取下一次的访问令牌，可选项。
+  string token_type = 3; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+  int64 expires_in = 4; // 过期时间，单位为秒。如果省略该参数，必须其他方式设置过期时间。
+}
+
+// 用户刷新令牌 - 请求
+message RefreshTokenRequest {
+  string refresh_token = 1; // 更新令牌，用来获取下一次的访问令牌，必选项。
+  string grand_type = 2; // 授权类型，此处的值固定为"password"，必选项。
+  optional string scope = 3; // 以空格分隔的范围列表。如果未提供，scope则授权任何范围，默认为空列表。
+}
+```
+
+使用标准化的OAuth 2.0协议，有一个好处就是，别的系统可以无缝对接用户登陆认证。
+
+登陆的令牌，我们使用JWT算法生成。刷新的令牌，使用UUIDv4算法生成，生成的代码如下：
+
+```go
+import (
+	authnEngine "github.com/tx7do/kratos-authn/engine"
+)
+
+type UserTokenRepo struct {
+	data          *Data
+	log           *log.Helper
+	authenticator authnEngine.Authenticator
+}
+
+// createAccessJwtToken 生成JWT访问令牌
+func (r *UserTokenRepo) createAccessJwtToken(_ string, userId uint32) string {
+	principal := authn.AuthClaims{
+		Subject: strconv.FormatUint(uint64(userId), 10),
+		Scopes:  make(authn.ScopeSet),
+	}
+
+	signedToken, err := r.authenticator.CreateIdentity(principal)
+	if err != nil {
+		return ""
+	}
+
+	return signedToken
+}
+
+// createRefreshToken 生成刷新令牌
+func (r *UserTokenRepo) createRefreshToken() string {
+	strUUID, _ := uuid.NewV4()
+	return strUUID.String()
+}
+```
+
+JWT令牌的生成和验证的具体算法，我都已经封装在了`github.com/tx7do/kratos-authn`软件包里面。
+
+JWT令牌的验证，以中间件的方式提供：
+
+```go
+import (
+	"context"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/transport/http"
+
+	authnEngine "github.com/tx7do/kratos-authn/engine"
+	authn "github.com/tx7do/kratos-authn/middleware"
+)
+
+// NewWhiteListMatcher 创建jwt白名单
+func newRestWhiteListMatcher() selector.MatchFunc {
+	whiteList := make(map[string]bool)
+	whiteList[adminV1.OperationAuthenticationServiceLogin] = true
+	return func(ctx context.Context, operation string) bool {
+		if _, ok := whiteList[operation]; ok {
+			return false
+		}
+		return true
+	}
+}
+
+// NewRESTServer new an HTTP server.
+func NewRESTServer(
+	cfg *conf.Bootstrap, logger log.Logger,
+	authenticator authnEngine.Authenticator,
+) *http.Server {
+	srv := bootstrap.CreateRestServer(cfg, selector.Server(authn.Server(authenticator)).Match(newRestWhiteListMatcher()).Build())
+	return srv
+}
+```
+
+现在，只要不是在白名单里面的接口，都将接受JWT令牌的验证，无法通过验证的请求，都将无法访问该接口。
+
+## 结语
+
+当你学习到了这些知识点之后，你会发现上手使用Kratos微服务框架所涉及的知识点也并不繁杂，学习的门槛还是很低的。基于本文中的demo项目，我相信你可以很快的上手写项目了。
 
 ## 参考资料
 
