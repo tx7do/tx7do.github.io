@@ -4,7 +4,7 @@
 
 微服务框架也是可以用于开发单体架构(monolith architecture)的应用。并且，单体应用也是最小的、最原始的、最初的项目状态，经过渐进式的开发演进，单体应用能够逐步的演变成微服务架构，并且不断的细分服务粒度。微服务框架开发的单体架构应用，既然是一个最小化的实施，那么它只需要使用到微服务框架最小的技术，也就意味着它只需要用到微服务框架最少的知识点，拿它来学习微服务框架是极佳的。
 
-本文围绕着一个我写的demo项目：[kratos-monolithic-demo](https://gitee.com/tx7do/kratos-monolithic-demo)开展，从中你可以学习到：
+本文将围绕着一个我写的demo项目：[kratos-monolithic-demo](https://gitee.com/tx7do/kratos-monolithic-demo)开展，它既是一个微服务框架Kratos的最小化实践，也是一个工程化实践的完全体。从中你可以学习到：
 
 1. 构建工具Make的使用；
 2. 依赖注入框架Wire的使用；
@@ -53,14 +53,21 @@
 
 还有一点就是，微服务的开发过程，并不是一步到位的——微服务的开发是渐进的，正所谓：一生二，二生三，三生万物——从单体应用开始逐步的拆分服务也并不是一件很稀奇的事情。
 
-对于那些想学习使用微服务框架的同学，一个微服务框架开发的单体项目，它本质上是一个最小化的项目，故而，它也是极为适合拿来学习之用的项目。
-
 ## Demo代码仓库
 
 代码在前，适合那些不喜欢看啰嗦的同学。
 
 - <https://github.com/tx7do/kratos-monolithic-demo>
 - <https://gitee.com/tx7do/kratos-monolithic-demo>
+
+对于那些想学习使用微服务框架的同学，这一个微服务框架开发的单体项目，它本质上是一个最小化的项目，故而，它也是极为适合拿来学习之用的项目。
+
+对我而言，它是一个工程化实验的实验田，我主要拿它实验软件工程的几个基本形式：
+
+1. 标准化
+2. 模块化
+3. 过程化
+4. 实用化和工具化。
 
 ## 项目结构
 
@@ -434,65 +441,7 @@ lint:
     - DEFAULT
 ```
 
-### buf.openapi.gen.yaml
-
-细心的你肯定早就发现了在`api/admin/service/v1`下面有一个`buf.openapi.gen.yaml`的配置文件，这是什么配置文件呢？我现在把该配置文件放出来：
-
-```yml
-# 配置protoc生成规则
-version: v1
-
-managed:
-  enabled: true
-  optimize_for: SPEED
-
-  go_package_prefix:
-    default: kratos-monolithic-demo/gen/api/go
-    except:
-      - 'buf.build/googleapis/googleapis'
-      - 'buf.build/envoyproxy/protoc-gen-validate'
-      - 'buf.build/kratos/apis'
-      - 'buf.build/gnostic/gnostic'
-      - 'buf.build/gogo/protobuf'
-      - 'buf.build/tx7do/pagination'
-
-plugins:
-  # generate openapi v2 json doc
-#  - name: openapiv2
-#    out: ./app/admin/service/cmd/server/assets
-#    opt:
-#      - json_names_for_fields=true
-#      - logtostderr=true
-
-  # generate openapi v3 yaml doc
-  - name: openapi
-    out: ./app/admin/service/cmd/server/assets
-    opt:
-      - naming=json # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
-      - depth=2 # 循环消息的递归深度，默认为：2
-      - default_response=false # 添加默认响应消息。如果为“true”，则自动为使用google.rpc.Status消息的操作添加默认响应。如果您使用envoy或grpc-gateway进行转码，则非常有用，因为它们使用此类型作为默认错误响应。默认为：true。
-      - enum_type=string # 枚举类型的序列化的类型。使用"string"则进行基于字符串的序列化。默认为：integer。
-      - output_mode=merged # 输出文件生成模式。默认情况下，只有一个openapi.yaml文件会生成在输出文件夹。使用“source_relative”则会为每一个'[inputfile].proto'文件单独生成一个“[inputfile].openapi.yaml”文件。默认为：merged。
-      - fq_schema_naming=false # Schema的命名是否加上包名，为true，则会加上包名，例如：system.service.v1.ListDictDetailResponse，否则为：ListDictDetailResponse。默认为：false。
-```
-
-它是为了生成[OpenAPI v3文档](https://openapi.apifox.cn/)。我之前尝试了放在根目录下的`buf.gen.yaml`，但是产生了一个问题，因为我可能一个项目里面有多个BFF服务程序，我不可能一股脑全部输出到一个openapi.yaml里面。虽然，它也可以每一个proto各自生成一个`[inputfile].openapi.yaml`，但是，这样显得太乱了，而且，我没有办法用。所以，没辙，只能单独对待了——每个BFF服务独立生成一个文档。
-
-那么，怎么使用这个配置文件呢？还是使用`buf generate`命令，该命令还是需要在项目根目录下执行，但是得带`--template`参数去引入`buf.openapi.gen.yaml`这个配置文件：
-
-```bash
-buf generate --path api/admin/service/v1 --template api/admin/service/v1/buf.openapi.gen.yaml
-```
-
-也可以在`backend`根目录下使用Make命令：
-
-```bash
-make openapi
-```
-
-最终，在`./app/admin/service/cmd/server/assets`这个目录下面，将会生成出来一个文件名为`openapi.yaml`的文件。
-
-### 协议代码生成
+### API代码生成
 
 我们可以使用以下命令来进行代码生成：
 
@@ -519,17 +468,17 @@ Schema相当于数据库的表。
 《道德经》说：
 > 道生一，一生二，二生三，三生万物。
 
-Schema，就是一切的起始点。
+Schema，就是数据库开发的起始点。
 
-只有定义了Schema，CLI才能够生成数据库表的结构和操作的相关代码，有了相关代码，才能够操作数据库表的数据。
+只有定义了Schema，代码生成器才能够生成数据库表的go数据结构和相关操作的go代码，有了这些生成后的代码，我们才能够通过ORM来操作数据库表。
 
-后面想要生成gRPC和GraphQL的接口定义，也还是需要Schema。
+ent还支持从Schema生成gRPC和GraphQL的接口定义，可以说ent已经打通了开发全流程——向后搞定了数据库，向前搞定了API。
 
 #### 创建一个Schema
 
 创建Schema有两个方法可以做到：
 
-##### 使用 `entc init` 创建
+##### 使用 `ent init` 创建
 
 ```bash
 ent init User
@@ -629,9 +578,9 @@ func (User) Edges() []ent.Edge {
 
 ### Mixin复用字段
 
-在实际应用中，我们经常需要会有一些通用的字段，比如：`id`、`created_at`、`updated_at`等等。
+在实际应用中，我们经常会碰到一些一模一样的通用字段，比如：`id`、`created_at`、`updated_at`等等。
 
-那么，我们就一直的复制粘贴？这显然很是不优雅。
+那么，我们就只能一直的复制粘贴？这会使得代码既臃肿，又显得很不优雅。
 
 entgo能够让我们复用这些字段吗？
 
@@ -661,10 +610,10 @@ func (TimeMixin) Fields() []ent.Field {
 		field.Time("created_at").
 			Immutable().
 			Default(time.Now),
+
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now),
-		field.Bool("deleted").Default(false),
 	}
 }
 ```
@@ -679,7 +628,7 @@ func (User) Mixin() []ent.Mixin {
 }
 ```
 
-生成代码再看，就有这3个字段了。
+生成代码再看，user表就拥有这2个字段了。
 
 ### 生成Ent代码
 
@@ -719,13 +668,72 @@ Kratos官方本来是有一个[swagger-api](https://github.com/go-kratos/swagger
 
 对，说的就是集成Swagger UI。
 
-为了做到这件事，我需要做这么几件事情：
+为了做到这件事，并且工程化，需要做这么几件事情：
 
-1. 把Buf生成OpenAPI文档，编译运行程序写进MakeFile里面；
-2. 利用golang的`Embedding Files`特性，把`openapi.yaml`嵌入到服务程序里面；
-3. 集成Swagger UI到项目，并且读取内嵌的`openapi.yaml`文档。
+1. 编写`Buf`配置进行OpenAPI文档的生成；
+2. 把Buf生成OpenAPI文档的命令写进`MakeFile`里面；
+3. 利用golang的`Embedding Files`特性，把`openapi.yaml`嵌入到BFF服务程序里面；
+4. 集成`Swagger UI`到项目，并且读取内嵌的`openapi.yaml`文档。
 
-那么，我们首先开始编写Makefile：
+### 1. 编写`Buf`配置进行OpenAPI文档的生成
+
+细心的你肯定早就发现了在`api/admin/service/v1`下面有一个`buf.openapi.gen.yaml`的配置文件，这是什么配置文件呢？我现在把该配置文件放出来：
+
+```yml
+# 配置protoc生成规则
+version: v1
+
+managed:
+  enabled: true
+  optimize_for: SPEED
+
+  go_package_prefix:
+    default: kratos-monolithic-demo/gen/api/go
+    except:
+      - 'buf.build/googleapis/googleapis'
+      - 'buf.build/envoyproxy/protoc-gen-validate'
+      - 'buf.build/kratos/apis'
+      - 'buf.build/gnostic/gnostic'
+      - 'buf.build/gogo/protobuf'
+      - 'buf.build/tx7do/pagination'
+
+plugins:
+  # generate openapi v2 json doc
+#  - name: openapiv2
+#    out: ./app/admin/service/cmd/server/assets
+#    opt:
+#      - json_names_for_fields=true
+#      - logtostderr=true
+
+  # generate openapi v3 yaml doc
+  - name: openapi
+    out: ./app/admin/service/cmd/server/assets
+    opt:
+      - naming=json # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
+      - depth=2 # 循环消息的递归深度，默认为：2
+      - default_response=false # 添加默认响应消息。如果为“true”，则自动为使用google.rpc.Status消息的操作添加默认响应。如果您使用envoy或grpc-gateway进行转码，则非常有用，因为它们使用此类型作为默认错误响应。默认为：true。
+      - enum_type=string # 枚举类型的序列化的类型。使用"string"则进行基于字符串的序列化。默认为：integer。
+      - output_mode=merged # 输出文件生成模式。默认情况下，只有一个openapi.yaml文件会生成在输出文件夹。使用“source_relative”则会为每一个'[inputfile].proto'文件单独生成一个“[inputfile].openapi.yaml”文件。默认为：merged。
+      - fq_schema_naming=false # Schema的命名是否加上包名，为true，则会加上包名，例如：system.service.v1.ListDictDetailResponse，否则为：ListDictDetailResponse。默认为：false。
+```
+
+这个配置文件是为了生成[OpenAPI v3文档](https://openapi.apifox.cn/)而编写的。
+
+我之前尝试了把生成OpenAPI的配置放在根目录下的`buf.gen.yaml`，但是这产生了一个问题，因为我一个项目里面会有多个BFF服务程序，我不可能一股脑全部输出到一个openapi.yaml里面。虽然，代码生成器也可以为每一个proto各自生成一个`[inputfile].openapi.yaml`，但是，这样显得太乱了，而且，我没有办法用。所以，没辙，只能单独对待了——每个BFF服务独立生成一个文档。
+
+那么，怎么使用这个配置文件呢？还是使用`buf generate`命令，该命令还是需要在项目根目录下执行，但是得带`--template`参数去引入`buf.openapi.gen.yaml`这个配置文件：
+
+```bash
+buf generate --path api/admin/service/v1 --template api/admin/service/v1/buf.openapi.gen.yaml
+```
+
+最终，在`./app/admin/service/cmd/server/assets`这个目录下面，将会生成出来一个文件名为`openapi.yaml`的文件。
+
+### 2. 把Buf生成OpenAPI文档的命令写进`MakeFile`里面
+
+这么长的命令，显然写入到Makefile会更加好用。
+
+那么，我们开始编写Makefile：
 
 ```makefile
 # generate protobuf api go code
@@ -742,9 +750,21 @@ run: api openapi
 	@go run ./cmd/server -conf ./configs
 ```
 
-这样我们只需要运行`make openapi`就执行OpenAPI的生成了，调试运行的时候，输入`make run`命令就可以生成OpenAPI并运行程序。
+这样我们只需要在`backend`根目录下执行Make命令，就完成OpenAPI的生成了：
 
-Makefile写好了，现在我们来到`./app/admin/service/cmd/server/assets`这个目录下面，我们在这个目录下面创建一个名为`assets.go`的代码文件：
+```bash
+make openapi
+```
+
+### 3. 利用golang的`Embedding Files`特性，把`openapi.yaml`嵌入到BFF服务程序里面
+
+OpenAPI文档是要使用Swagger UI读取，提供给前端的，那么，`openapi.yaml`肯定是要跟着程序走的。我一开始想过放在`configs`里面，虽然也是yaml文件，但是，它还是跟配置文件有本质上的差别：它其实是一个文档，而非配置。
+
+以前写VC的时候，一些资源是可以内嵌到EXE的二进制程序里面去的。Go也可以做到，就是使用`Embedding Files`的特性。
+
+文档，跟随二进制程序走，在我看来，才是最优解。下面我们就开始实现文档的内嵌。
+
+现在，我们来到`./app/admin/service/cmd/server/assets`这个目录下面，我们在这个目录下面创建一个名为`assets.go`的代码文件：
 
 ```go
 package assets
@@ -755,9 +775,15 @@ import _ "embed"
 var OpenApiData []byte
 ```
 
+利用`go:embed`注解引入`openapi.yaml`文档，并且读取成一个类型为`[]byte`名为`OpenApiData`的全局变量。
+
 就这样，我们就把openapi.yaml内嵌进程序了。
 
-最后，我们就需要来集成Swagger UI进来了。我为此封装了一个项目，要使用它，我们需要安装依赖库：
+### 4. 集成`Swagger UI`到项目，并且读取内嵌的`openapi.yaml`文档
+
+最后，我们就可以着手集成`Swagger UI`了。
+
+我为了集成`Swagger UI`，把`Swagger UI`封装了一个软件包，要使用它，我们需要安装依赖库：
 
 ```bash
 go get -u github.com/tx7do/kratos-swagger-ui
@@ -769,14 +795,14 @@ go get -u github.com/tx7do/kratos-swagger-ui
 package server
 
 import (
-	rest "github.com/go-kratos/kratos/v2/transport/http"
-	swaggerUI "github.com/tx7do/kratos-swagger-ui"
+    rest "github.com/go-kratos/kratos/v2/transport/http"
+    swaggerUI "github.com/tx7do/kratos-swagger-ui"
 
     "kratos-monolithic-demo/app/admin/service/cmd/server/assets"
 )
 
 func NewRESTServer() *rest.Server {
-	srv := CreateRestServer()
+    srv := CreateRestServer()
 
     swaggerUI.RegisterSwaggerUIServerWithOption(
         srv,
@@ -786,15 +812,19 @@ func NewRESTServer() *rest.Server {
 }
 ```
 
-自此我们就大功告成了！
+到现在，我们就大功告成了！
 
-假如API服务的端口是8080，那么我们可以访问链接来访问Swagger UI：
+假如BFF服务的端口是8080，那么我们可以访问下面的链接来访问Swagger UI：
 
 <http://localhost:8080/docs/>
 
 同时，openapi.yaml文件也可以在线访问到：
 
 <http://localhost:8080/docs/openapi.yaml>
+
+## 完整的CURD开发示例
+
+## 用户登录认证
 
 ## 参考资料
 
