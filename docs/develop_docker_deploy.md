@@ -273,7 +273,7 @@ docker pull apache/doris:1.2.2-fe-x86_64
 docker network create --driver bridge --subnet=127.0.0.1/24 doris-network
 
 docker run -itd \
-    --name=fe \
+    --name=doris-fe \
     --env FE_SERVERS="fe1:127.0.0.1:9010" \
     --env FE_ID=1 \
     -p 8030:8030 \
@@ -286,7 +286,7 @@ docker run -itd \
     apache/doris:1.2.2-fe-x86_64
 
 docker run -itd \
-    --name=be \
+    --name=doris-be \
     --env FE_SERVERS="fe1:127.0.0.1:9010" \
     --env BE_ADDR="127.0.0.1:9050" \
     -p 8040:8040 \

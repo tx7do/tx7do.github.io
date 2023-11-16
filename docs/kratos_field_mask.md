@@ -14,4 +14,6 @@
 - [protoc-gen-fieldmask插件](https://yeqown.xyz/2022/01/25/protoc-gen-fieldmask%E6%8F%92%E4%BB%B6/)
 - [使用 FieldMask 更新数据](https://cloud.google.com/dialogflow/cx/docs/how/field-mask?hl=zh-cn)
 - [Field masks AIP-161](https://google.aip.dev/161)
-- [Netflix实用API设计1：Protobuf FieldMask实践](http://dockone.io/article/2434655)
+- [Netflix 实用 API 设计第 1 部分：使用 Protobuf FieldMask](https://www.infoq.cn/article/vlkppbqar4tffhfwv9ke)
+- [Practical API Design at Netflix, Part 1: Using Protobuf FieldMask](https://netflixtechblog.com/practical-api-design-at-netflix-part-1-using-protobuf-fieldmask-35cfdc606518)
+- [Practical API Design at Netflix, Part 2: Protobuf FieldMask for Mutation Operations](https://netflixtechblog.com/practical-api-design-at-netflix-part-2-protobuf-fieldmask-for-mutation-operations-2e75e1d230e4)
