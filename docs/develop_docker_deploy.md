@@ -82,6 +82,73 @@ SELECT postgis_full_version();
 - 默认账号：postgres  
 - 默认密码：123456
 
+### Citus
+
+Citus的策略是把分区（Partition）数据分布到各个工作节点。
+
+#### 单机部署
+
+单机部署，相当于整个集群只有一个协调器，而没有旁的工作节点：
+
+```bash
+docker run -itd \
+    --name citus-standalone \
+    -p 5432:5432 \
+    -e POSTGRES_PASSWORD=123456 \
+    citusdata/citus:latest
+```
+
+#### 最小集群部署
+
+所有操作都是通过协调器节点进行操作，所以，对外只暴露协调器的端口，其他的工作节点却并不暴露，他们在内部通过docker网络进行通讯：
+
+```bash
+# 添加网络
+docker network create citus-network
+
+# 添加协调器节点
+docker run --name citus-coordinator1 \
+    --network=citus-network \
+    -p 5432:5432 \
+    -e POSTGRES_PASSWORD=123456 \
+    -d citusdata/citus:latest
+
+# 添加工作节点1
+docker run --name citus-work1 \
+    --network=citus-network \
+    -e POSTGRES_PASSWORD=123456 \
+    -d citusdata/citus:latest
+
+# 添加工作节点2
+docker run --name citus-work2 \
+    --network=citus-network \
+    -e POSTGRES_PASSWORD=123456 \
+    -d citusdata/citus:latest
+```
+
+在协调器节点进行SQL操作：
+
+```sql
+-- 设置协调器节点信息
+SELECT citus_set_coordinator_host('citus-coordinator1', 5432);
+
+-- 添加工作节点
+SELECT * from citus_add_node('citus-work1', 5432);
+SELECT * from citus_add_node('citus-work2', 5432);
+
+-- 列表查看worker节点
+SELECT * FROM citus_get_active_worker_nodes();
+```
+
+### Greenplum
+
+```bash
+docker run -itd \
+    --name greenplum-standalone \
+    -p 5432:5432 \
+    projectairws/greenplum:latest
+```
+
 ### SQLServer
 
 ```bash
@@ -869,7 +936,7 @@ docker pull hibiken/asynqmon:latest
 docker run -d \
     --name asynq \
     -p 8080:8080 \
-    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379
+    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379 --redis-password=123456 --redis-db=1
 ```
 
 - 管理后台：<http://localhost:8080>
