@@ -333,15 +333,25 @@ docker run -itd \
 
 ### Doris
 
+首先要配置Java虚拟机，需在宿主机执行如下命令：
+
+```bash
+sudo sysctl -w vm.max_map_count= 2000000
+```
+
+接着创建一个子网网桥：
+
+```bash
+docker network create --driver bridge --subnet=172.20.80.0/24 doris-network
+```
+
 ```bash
 docker pull apache/doris:1.2.2-be-x86_64
 docker pull apache/doris:1.2.2-fe-x86_64
 
-docker network create --driver bridge --subnet=127.0.0.1/24 doris-network
-
 docker run -itd \
     --name=doris-fe \
-    --env FE_SERVERS="fe1:127.0.0.1:9010" \
+    --env FE_SERVERS="fe1:172.20.80.2:9010" \
     --env FE_ID=1 \
     -p 8030:8030 \
     -p 9030:9030 \
@@ -349,19 +359,19 @@ docker run -itd \
     -v /data/fe/conf:/opt/apache-doris/fe/conf \
     -v /data/fe/log:/opt/apache-doris/fe/log \
     --network=doris-network \
-    --ip=127.0.0.1 \
+    --ip=172.20.80.2 \
     apache/doris:1.2.2-fe-x86_64
 
 docker run -itd \
     --name=doris-be \
-    --env FE_SERVERS="fe1:127.0.0.1:9010" \
-    --env BE_ADDR="127.0.0.1:9050" \
+    --env FE_SERVERS="fe1:172.20.80.2:9010" \
+    --env BE_ADDR="172.20.80.3:9050" \
     -p 8040:8040 \
     -v /data/be/storage:/opt/apache-doris/be/storage \
     -v /data/be/conf:/opt/apache-doris/be/conf \
     -v /data/be/log:/opt/apache-doris/be/log \
     --network=doris-network \
-    --ip=127.0.0.1 \
+    --ip=172.20.80.3 \
     apache/doris:1.2.2-be-x86_64
 ```
 
