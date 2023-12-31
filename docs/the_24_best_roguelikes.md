@@ -14,7 +14,7 @@ roguelike 的魅力在于：重复奖励和诱人的希望，无论是因为你�
 
 **游戏平台**：PS4, PS5, [Windows PC](https://www.humblebundle.com/store/atomicrops?cjdata=MXxOfDB8WXww&hmb_source=search_bar&cjevent=460be9c3a78a11ee824d05ae0a18b8f6&utm_source=cj&utm_medium=paid&utm_campaign=Vox+Media&utm_content=8836599&utm_term=14555742), Xbox One, and Xbox Series X
 
-耕种、结婚、杀戮。这是Bird Bath Games 和 Raw Fury 出品的混乱双摇杆农业模拟器Atomicrops的座右铭。白天，你将冒险走出你的后世界末日家园的围墙，掠夺周围的环境，在夜幕降临时返回，保护你的农场免受变异蛞蝓、兔子和其他害虫的侵害，并用它们的尸体来喂养你的庄稼。黎明时分，收获幸存者并在市场上出售，并用新武器和增益装备自己。
+耕种、结婚、杀戮。这是Bird Bath Games 和 Raw Fury 出品的Atomicrops的座右铭。白天，你将冒险走出你的后世界末日家园的围墙，掠夺周围的环境，在夜幕降临时返回，保护你的农场免受变异蛞蝓、兔子和其他害虫的侵害，并用它们的尸体来喂养你的庄稼。黎明时分，收获幸存者并在市场上出售，并用新武器和增益装备自己。
 
 《Atomicrops》本质上是一个弹幕地狱，但管理农作物也涉及大量策略。例如，将相同的植物放在一起可以将它们合并成一个更可怕、更有利可图的版本，用相同数量的种子令人满意地提高产量。
 
