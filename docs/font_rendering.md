@@ -2,11 +2,20 @@
 
 ## 位图字体(Bitmap Font)
 
-最简单的文本渲染方式是：`点阵字体 (Dot-matrix-fonts)` 也叫`位图字体 (Bitmap-fonts)`，即将用到的字符，预先输出到一张贴图中，使用的时候再找到对应的字符的 UV，再绘制文本。
+最简单的文本渲染方式是：`点阵字体 (Dot-matrix-fonts)` 也叫`位图字体 (Bitmap-fonts)`。
 
-![位图字体(Bitmap Font)](/assets/images/font_rendering/bitmapfont.png)
+位图字体通过将所需的独特字形光栅化为单个纹理（称为 [纹理图集(Texture atlas)](https://en.wikipedia.org/wiki/Texture_atlas)），使用的时候再找到对应的字符的 UV，再绘制文本。
 
-这种方法的缺点很明显：字符集、字体的样式、字号等，在输出完贴图后就固定了。
+![位图字体(Bitmap Font)](/assets/images/font_rendering/bitmap_font_sampling.png)
+
+这种方法的缺点很明显：放大缩小的时候，会呈现像素化且模糊的效果。
+
+这里有一些创建位图字体的工具：
+
+- [Angelcode 的 bmfont](https://www.angelcode.com/products/bmfont/) – 这是位图格式的创建者。
+- [Hiero](https://github.com/libgdx/libgdx/wiki/Hiero) – 这是一个 Java 开源工具。它与 Anglecode 的 bmfont 非常相似，但它允许您添加文本效果。
+- [Glyphs Designer](https://www.71squared.com/glyphdesigner) – 这是一款付费 MacOS 应用程序。
+- [ShoeBox](https://renderhjs.net/shoebox/) – 这是一个处理精灵的工具，包括位图字体。
 
 ## 矢量字体 (Vector Font)
 
@@ -58,17 +67,29 @@ TTC是几个TTF合成的字库，安装后字体列表中会看到两个以上�
 
 所谓的SDF就是 `Signed Distance Field` 的缩写，它是一种算法，翻译成中文叫做：`有向距离场算法`。
 
-该算法，由 Valve 的 Chris Green 在 SIGGRAPH 2007 论文：[《Improved Alpha-Tested Magnification for Vector Textures and Special Effects》](https://steamcdn-a.akamaihd.net/apps/valve/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf) 当中提出。当时主要用于渲染图片，之后被广泛的运用于其他技术领域中，字体渲染，只是其中之一。
+该算法，由 Valve 的 Chris Green 在 SIGGRAPH 2007 论文：[《Improved Alpha-Tested Magnification for Vector Textures and Special Effects》](https://steamcdn-a.akamaihd.net/apps/valve/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf) 当中提出。当时主要用于渲染图片，之后被广泛的运用于其他技术领域中，比如它也常用于：[光线追踪](http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/)和[体积渲染](https://www.iquilezles.org/www/articles/sdfbounding/sdfbounding.htm)。字体渲染，只是其中的一个应用。
 
-相比原本的 ttf 字体，使用了 SDF 的文本，在任意距离、缩放尺寸下，都能渲染出清晰的文本，而 ttf 则可能出现毛边，失真的情况。
+与位图字体非常相似，有符号距离场 ( SDF ) 字体也是纹理图集。但不是像位图字体那样将光栅化字形存储在纹理上，而是生成并存储字形的 SDF ，从而允许从低分辨率图像生成高分辨率形状。
 
-SDF也需要贴图，但是，它里面存储的不再是像素数据，而是存储每一个点到边缘的距离：
+SDF上的每个像素都存储到最近表面的距离。当像素位于形状内部或外部时，该符号就会指示出来。如果符号为负，则该像素在内部；如果为正，则该像素位于外部。该[视频](https://www.youtube.com/watch?v=-O0-HEZAwg8&t=1752s)很好地说明了这个概念。
 
-![Glyph Inspector (在线字形查看器)](/assets/images/font_rendering/ttf_texture_1.png)
+由于SDF存储每个像素的距离，因此原始图片看起来像是原始字形的模糊版本。
 
-场中每个坐标对应一个到物体表面的最近距离，如果坐标点在物体内部则距离为负。
+![SDF Font](/assets/images/font_rendering/ttf_texture_1.png)
 
-SDF的贴图，可以实时生成，也可以离线生成。
+如果想要输出去清晰的字符，您需要在0.5处（也就是字形的边界）对其进行Alpha测试。让我们以字母"A"来看看常规的SDF与常规的光栅化图像的比较：
+
+![SDF Font](/assets/images/font_rendering/compare_raster_sdf.png)
+
+正如我之前提到的， SDF的一大好处是能够从低分辨率SDF渲染高分辨率形状。这意味着您可以创建 16pt 字体SDF并将文本缩放至 100pt 或更高，而不会损失太多清晰度。
+
+SDF擅长缩放，因为您几乎可以通过双线性插值完美地重建距离，这是一种奇特的方式来表示我们可以获取两点之间的值。在这种情况下，常规位图字体上的两个像素之间的双线性插值为我们提供了中间颜色，从而导致线性模糊。
+
+在SDF上，两个像素之间的双线性插值提供了到最近边缘的中间距离。由于这两个像素距离与开始时相似，因此结果值不会丢失太多有关字形的信息。这也意味着SDF越大，信息就越准确，丢失的信息就越少。
+
+然而，需要知道的是，如果像素之间的速率变化不是线性的（例如尖角的情况），则双线性插值会给出不准确的值，从而在将SDF缩放到远高于其原始大小时导致出现缺口或圆角。
+
+![SDF Font](/assets/images/font_rendering/sdf_rounded_corners.png)
 
 ### SDF 生成算法
 
@@ -79,6 +100,20 @@ SDF的贴图，可以实时生成，也可以离线生成。
 - Dead Reckoning
 
 目前 8SSEDT (8-points Signed Sequential Euclidean Distance Transform) 算法是比较流行的解法。
+
+## MSDF Font
+
+多通道符号距离场 (Multi-channel Signed Distance Field, MSDF) 字体有点拗口，它是SDF的最新变体，能够通过使用所有三个颜色通道产生近乎完美的尖角。
+
+多通道带符号距离场的字体纹理文件乍一看可能有点令人毛骨悚然：
+
+![MSDF Font](/assets/images/font_rendering/msdf_font_file.png)
+
+使用所有三个颜色通道确实会产生较重的图像，但这就是 MSDF 比常规SDF具有更好的质量空间比的原因。下图显示了放大至 50 像素的字体的SDF和MSDF之间的差异。
+
+![MSDF Font](/assets/images/font_rendering/compare_msdf_sdf.png)
+
+与常规SDF一样，MSDF 存储到最近边缘的距离，但每当发现尖角时就会更改颜色通道。
 
 ## 参考资料
 
@@ -100,3 +135,5 @@ SDF的贴图，可以实时生成，也可以离线生成。
 - [使用Compute Shader计算有向距离场](https://zznewclear13.github.io/posts/calculate-signed-distance-field-using-compute-shader/)
 - [Dead Reckoning算法生成有向距离场](https://segmentfault.com/a/1190000041250697)
 - [The “dead reckoning” signed distance transform](https://www.sciencedirect.com/science/article/abs/pii/S1077314204000682)
+- [Techniques for Rendering Text with WebGL](https://css-tricks.com/techniques-for-rendering-text-with-webgl/)
+- [《空梦》的字体渲染系统以及SDF和MSDF在中文渲染上的取舍对比](https://zhuanlan.zhihu.com/p/407611759?utm_id=0)
