@@ -111,7 +111,7 @@ SDF擅长缩放，因为您几乎可以通过双线性插值完美地重建距�
 
 使用所有三个颜色通道确实会产生较重的图像，但这就是 MSDF 比常规SDF具有更好的质量空间比的原因。下图显示了放大至 50 像素的字体的SDF和MSDF之间的差异。
 
-![MSDF Font](/assets/images/font_rendering/compare_msdf_sdf.png)
+![比较SDF和MSDF的渲染效果](/assets/images/font_rendering/compare_msdf_sdf.png)
 
 与常规SDF一样，MSDF 存储到最近边缘的距离，但每当发现尖角时就会更改颜色通道。
 
