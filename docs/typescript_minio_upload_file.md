@@ -1,4 +1,4 @@
-# 前端使用TypeScript实现上传文件到MinIO
+# JavaScript/TypeScript前端实现文件上传到MinIO
 
 在以前，前端要上传文件到服务端，比较的麻烦，要么通过HTTP服务上传，要么通过FTP上传。这两者的可靠性都极低。
 
