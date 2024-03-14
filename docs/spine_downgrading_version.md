@@ -25,3 +25,4 @@ java -cp skeletonViewer.jar com.esotericsoftware.spine.JsonRollback input.json 3
 - [Open project in an older version](https://zh.esotericsoftware.com/forum/d/11458-open-project-in-an-older-version)
 - [[Editor] [Video] Downgrade the project from 3.8 to 3.7](https://zh.esotericsoftware.com/forum/d/15149-editor-video-downgrade-the-project-from-38-to-37/3)
 - [Spine editor and runtime version management](https://zh.esotericsoftware.com/forum/d/6534-spine-editor-and-runtime-version-management)
+- [Spine User Guide - Command line interface](https://en.esotericsoftware.com/spine-command-line-interface)
