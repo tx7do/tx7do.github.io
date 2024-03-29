@@ -1,5 +1,124 @@
 # OpenAI 助手API
 
+## 添加依赖库
+
+```bash
+go get github.com/Azure/azure-sdk-for-go
+```
+
+## 创建一个client
+
+```go
+func newClient(args newClientArgs) *azopenaiassistants.Client {
+	opts := &azopenaiassistants.ClientOptions{
+		ClientOptions: policy.ClientOptions{
+			Logging: policy.LogOptions{
+				IncludeBody: true,
+			},
+		},
+	}
+
+	if args.Azure {
+		if args.UseIdentity {
+			dac, err := azidentity.NewDefaultAzureCredential(nil)
+			tmpClient, err := azopenaiassistants.NewClient(tv.AOAIEndpoint, dac, opts)
+			return tmpClient
+		} else {
+			tmpClient, err := azopenaiassistants.NewClientWithKeyCredential(tv.AOAIEndpoint, azcore.NewKeyCredential(tv.AOAIKey), opts)
+			return tmpClient
+		}
+	} else {
+		tmpClient, err := azopenaiassistants.NewClientForOpenAI(tv.OpenAIEndpoint, azcore.NewKeyCredential(tv.OpenAIKey), opts)
+		return tmpClient
+	}
+}
+```
+
+## 创建一个assistant
+
+```go
+assistantName := "test-thread-run"
+
+if args.Assistant.Name == nil {
+    args.Assistant.Name = &assistantName
+}
+
+args.Assistant.DeploymentName = &assistantsModel
+
+createAssistantResp, err := client.CreateAssistant(ctx, args.Assistant, nil)
+```
+
+## 上传一个文件
+
+```go
+uploadResp, err := client.UploadFile(context.Background(), bytes.NewReader([]byte("hello world")), assistants.FilePurposeAssistants, &assistants.UploadFileOptions{
+    Filename: to.Ptr("a.txt"),
+})
+```
+
+## 创建一个thread(会话)
+
+```go
+createThreadResp, err := client.CreateThread(context.Background(), assistants.AssistantThreadCreationOptions{}, nil)
+```
+
+## 添加一个message
+
+```go
+threadID := createThreadResp.ID
+messageResp, err := client.CreateMessage(context.Background(), *threadID, assistants.CreateMessageBody{
+    Content: to.Ptr("How many ears does a dog usually have?"),
+    Role:    to.Ptr(assistants.MessageRoleUser),
+    FileIDs: []string{
+        *uploadResp.ID,
+    },
+}, nil)
+```
+
+## run这个助手
+
+```go
+createRunResp, err := client.CreateRun(context.Background(), *createThreadResp.ID, assistants.CreateRunBody{
+    AssistantID:  createAssistantResp.ID,
+    Instructions: to.Ptr("This user is known to be sad, please be kind"),
+}, nil)
+```
+
+## 检查是否run完成
+
+```go
+runID := *createRunResp.ID
+var lastGetRunResp assistants.GetRunResponse
+
+for {
+    var err error
+    lastGetRunResp, err = client.GetRun(context.Background(), *createThreadResp.ID, runID, nil)
+
+    if *lastGetRunResp.Status != assistants.RunStatusQueued && *lastGetRunResp.Status != assistants.RunStatusInProgress {
+        break
+    }
+
+    time.Sleep(500 * time.Millisecond)
+}
+```
+
+## 获取助手的回答
+
+```go
+var lastResponses []assistants.ThreadMessage
+
+listMessagesPager := client.NewListMessagesPager(*createThreadResp.ID, &assistants.ListMessagesOptions{
+    After: lastMessageID,
+    Order: to.Ptr(assistants.ListSortOrderAscending),
+})
+
+for listMessagesPager.More() {
+    page, err := listMessagesPager.NextPage(context.Background())
+
+    lastResponses = page.Data
+}
+```
+
 ## 参考资料
 
 - [OpenAI Assistants API Tutorial](https://www.datacamp.com/tutorial/open-ai-assistants-api-tutorial)
