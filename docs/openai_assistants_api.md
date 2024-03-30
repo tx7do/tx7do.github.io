@@ -34,20 +34,6 @@ func newClient(args newClientArgs) *azopenaiassistants.Client {
 }
 ```
 
-## 创建一个assistant
-
-```go
-assistantName := "test-thread-run"
-
-if args.Assistant.Name == nil {
-    args.Assistant.Name = &assistantName
-}
-
-args.Assistant.DeploymentName = &assistantsModel
-
-createAssistantResp, err := client.CreateAssistant(ctx, args.Assistant, nil)
-```
-
 ## 上传一个文件
 
 ```go
@@ -55,6 +41,37 @@ uploadResp, err := client.UploadFile(context.Background(), bytes.NewReader([]byt
     Filename: to.Ptr("a.txt"),
 })
 ```
+
+## 创建一个assistant
+
+```go
+assistantName := "test-thread-run"
+deploymentName := "gpt-4-1106-preview"
+
+var fileIDs []string
+if uploadResp.ID != "" {
+	fileIDs = append(fileIDs, uploadResp.ID)
+}
+
+createAssistantResp, err := c.cli.CreateAssistant(ctx, assistants.AssistantCreationBody{
+	Name:           to.Ptr(assistantName),
+	DeploymentName: to.Ptr(c.opt.DeploymentName),
+	Description:    to.Ptr(description),
+	Instructions:   to.Ptr(instructions),
+	FileIDs:        fileIDs,
+	Tools: []assistants.ToolDefinitionClassification{
+		&assistants.CodeInterpreterToolDefinition{},
+		//&assistants.RetrievalToolDefinition{},
+	},
+}, nil)
+```
+
+需要把文件ID注入进去，不然的话，就会出现如下这些回答：
+
+>- Assistant: I currently do not have access to the file you uploaded. Could you provide some details about what you're selling or any specific questions you have in mind?  
+>- Assistant: I currently don't have the ability to directly access the contents of the file you uploaded. However, if you can provide some details or specific questions about the than happy to assist you in finding the information you need.  
+>- Assistant: I currently don't have visibility into the specific contents of the file you've uploaded. Could you provide more details about the file or its contents so that I can assist you further?  
+>- Assistant: I see you've uploaded a file. How can I assist you with it?
 
 ## 创建一个thread(会话)
 
