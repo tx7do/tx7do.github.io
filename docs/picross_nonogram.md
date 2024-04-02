@@ -37,6 +37,7 @@ Nonogram至今还未有正式或广泛流传的中文名称，已知的中文名
 - [Liouh Picross]
 - [Nonograms Zone]
 - [GrandGames Nonograms]
+- [GameLO]
 
 ## 参考资料
 
@@ -53,3 +54,4 @@ Nonogram至今还未有正式或广泛流传的中文名称，已知的中文名
 [数织 - 在线解密游戏]:(https://cn.puzzle-nonograms.com/)
 [Liouh Picross]:(https://liouh.com/picross/)
 [GrandGames Nonograms]:(https://grandgames.net/nonograms)
+[GameLO]:(https://gamelo.net/)
