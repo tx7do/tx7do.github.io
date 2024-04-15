@@ -1,8 +1,10 @@
 # Javascript和Typescript下如何通过 async/await 优雅地使用 FileReader
 
-## 方法1
+`FileReader`的使用机会很多，但是它是异步的，因此很容易出现回调地狱。
 
-封装成一个方法
+我们可以使用async/await特性，它允许我们以同步的方式调用异步代码。
+
+## 封装成方法
 
 ```javascript
 export async function readTextFile(file: File) {
