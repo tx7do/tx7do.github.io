@@ -99,6 +99,15 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -runFirstLaunch
 ```
 
+### A network error occurred
+
+国内需要`$HOME/.bash_profile`或者`$HOME/.zshrc`里面添加：
+
+```bash
+export PUB_HOSTED_URL=https://pub.flutter-io.cn # 国内用户需要设置
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn # 国内用户需要设置
+```
+
 ## 参考资料
 
 - [Start building Flutter iOS apps on macOS](https://docs.flutter.dev/get-started/install/macos/mobile-ios)
