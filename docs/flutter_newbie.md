@@ -1,18 +1,16 @@
-# Flutter需要解决的问题
-
-## 状态管理
-
-Flutter的状态管理的包有很多。
-
-### Provider
-
-### Riverpod
-
-### Bloc
-
-### RxDart
+# Flutter学习实录
 
 ## 数字格式化
+
+可以使用`intl`实现该功能。
+
+首先安装库：
+
+```bash
+flutter pub add intl
+```
+
+以下为使用的实例代码：
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -52,6 +50,10 @@ debugPrint("1.25，五后没值看前位，偶数进位${nf.format(1.25)}");
 
 ## 日期格式化
 
+有两个库可以实现该功能：`intl`和`jiffy`:
+
+intl实例代码：
+
 ```dart
 import 'package:flutter/foundation.dart';
 
@@ -60,7 +62,7 @@ import 'package:intl/intl.dart';
 
 initializeDateFormatting();
 
-final now = Jiffy.now().dateTime;
+final now = DateTime.now();
 
 // 打印当天的年份
 debugPrint("当天年份(y)：${DateFormat.y().format(now)}");
@@ -129,6 +131,48 @@ debugPrint("E(zh)：${DateFormat("E", "zh").format(now)}");
 debugPrint("DateTime.now().weekday：${DateTime.now().weekday}");
 ```
 
+需要注意的是，intl库一定需要调用`initializeDateFormatting();`进行初始化。
+
+jiffy实例代码：
+
+```dart
+debugPrint(Jiffy.now().EEEE);
+
+// 设置本地化，只能够全局设置。
+await Jiffy.setLocale("zh_CN");
+debugPrint(Jiffy.now().EEEE);
+
+debugPrint(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").yMMMEd);
+
+// 在当前日期添加时间
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").add(days: 1, months: 1),
+    Jiffy.parse("2023-05-29", pattern: "yyyy-MM-dd"));
+
+// 在当前日期减去时间
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").subtract(days: 1, months: 1),
+    Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd"));
+
+// 检查一个日期是否在另一个日期之前
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").isBefore(Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd")),
+    false);
+
+// 检查一个日期是否在另一个日期之后
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").isAfter(Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd")),
+    true);
+
+// 检查一个日期是否与另一个日期相同
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").isSame(Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd")),
+    false);
+
+// 检查一个日期是否在另一个日期之前，或者是否相同
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").isSameOrBefore(Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd")),
+    false);
+
+// 检查一个日期是否在另一个日期之后，或者是否相同
+expect(Jiffy.parse("2023-04-28", pattern: "yyyy-MM-dd").isSameOrAfter(Jiffy.parse("2023-03-27", pattern: "yyyy-MM-dd")),
+    true);
+```
+
 ## Protobuf
 
 安装protoc的Dart插件：
@@ -169,7 +213,7 @@ plugins:
 
 ## 多语言
 
-添加相关包：
+多语言支持有两个库，先添加相关包：
 
 ```bash
 flutter pub add flutter_localizations --sdk=flutter
@@ -266,6 +310,8 @@ class MyApp extends StatelessWidget {
 ```dart
 Text(S.of(context)!.helloWorld)
 ```
+
+如果要停用该代码生成，只需要删除掉`l10n.yaml`配置文件即可。
 
 ### Intl
 
@@ -380,6 +426,21 @@ class Bar with FooMixin {
   }
 }
 ```
+
+## Sealed class
+
+
+## 状态管理
+
+Flutter的状态管理的包有很多。
+
+### Provider
+
+### Riverpod
+
+### Bloc
+
+### RxDart
 
 ## 参考资料
 
