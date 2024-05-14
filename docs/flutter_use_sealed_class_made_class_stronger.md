@@ -1,4 +1,4 @@
-# Flutter使用Sealed Class让类更强大
+# Flutter使用Sealed Class让状态类更强大
 
 记得之前在写Kotlin的时候，对于Kotlin所提供的`Sealed Class`的功能感到惊喜，我还给Sealed Class封上了enum 2.0的称号，它拥有Class的特性，可以将状态封装起来，使用`when`语法的时候，还可以详尽列出所有的子项，而在Flutter当中，其实也有`sealed class`可以用，在Dart 3.0中，也已经将sealed class加入到了Dart的武器库。
 
@@ -7,7 +7,7 @@
 假如，我们现在要实现一个 收音机 功能，我们可以使用enum声明其状态，代码如下：
 
 ```dart
-enum Status{  
+enum Status {  
   init, playing, paused, stopped  
 }
 ```
@@ -15,21 +15,21 @@ enum Status{
 如果我们要打印出现在的状态，我们可能会这样写：利用一个方法，传入enum，在这个方法里面判断该显示什么文字：
 
 ```dart
-void displayStatus(Status status){  
-  switch(status){  
-    case Status.init:  
-      print('The radio is initializing');  
-      break;  
-    case Status.playing:  
-      print('The radio is playing');  
-      break;  
-    case Status.paused:  
+void displayStatus(Status status) {
+  switch (status) {
+    case Status.init:
+      print('The radio is initializing');
+      break;
+    case Status.playing:
+      print('The radio is playing');
+      break;
+    case Status.paused:
       print('The radio is paused');  
-      break;  
-    case Status.stopped:  
-      print('The radio is stopped');  
-      break;  
-  }  
+      break;
+    case Status.stopped:
+      print('The radio is stopped');
+      break;
+  }
 }
 ```
 
@@ -42,37 +42,37 @@ void displayStatus(Status status){
 接口定义：
 
 ```dart
-sealed class SealedStatus {  
-  void display();  
-}  
+sealed class SealedStatus {
+  void display();
+}
 ```
 
 继承实现类：
 
 ```dart
-class Init extends SealedStatus {  
-  @override  
-  void display() {  
-    print('The radio is initializing');  
-  }  
-}  
-class Playing extends SealedStatus {  
-  @override  
-  void display() {  
-    print('The radio is playing');  
-  }  
-}  
-class Paused extends SealedStatus {  
-  @override  
-  void display() {  
-    print('The radio is paused');  
-  }  
-}  
-class Stopped extends SealedStatus {  
-  @override  
-  void display() {  
-    print('The radio is stopped');  
-  }  
+class Init extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is initializing');
+  }
+}
+class Playing extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is playing');
+  }
+}
+class Paused extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is paused');
+  }
+}
+class Stopped extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is stopped');
+  }
 }
 ```
 
@@ -127,28 +127,28 @@ BLoC 是 Flutter 中一个状态管理的工具，使用BLoC时，需要定义�
 声明接口：
 
 ```dart
-abstract class RadioState extends Equatable {  
-  const RadioState();  
-}  
+abstract class RadioState extends Equatable {
+  const RadioState();
+}
 ```
 
 继承实现：
 
 ```dart
-class RadioInitial extends RadioState {  
-  @override  
+class RadioInitial extends RadioState {
+  @override
   List<Object> get props => [];
 }
 class RadioPlaying extends RadioState {  
-  @override  
+  @override
   List<Object> get props => [];
 }
-class RadioPaused extends RadioState {  
-  @override  
+class RadioPaused extends RadioState {
+  @override
   List<Object> get props => [];
 }
-class RadioStopped extends RadioState {  
-  @override  
+class RadioStopped extends RadioState {
+  @override
   List<Object> get props => [];
 }
 ```
@@ -178,40 +178,40 @@ BlocBuilder<RadioBloc, RadioState>(
 使用 if 判断 state 是否为特定状态，再依不同状态产生不同的 Widget，这种很常见判断 BLoC 状态的方法，在这里我们可以改用 `switch` 来进行改写：
 
 ```dart
-BlocBuilder<RadioBloc, RadioState>(  
-  builder: (BuildContext context, state) {  
-    switch (state) {  
-      case RadioInitial():  
-        return const Text("Initial");  
-      case RadioPlaying():  
-        return const Text("Playing");  
-      case RadioPaused():  
-        return const Text("Paused");  
-      case RadioStopped():  
-        return const Text("Stopped");  
-    }  
+BlocBuilder<RadioBloc, RadioState>(
+  builder: (BuildContext context, state) {
+    switch (state) {
+      case RadioInitial():
+        return const Text("Initial");
+      case RadioPlaying():
+        return const Text("Playing");
+      case RadioPaused():
+        return const Text("Paused");
+      case RadioStopped():
+        return const Text("Stopped");
+    }
     return const CircularProgressIndicator();
-  },  
+  },
 ),
 ```
 
 前面有提到，一般的Class是不支持switch列出所有可能的Class（因为编译器在compile-time还无法知道有哪些子类），假如我们犯了一个错，稍加了一个状态，那么，编译不会报错，而我们可能要到程序执行的时候才发现问题（甚至压根就没发现）。
 
 ```dart
-BlocBuilder<RadioBloc, RadioState>(  
-  builder: (BuildContext context, state) {  
-    switch (state) {  
-      case RadioInitial():  
-        return const Text("Initial");  
-      case RadioPlaying():  
+BlocBuilder<RadioBloc, RadioState>(
+  builder: (BuildContext context, state) {
+    switch (state) {
+      case RadioInitial():
+        return const Text("Initial");
+      case RadioPlaying():
         return const Text("Playing");
-     // case RadioPaused():   //<- 少了 Paused 還是可以正常編譯，不會發生錯誤
-     //   return const Text("Paused");  
-      case RadioStopped():  
-        return const Text("Stopped");  
-    }  
+     // case RadioPaused():   //<- 少了 Paused 还是可以正常编译，不会发生错误
+     //   return const Text("Paused");
+      case RadioStopped():
+        return const Text("Stopped");
+    }
     return const CircularProgressIndicator();
-  },  
+  },
 ),
 ```
 

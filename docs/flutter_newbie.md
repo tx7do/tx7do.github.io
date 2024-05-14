@@ -429,6 +429,132 @@ class Bar with FooMixin {
 
 ## Sealed class
 
+这是Dart3提供的新语法，在其他的语言中也能够寻找到它的存在，比如：Kotlin、Swift等。
+
+Dart2要声明一个状态是这样的：
+
+```dart
+enum Status {  
+  init, playing, paused, stopped  
+}
+
+void displayStatus(Status status){ 
+  switch (status) {  
+    case Status.init:  
+      print('The radio is initializing');  
+      break;  
+    case Status.playing:  
+      print('The radio is playing');  
+      break;  
+    case Status.paused:  
+      print('The radio is paused');  
+      break;  
+    case Status.stopped:  
+      print('The radio is stopped');  
+      break;  
+  }  
+}
+```
+
+在Dart3，可以这样声明：
+
+```dart
+sealed class SealedStatus {
+  void display();
+}
+
+class Init extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is initializing');
+  }
+}
+class Playing extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is playing');
+  }
+}
+class Paused extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is paused');
+  }
+}
+class Stopped extends SealedStatus {
+  @override
+  void display() {
+    print('The radio is stopped');
+  }
+}
+```
+
+它在Flutter里面最大的用途是声明BLoC的状态：
+
+```dart
+abstract class RadioState extends Equatable {
+  const RadioState();
+}
+
+class RadioInitial extends RadioState {
+  @override
+  List<Object> get props => [];
+}
+class RadioPlaying extends RadioState {  
+  @override
+  List<Object> get props => [];
+}
+class RadioPaused extends RadioState {
+  @override
+  List<Object> get props => [];
+}
+class RadioStopped extends RadioState {
+  @override
+  List<Object> get props => [];
+}
+```
+
+那么，我们就可以这样来调用BLoC了：
+
+```dart
+BlocBuilder<RadioBloc, RadioState>(  
+  builder: (BuildContext context, state) {  
+    if (state is RadioInitial) {  
+      return const Text("Initial");  
+    }  
+    if (state is RadioPlaying) {  
+      return const Text("Loading");  
+    }  
+    if (state is RadioPaused) {  
+      return const Text("Paused");  
+    }  
+    if (state is RadioStopped) {  
+      return const Text("Stopped");  
+    }  
+    return const CircularProgressIndicator();  
+  },  
+),
+```
+
+或者使用switch:
+
+```dart
+BlocBuilder<RadioBloc, RadioState>(  
+  builder: (BuildContext context, state) {  
+    switch (state) {  
+      case RadioInitial():  
+        return const Text("Initial");  
+      case RadioPlaying():  
+        return const Text("Playing");  
+      case RadioPaused():  
+        return const Text("Paused");  
+      case RadioStopped():  
+        return const Text("Stopped");  
+    }  
+    return const CircularProgressIndicator();
+  },  
+),
+```
 
 ## 状态管理
 
