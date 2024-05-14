@@ -4,6 +4,14 @@
 
 Flutter的状态管理的包有很多。
 
+### Provider
+
+### Riverpod
+
+### Bloc
+
+### RxDart
+
 ## 数字格式化
 
 ```dart
@@ -328,7 +336,7 @@ Text(S.of(context)!.helloWorld)
 Text(S.current.helloWorld)
 ```
 
-## extension、mixin
+## extension
 
 extension是为class扩展一个方法，且只能扩展方法，不能具有成员变量。
 
@@ -349,6 +357,14 @@ extension FooExtension on String {
 }
 ```
 
+这个特性可以用来拆分Widget的构建，以期避免掉入嵌套地狱。
+
+但是，这个也只是看起来很好，就目前而言，会产生一个性能上的问题：官方推荐每一个Widget最好是const的，而用function创建的Widget是不能够加const的，这样的话就会产生一个频繁内存分配的性能问题。
+
+官方 Flutter YouTube 频道的一个视频 [Flutter解析：小部件与辅助方法（Helper Method）]，解释了为什么组件（特别是具有 const 构造函数的组件）的性能比函数更好。
+
+## mixin
+
 mixin是为了把多个class可以共用的function提取出来，使用的时候再混入到需要的class里面去。它可以定义有限度的成员变量。
 
 ```dart
@@ -367,4 +383,12 @@ class Bar with FooMixin {
 
 ## 参考资料
 
-- [flutter中使用Intl完成日期格式化和数字格式化](https://juejin.cn/post/7107609505155776520)
+- [Flutter中使用Intl完成日期格式化和数字格式化]
+- [Flutter解析：小部件与辅助方法（Helper Method）]
+- [Flutter 性能优化最佳实践]
+- [Flutter 性能分析]
+
+[Flutter中使用Intl完成日期格式化和数字格式化]:(https://juejin.cn/post/7107609505155776520)
+[Flutter解析：小部件与辅助方法（Helper Method）]:(https://www.youtube.com/watch?v=IOyq-eTRhvo)
+[Flutter 性能优化最佳实践]:(https://simi.studio/flutter-performance-optimization-best-practices/)
+[Flutter 性能分析]:(https://flutter.cn/docs/perf/ui-performance)
