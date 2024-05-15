@@ -382,6 +382,27 @@ Text(S.of(context)!.helloWorld)
 Text(S.current.helloWorld)
 ```
 
+## const
+
+关于const，需要单独来分析说明。
+
+在官方渠道里面，官方推荐Widget能够const就尽量的const。
+
+原因是什么呢？因为在Dart虚拟机的层面，它有一个池化，这样在运行时可以尽量的减少：
+
+1. 内存分配；
+2. GC回收内存。
+
+通过内存上的优化，以期达到流畅帧率。
+
+虽然说，官方推荐能const就const，但是，const也是有其弊端的：
+
+内存在整个程序的生命周期都不会被释放，有可能就会导致内存越吃越多了。
+
+还有一些Widget，可能就算不const，在整个生命周期也不会有几次创建和销毁发生。
+
+如果说有些Widget会有大频率的创建和销毁，那么const所带来的效率提升很有可能是肉眼可见的。
+
 ## extension
 
 extension是为class扩展一个方法，且只能扩展方法，不能具有成员变量。
@@ -406,6 +427,8 @@ extension FooExtension on String {
 这个特性可以用来拆分Widget的构建，以期避免掉入嵌套地狱。
 
 但是，这个也只是看起来很好，就目前而言，会产生一个性能上的问题：官方推荐每一个Widget最好是const的，而用function创建的Widget是不能够加const的，这样的话就会产生一个频繁内存分配的性能问题。
+
+基于StatelessWidget封装一个新的Widget将会是更好的选择。
 
 官方 Flutter YouTube 频道的一个视频 [Flutter解析：小部件与辅助方法（Helper Method）]，解释了为什么组件（特别是具有 const 构造函数的组件）的性能比函数更好。
 
