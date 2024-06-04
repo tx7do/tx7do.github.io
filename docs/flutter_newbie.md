@@ -591,6 +591,24 @@ Flutter的状态管理的包有很多。
 
 ### RxDart
 
+## 解决Incorrect use of ParentDataWidget报错
+
+1. Expanded()只能在Row()、Column() 和 Flex()内部使用
+2. Flexible()只能在Row()、Column() 和 Flex()中使用
+3. Positioned()只能在Stack()内部使用
+4. TableCell()只能在Table()内部使用
+
+比如下面这样就不会报错：
+
+```dart
+Column(
+  children: [
+    Expanded(child: child)
+    Expanded(child: child)
+  ],
+)
+```
+
 ## 参考资料
 
 - [Flutter中使用Intl完成日期格式化和数字格式化]

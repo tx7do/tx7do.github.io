@@ -742,9 +742,20 @@ docker run -itd \
     --name emqx-test \
     --add-host=host.docker.internal:host-gateway \
     -p 18083:18083 \
+    -p 8883:8883 \
     -p 1883:1883 \
+    -p 8083:8083 \
+    -p 8084:8084 \
     emqx/emqx:latest
 ```
+
+端口说明：
+
+- 18083 - 管理后台
+- 8883 - SSL
+- 1883 - TCP
+- 8083 - WS
+- 8084 - WSS
 
 - 管理后台: <http://localhost:18083>  
 - 默认账号: admin  
