@@ -26,3 +26,4 @@
 - [Analyze financial tick data with TimescaleDB](https://docs.timescale.com/tutorials/latest/financial-tick-data/#analyze-financial-tick-data-with-timescaledb)
 - [How does Polygon create the OHLCV (open, high, low, close, volume) aggregate bars? ​](https://polygon.io/knowledge-base/article/how-does-polygon-create-the-open-high-low-close-volume-aggregate-bars)
 - [Processing Online Stock Market Data Using Spring Integration + Binance API](https://medium.com/@DanialEskandari/processing-online-stock-market-data-using-spring-integration-binance-api-e2ee3302e0cf)
+- [Stock Market ETL using Apache Kafka and Snowflake](https://medium.com/@sarveshkhire/stock-market-etl-using-apache-kafka-and-snowflake-3cdf97c5f031)

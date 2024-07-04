@@ -15,11 +15,11 @@
 
 在单体应用时代，它是读写分离:
 
-![读写分离](/assets/images/rws.png)
+![读写分离](/assets/images/cqrs/rws.png)
 
 而在微服务的时代，就变成了命令查询的责任分离:
 
-![命令查询的责任分离](/assets/images/cqrs.png)
+![命令查询的责任分离](/assets/images/cqrs/cqrs.png)
 
 ## 读写分离解决了什么？
 
