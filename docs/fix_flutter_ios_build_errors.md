@@ -33,10 +33,14 @@ pod update
 
 ## Framework 'Pods_Runner' not found
 
+
 1. 删除掉`ios`文件夹下面的`Podfile`文件；
 2. 在项目的文件夹下，按顺序运行`flutter clean`和`flutter pub get`命令，它将会重新生成`Podfile`文件；
 3. 在新的`Podfile`文件中的`# platform :ios, '12.0'`的版本号修改为`14.0`，并取消掉注释：`platform :ios, '14.0'`;
 4. 在`ios`文件夹下运行`pod install`命令。
+
+> 根据我实际的测试，我发现这个问题很奇怪，实际上，不需要上面步骤那么复杂，只要触发了这个编译错误，你只需要执行一次 步骤2和4即可，再编译就不会出现这个错误了。
+
 
 这个时候，一切就都正常了。
 
