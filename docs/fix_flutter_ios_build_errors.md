@@ -14,7 +14,11 @@ pod install （如果m1 macOS 运行这个“arch -x86_64 pod install”）
 pod update
 ```
 
-## [!] CocoaPods did not set the base configuration of your project because your project already has a custom config set. In order for CocoaPods integration to work at all, please either set the base configurations of the target `Runner` to `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` or include the `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` in your build configuration (`Flutter/Release.xcconfig`).
+## CocoaPods did not set the base configuration
+
+```shell
+[!] CocoaPods did not set the base configuration of your project because your project already has a custom config set. In order for CocoaPods integration to work at all, please either set the base configurations of the target `Runner` to `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` or include the `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` in your build configuration (`Flutter/Release.xcconfig`).'
+```
 
 1. 我们首先用Xcode打开`ios/Runner.xcworkspace`；
 2. 然后选中`Project Navigator`下的`Runner`项目，再选中`PROJECT`下面的`Runner`，再然后选中`Info`；
