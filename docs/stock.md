@@ -53,6 +53,20 @@
 - high
 - volume
 
+## K线
+
+**K线**（英语：**Candlestick chart**）又称**阴阳烛**、**蜡烛线**，是反映价格走势的一种图线，其特色在于将一段时间内标的价格走势做浓缩整理，并用不同的颜色和形态来透露价格讯息及市场情绪，以便投资者进行分析，相当易读易懂且实用有效，广泛用于股票、期货、贵金属、数字货币等行情的技术分析，称为**K线分析**。
+
+据传K线为日本江户时代的白米商人本间宗久所发明，用来记录每日的米市行情，研析期货市场。 日语中K线称为“蜡烛足（日语：ローソク足）”。 本间宗久发明了“宗久が考案した酒田罫线法”。 日文中罫线（けいせん）发音为keisen，故中文翻译为K线，并不是从“キャンドルスティック”（KYANDORU SUTIKKU）而来。
+
+K线可分“阳线”、“阴线”和“中立线”三种:
+
+- **阳线** 代表收盘价大于开盘价（即价格上涨）；
+- **阴线** 代表开盘价大于收盘价（即价格下跌）；
+- **中立线** 则代表开盘价等于收盘价（即价格不变）。
+
+美国线（英语：Open-High-Low-Close chart，**OHLC** chart），以竖立的线条表现股价变化，也可以呈现“开盘价、最高价、最低价、收盘价”，竖线呈现最高价和最低价间的价差间距，左侧横线代表开盘价，右侧横线代表收盘价，绘制上较K线简单。另有一种美国线仅呈现“最高价、最低价、收盘价”（**HLC**）三项讯息。
+
 ## 参考资料
 
 - [集合竞价交易制度](https://wiki.mbalib.com/wiki/%E9%9B%86%E5%90%88%E7%AB%9E%E4%BB%B7%E4%BA%A4%E6%98%93%E5%88%B6%E5%BA%A6)
@@ -60,3 +74,6 @@
 - [Market Making Mechanics and Strategies](https://medium.com/blockapex/market-making-mechanics-and-strategies-4daf2122121c)
 - [Market Maker Definition: What It Means and How They Make Money](https://www.investopedia.com/terms/m/marketmaker.asp)
 - [ETF下單的三種價格](https://pgfinnote.com/etf-bid-market-ask-price/)
+- [K线](https://zh.wikipedia.org/zh-cn/K%E7%BA%BF)
+- [蜡烛图在我国为何称“K线”？](https://finance.sina.cn/2022-02-05/detail-ikyakumy4305334.d.html)
+- [为什么我们的K线不一样?](https://www.shinnytech.com/blog/why-our-kline-different/)
