@@ -422,11 +422,28 @@ docker run -itd \
 ```bash
 docker pull bitnami/redis:latest
 docker pull bitnami/redis-exporter:latest
+```
 
+不带密码：
+
+```bash
 docker run -itd \
     --name redis-server \
     -p 6379:6379 \
     -e ALLOW_EMPTY_PASSWORD=yes \
+    bitnami/redis:latest
+```
+
+带密码：
+
+```bash
+docker run -itd \
+    --name redis-server \
+    -p 6379:6379 \
+    -e ALLOW_EMPTY_PASSWORD=no \
+    -e REDIS_PASSWORD=123456 \
+    --network app-tier \
+    -v /root/app/redis/data:/bitnami/redis/data \
     bitnami/redis:latest
 ```
 
