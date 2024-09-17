@@ -727,9 +727,9 @@ docker pull bitnami/nats-exporter:latest
 
 docker run -itd \
     --name nats-server \
-    --p 4222:4222 \
-    --p 6222:6222 \
-    --p 8000:8222 \
+    -p 4222:4222 \
+    -p 6222:6222 \
+    -p 8000:8222 \
     -e NATS_HTTP_PORT_NUMBER=8222 \
     bitnami/nats:latest
 ```
@@ -1354,21 +1354,21 @@ docker pull graviteeio/apim-management-ui:latest
 docker pull graviteeio/apim-portal-ui:latest
 
 docker run -itd \
-    --publish 82:8082 \
+    -p 82:8082 \
     --name gateway \
     --env GRAVITEE_MANAGEMENT_MONGODB_URI=mongodb://username:password@mongohost:27017/dbname \
     --detach \
     graviteeio/apim-gateway:latest
 
 docker run -itd \
-    --publish 80:8080 \
+    -p 80:8080 \
     --env MGMT_API_URL=http://localhost:81/management/organizations/DEFAULT/environments/DEFAULT \
     --name management-ui \
     --detach  \
     graviteeio/apim-management-ui:latest
 
 docker run -itd \
-    --publish 80:8080 \
+    -p 80:8080 \
     --env PORTAL_API_URL=http://localhost:81/portal/environments/DEFAULT \
     --name portal-ui \
     --detach  \
