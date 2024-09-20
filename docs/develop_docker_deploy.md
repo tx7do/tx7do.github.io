@@ -565,10 +565,7 @@ docker pull apolloconfig/apollo-adminservice:latest
 # Config Service 提供配置的读取、推送等功能 (apollo-configservice本身就是一个eureka服务)
  docker run -itd \
     --name apollo-configservice \
-<<<<<<< HEAD
-=======
     --network=app-tier \
->>>>>>> c01bb76f99649b085bba627072318f1397662bee
     --link=mariadb-test \
     -p 8080:8080 \
     -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloConfigDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
@@ -580,10 +577,7 @@ docker pull apolloconfig/apollo-adminservice:latest
 # Admin Service 提供配置的修改、发布等功能
 docker run -itd \
     --name apollo-adminservice \
-<<<<<<< HEAD
-=======
     --network=app-tier \
->>>>>>> c01bb76f99649b085bba627072318f1397662bee
     --link=mariadb-test \
     -p 8090:8090 \
     -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloConfigDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
@@ -595,10 +589,7 @@ docker run -itd \
 # Portal 提供 Web 界面用来管理配置
 docker run -itd \
     --name apollo-portal \
-<<<<<<< HEAD
-=======
     --network=app-tier \
->>>>>>> c01bb76f99649b085bba627072318f1397662bee
     --link=mariadb-test \
     -p 8070:8070 \
     -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloPortalDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
