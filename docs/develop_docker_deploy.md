@@ -34,7 +34,9 @@ docker pull bitnami/mysql:latest
 
 docker run -itd \
     --name mysql-test \
+    --network=app-tier \
     -p 3306:3306 \
+    -e TZ=Asia/Shanghai \
     -e ALLOW_EMPTY_PASSWORD=yes \
     -e MYSQL_ROOT_PASSWORD=123456 \
     bitnami/mysql:latest
@@ -47,7 +49,9 @@ docker pull bitnami/mariadb:latest
 
 docker run -itd \
     --name mariadb-test \
+    --network=app-tier \
     -p 3306:3306 \
+    -e TZ=Asia/Shanghai \
     -e ALLOW_EMPTY_PASSWORD=yes \
     -e MARIADB_ROOT_PASSWORD=123456 \
     bitnami/mariadb:latest
@@ -319,10 +323,10 @@ docker pull clickhouse/clickhouse-server:latest
 # 推荐使用DBeaver作为客户端
 docker run -itd \
     --name clickhouse-server \
+    --network=app-tier \
     -p 8123:8123 \
     -p 9000:9000 \
     -p 9004:9004 \
-    --network=app-tier \
     --ulimit \
     nofile=262144:262144 \
     clickhouse/clickhouse-server:latest
@@ -439,10 +443,10 @@ docker run -itd \
 ```bash
 docker run -itd \
     --name redis-server \
+    --network=app-tier \
     -p 6379:6379 \
     -e ALLOW_EMPTY_PASSWORD=no \
     -e REDIS_PASSWORD=123456 \
-    --network app-tier \
     -v /root/app/redis/data:/bitnami/redis/data \
     bitnami/redis:latest
 ```
@@ -550,34 +554,45 @@ docker run -itd \
 
 **注意,先要导入SQL数据!**
 
+- [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/src/apolloconfigdb.sql)
+- [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/src/apolloportaldb.sql)
+
 ```bash
 docker pull apolloconfig/apollo-portal:latest
 docker pull apolloconfig/apollo-configservice:latest
 docker pull apolloconfig/apollo-adminservice:latest
 
-# 
+# Config Service 提供配置的读取、推送等功能 (apollo-configservice本身就是一个eureka服务)
  docker run -itd \
     --name apollo-configservice \
+    --network=app-tier \
+    --link=mariadb-test \
     -p 8080:8080 \
-    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloConfigDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
     -e SPRING_DATASOURCE_USERNAME=root \
     -e SPRING_DATASOURCE_PASSWORD=123456 \
     -v /tmp/logs:/opt/logs \
     apolloconfig/apollo-configservice:latest
 
+# Admin Service 提供配置的修改、发布等功能
 docker run -itd \
     --name apollo-adminservice \
+    --network=app-tier \
+    --link=mariadb-test \
     -p 8090:8090 \
-    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloConfigDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
     -e SPRING_DATASOURCE_USERNAME=root \
     -e SPRING_DATASOURCE_PASSWORD=123456 \
     -v /tmp/logs:/opt/logs \
     apolloconfig/apollo-adminservice:latest
 
+# Portal 提供 Web 界面用来管理配置
 docker run -itd \
     --name apollo-portal \
+    --network=app-tier \
+    --link=mariadb-test \
     -p 8070:8070 \
-    -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/ApolloPortalDB?characterEncoding=utf8" \
+    -e SPRING_DATASOURCE_URL="jdbc:mysql://mariadb-test:3306/ApolloPortalDB?characterEncoding=utf8&&useSSL=false&&serverTimezone=Asia/Shanghai" \
     -e SPRING_DATASOURCE_USERNAME=root \
     -e SPRING_DATASOURCE_PASSWORD=123456 \
     -e APOLLO_PORTAL_ENVS=dev \
