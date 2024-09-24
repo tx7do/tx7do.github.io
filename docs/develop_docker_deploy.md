@@ -772,7 +772,6 @@ docker pull emqx/emqx:latest
 
 docker run -itd \
     --name emqx-test \
-    --add-host=host.docker.internal:host-gateway \
     -p 18083:18083 \
     -p 8883:8883 \
     -p 1883:1883 \

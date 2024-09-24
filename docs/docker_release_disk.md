@@ -57,19 +57,19 @@ sudo docker image prune -f
 清除掉无用的容器：
 
 ```shell
-docker container prune - f
+docker container prune -f
 ```
 
 清除掉无用的数据卷：
 
 ```shell
-docker volume prune - f
+docker volume prune -f
 ```
 
 清除掉无用的网络：
 
 ```shell
-docker network prune - f
+docker network prune -f
 ```
 
 清除掉Build的缓存：
