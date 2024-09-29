@@ -54,7 +54,7 @@ docker run -d --network=host -v $(pwd)/custom.conf:/etc/coturn/turnserver.conf c
 
 此命令将当前目录中的 custom.conf 文件映射到 turn 服务器目录'/etc/coturn/turnserver.conf'
 
-#### 什么是境界？
+#### 什么是Realm？
 
 Realm 是可以访问具有共同所有者的一组地址的密钥。
 
@@ -146,20 +146,18 @@ ip addr show
 
 您可以通过三种方式测试docker coturn服务器是否正在运行
 
-滴流冰
-ICE 测试
+- Trickle ICE
+- ICE Test
 
-#### 滴流冰
+#### Trickle ICE
 
-访问网站：https：//www.metered.ca/turn-server-testing
+访问网站：<https://www.metered.ca/turn-server-testing>
 
 添加配置并点击添加服务器按钮来添加你的 TURN 服务器并进行测试
 
-ICE 测试 turn 服务器
+#### ICE TEST
 
-#### 冰上测试
-
-前往 ICE 测试网站：https://icetest.info 并输入您的 turn 服务器凭据来测试 TURN 服务器
+前往 ICE 测试网站：<https://icetest.info> 并输入您的 turn 服务器凭据来测试 TURN 服务器
 
 ### 步骤 9：设置 turn 服务器的域名（可选）
 
@@ -171,9 +169,9 @@ ICE 测试 turn 服务器
 
 添加 DNS 记录并等待他们找到您的服务
 
-### 步骤 10：使用 COTURN 服务器使用 lets encrypt 进行加密（可选）
+### 步骤 10：使用 lets encrypt 对 COTURN 服务器进行加密（可选）
 
-我们可以使用 lets encrypt 的 certbot 轻松生成 TLS 证书
+我们可以使用 `lets encrypt` 的 `certbot` 轻松生成 TLS 证书
 
 在 TURN 服务器终端中输入以下命令
 
@@ -183,14 +181,14 @@ sudo apt-get update
 sudo apt-get install certbot
 ```
 
-然后您可以运行 certbot 命令来生成证书。将 <turn.example.com> 替换为您的 TURN 服务器的域名
+然后您可以运行 `certbot` 命令来生成证书。将 <turn.example.com> 替换为您的 TURN 服务器的域名
 
 ```bash
 sudo certbot certonly --standalone --preferred-challenges http \
     -d <turn.example.com>
 ```
 
-请注意，要实现此目的，需要打开 TCP 端口 80
+请注意，要实现此目的，需要打开 TCP 80端口
 
 目前 cretbot 默认自动续订
 
@@ -208,7 +206,7 @@ sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
 sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
 ```
 
-内容如下。替换 TURN 服务器的主机名
+内容如下。替换 TURN 服务器的主机名：
 
 ```bash
 #!/bin/bash -e
@@ -226,9 +224,9 @@ systemctl kill -sUSR2 coturn.service
 sudo chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/coturn
 ```
 
-就这样，我们为 TURN 服务器添加了加密
+就这样，我们为 TURN 服务器加了密。
 
-以下是您可能感兴趣的其他一些文章
+以下是您可能感兴趣的其他一些文章：
 
 - [Jitsi TURN STUN 服务器设置](https://www.metered.ca/blog/jitsi-turn-server/)
 - [为 Mattermost Calls 提供免费的 TURN 服务器](https://www.metered.ca/blog/turn-server-for-mattermost-calls/)
