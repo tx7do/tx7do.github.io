@@ -46,3 +46,8 @@
 - [ 数十亿用户数据，上千个用户标签维度，用户分析怎么做？](https://mp.weixin.qq.com/s?__biz=MzIyNTIyNTYwOA==&mid=2651010996&idx=1&sn=f7ba207a991d595036a11fc3b6797bac&chksm=f3f56953c482e045fe362abaf3ce154a8bf1d198a8a230648e5cba480623848bf01273c934a9&scene=0&xtrack=1&version=3.0.36.2330&platform=mac#rd)
 - [手把手教你做用户画像：3种标签类型、8大系统模块](https://cloud.baidu.com/article/294026)
 - [如何设计用户画像的标签体系？](https://www.woshipm.com/user-research/1183618.html)
+- [《用户画像》](https://sc-cs-ks.github.io/KS-GrowthHacking/a-books/user-profile/)
+- [百亿级别用户画像标签数据如何实现低成本存储以及高性能查询？](https://juejin.cn/post/7350924978679857202)
+- [画像系统人群服务数据存储架构的演进与创新](https://developer.jdcloud.com/article/3784)
+- [[用户画像]标签数据存储之HBase真实应用](https://github.com/BigDataScholar/TheKingOfBigData/blob/master/note/%E5%AE%9E%E6%88%98%E9%A1%B9%E7%9B%AE/%5B%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%5D%E6%A0%87%E7%AD%BE%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E4%B9%8BHBase%E7%9C%9F%E5%AE%9E%E5%BA%94%E7%94%A8.md)
+- [3种高效的Tags标签系统数据库设计方案分享](https://developer.aliyun.com/article/532784)
