@@ -442,13 +442,13 @@ docker run -itd \
 
 ```bash
 docker run -itd \
-    --name redis-server \
-    --network=app-tier \
-    -p 6379:6379 \
-    -e ALLOW_EMPTY_PASSWORD=no \
-    -e REDIS_PASSWORD=123456 \
-    -v /root/app/redis/data:/bitnami/redis/data \
-    bitnami/redis:latest
+	--name redis-server \
+	-p 6379:6379 \
+	-e ALLOW_EMPTY_PASSWORD=no \
+	-e REDIS_PASSWORD=123456 \
+	-e REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG \
+	-v /root/app/redis/data:/bitnami/redis/data \
+	bitnami/redis:latest
 ```
 
 ### Memcached
@@ -768,16 +768,23 @@ docker run -itd \
 ### EMX
 
 ```bash
-docker pull emqx/emqx:latest
+docker pull emqx:latest
 
 docker run -itd \
-    --name emqx-test \
+    --name emqx-server \
     -p 18083:18083 \
     -p 8883:8883 \
     -p 1883:1883 \
     -p 8083:8083 \
     -p 8084:8084 \
-    emqx/emqx:latest
+    -e EMQX_DASHBOARD__DEFAULT_USERNAME=admin \
+    -e EMQX_DASHBOARD__DEFAULT_PASSWORD=123456 \
+    -e EMQX_CLUSTER__DISCOVERY_STRATEGY=singleton \
+    -e EMQX_MQTT__MAX_MQUEUE_LEN=infinity \
+    -e EMQX_MQTT__SESSION_EXPIRY_INTERVAL=365d \
+    -e EMQX_DURABLE_SESSIONS__ENABLE=true \
+    -e EMQX_DURABLE_SESSIONS__MESSAGE_RETENTION_PERIOD=4294967295ms \
+    emqx:latest
 ```
 
 端口说明：

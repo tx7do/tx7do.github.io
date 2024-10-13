@@ -102,6 +102,57 @@ web-admin-ip=0.0.0.0
 web-port=8080
 ```
 
+## 公开的免费STUN服务器
+
+```bash
+stunserver.org 
+stun.xten.com 
+stun.fwdnet.net 
+stun.fwdnet.net:3478
+
+stun.wirlab.net
+stun01.sipphone.com
+
+stun.iptel.org
+stun.ekiga.net
+stun.fwdnet.net 
+stun01.sipphone.com (no DNS SRV record) 
+stun.softjoys.com (no DNS SRV record) 
+stun.voipbuster.com (no DNS SRV record) 
+stun.voxgratia.org (no DNS SRV record)
+stun.xten.com
+stunserver.org
+stun.sipgate.net:10000
+stun.softjoys.com:3478
+```
+
+from <https://gist.github.com/zziuni/3741933>
+
+```bash
+# source : http://code.google.com/p/natvpn/source/browse/trunk/stun_server_list
+# A list of available STUN server.
+ 
+stun.l.google.com:19302
+stun1.l.google.com:19302
+stun2.l.google.com:19302
+stun3.l.google.com:19302
+stun4.l.google.com:19302
+stun01.sipphone.com
+stun.ekiga.net
+stun.fwdnet.net
+stun.ideasip.com
+stun.iptel.org
+stun.rixtelecom.se
+stun.schlund.de
+stunserver.org
+stun.softjoys.com
+stun.voiparound.com
+stun.voipbuster.com
+stun.voipstunt.com
+stun.voxgratia.org
+stun.xten.com
+```
+
 ## 参考资料
 
 - [CoTURN in Docker: A Step-by-Step Guide](https://www.metered.ca/blog/running-coturn-in-docker-a-step-by-step-guide/)
