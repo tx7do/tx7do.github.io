@@ -6,10 +6,10 @@
 
 在本文中您将了解到：
 
-- 什么是 RClone
-- 什么是 cron
+- 什么是 RClone？
+- 什么是 cron？
 - RClone 和 cron 的基本用法
-- 如何每周五下午 6:30 自动备份文件
+- 如何在每周五下午 6:30 自动备份文件
 - Cron日志记录
 - 如何卸载 RClone
 
@@ -24,20 +24,26 @@ Cron 是一个命令行实用软件，主要目的是调度作业。作业基本
 ### CentOS/RHEL 7/8/5
 
 ```bash
-yum install cronie
+sudo yum -y install cronie
+
+sudo systemctl start crond
+
+sudo systemctl enable crond
 ```
 
 ### Ubuntu
 
 ```bash
-apt-get install cron
+sudo apt install -y cron
+
+sudo systemctl enable cron
 ```
 
-使用 cron，您可以安排命令或 shell 脚本在特定时间运行，这就是我们要做的。安排 RClone 命令在每周五下午 6:30 运行。
+您可以使用Cron调度 一条命令 或 一个shell脚本 在特定时间运行，这就是我们要做的。我们就可以调度 RClone命令 在每周五下午 6:30 运行。
 
 ## 设置 RClone
 
-首先，安装 RClone。
+首先，我们要安装 RClone。
 
 对于Linux、macOS 和 BSD，只需运行：
 
@@ -45,19 +51,19 @@ apt-get install cron
 curl https://rclone.org/install.sh | sudo bash
 ```
 
-安装 RClone 后，让我们运行 RClone 配置命令。
+安装 RClone 后，让我们运行 RClone的 配置命令：
 
 ```bash
 rclone config
 ```
 
-您将在这里执行以下步骤：
+您将在之后执行以下步骤：
 
-1. 选择 n 作为新遥控器。
-2. 输入新 RClone 配置的名称，例如 mygdrive。
-3. 输入 15 以使用 Google Drive 作为远程存储。
+1. 选择 n 创建新的配置。
+2. 输入 RClone 新配置的名称，例如：mygdrive。
+3. 输入 15，选择使用 Google Drive 作为远程存储。
 4. 对于接下来的两个步骤，只需键入 Enter 即可继续。
-5. 现在选择 1 以获得完全访问权限。
+5. 现在，选择 1 以获得完全访问权限。
 6. 对于接下来的两个选择，只需输入 Enter 即可继续。
 7. 在 RClone 弹出窗口中登录您的 Google 帐户。现在您已准备好出发了。
 
@@ -68,20 +74,20 @@ rclone config
 打开你的终端并输入：
 
 ```bash
-mkdir sh ; cd sh
+mkdir sh; cd sh
 ```
 
-您不需要在 $HOME 目录中创建 sh 文件夹，您可以在其他地方创建甚至不创建，但最好将脚本组织在一个地方。如果您在其他地方创建，只需提醒自己在后续步骤中更改路径即可。
+您不需要在 `$HOME` 目录中创建 `sh` 文件夹，您可以在其他地方创建甚至不创建，但最好将脚本组织在一个地方。如果您在其他地方创建，只需提醒自己在后续步骤中更改路径即可。
 
-现在如果你想使用 vim 那么：
+现在如果你想使用 `vim` 那么：
 
 ```bash
 vim backup.sh
 ```
 
-但是，如果您想使用其他文本编辑器，只需`backup.sh`在`$HOME/sh`文件夹或任何其他位置创建一个名为的文件，这`$HOME/sh`将是我在本文中的位置。
+但是，如果您想使用其他文本编辑器，只需在`$HOME/sh`文件夹或任何其他位置创建一个名为`backup.sh`的文件，`$HOME/sh`将是我在本文中的位置。
 
-文件打开后`backup.sh`，让我们编写一行代码，将文件夹从我的计算机同步到 Google 云端硬盘存储。
+`backup.sh`文件打开后，让我们编写一行代码，将文件夹从我的计算机同步到 Google 云端硬盘存储。
 
 ```bash
 rclone sync -v --create-empty-src-dirs /$HOME/Desktop/Work mygdrive:/Work
@@ -93,13 +99,9 @@ rclone sync -v --create-empty-src-dirs /$HOME/Desktop/Work mygdrive:/Work
 rclone sync
 ```
 
-同步将从源复制文件并将其发送到目标，但不会修改源，仅修改目标。
+该命令将从源位置复制文件并将其发送到目标，但不会修改源位置的文件，仅修改目标位置。
 
-```bash
---create-empty-src-dirs
-```
-
-默认情况下，源中的空文件夹不会同步，因此为了解决此问题，此标志会在目标中创建空文件夹。
+默认情况下，源位置中的空文件夹不会被同步，因此为了解决此问题，我们可以增加`--create-empty-src-dirs`参数，该参数会在目标位置中创建空文件夹。
 
 在命令的最后一部分中，您有两个由空格分隔的路径，第一个是源路径，第二个是目标路径。现在您可能应该注意到第二条路径有一个`mygdrive:`与名称相同的名称`rclone config`。所以基本上我是使用配置将数据从我的计算机同步到 Google Drive `mygdrive`。
 
@@ -109,13 +111,13 @@ rclone sync
 rclone sync -v --create-empty-src-dirs mygdrive:/Work anothergdrive:/Work
 ```
 
-要查看 backup.sh 文件是否有效，只需运行以下命令并检查目标是否已更改。
+要查看 `backup.sh` 文件是否有效，只需运行以下命令并检查目标是否已更改。
 
 ```bash
 source backup.sh
 ```
 
-`backup.sh`正常工作后，让我们了解如何安排`backup.sh`每天运行。
+在确认`backup.sh`正常工作后，接着让我们了解如何调度`backup.sh`，使之每天运行。
 
 最终脚本：
 
@@ -124,9 +126,9 @@ rclone sync -v --create-empty-src-dirs /$HOME/Desktop/Work mygdrive:/Work
 rclone sync -v --create-empty-src-dirs /$HOME/Desktop/School mygdrive:/School
 ```
 
-## 设置 cron 来运行 Shell 文件
+## 设置 cron 来运行 Shell脚本
 
-要在 cron 中安排任何作业，我们需要编辑 crontab 文件，要编辑此文件，请打开终端并输入：
+要在 cron 中调度任何作业，我们需要编辑 crontab 文件，要编辑此文件，请打开终端并输入：
 
 ```bash
 crontab -e
@@ -136,7 +138,7 @@ crontab -e
 
 它将使用默认文本编辑器打开 crontab 文件。文件打开后您只能看到注释。
 
-要在 cron 中进行调度，您将需要特定类型的表达式。下面您将看到表达式的结构：
+要在 cron 中进行调度，您将需要使用特定类型的表达式。下面您将看到表达式的结构：
 
 ```bash
 .---------------- minute (0 - 59)
@@ -148,19 +150,19 @@ crontab -e
  *  *  *  *  *  command to be executed
 ```
 
-示例 — 安排作业 ( my_shell.sh ) 在每周一上午 8:49 运行的表达式为：
+示例 — 调度一个作业 ( my_shell.sh ) 在每周一上午 8:49 运行的表达式为：
 
 ```bash
 49 8 * * 1 my_shell.sh
 ```
 
-如果您想在周一至周五上午 11:26 运行作业 (my_shell.sh)，您可以编写：
+如果您想在周一至周五上午 11:26 运行作业 (my_shell.sh)，那么您可以编写：
 
 ```bash
 26 11 * * 1-5 my_shell.sh
 ```
 
-更多表达式示例：
+更多的表达式示例：
 
 ```bash
 0 * * * *     => Every hour
@@ -217,7 +219,7 @@ Dec 15 08:00:01 rainbowone CRON[249386]: (rainbow) CMD (/$HOME/Desktop/sh/daily.
 /etc/rsyslog.d/50-default.conf
 ```
 
-取消注释以 `#cron.*` 开头的行，然后使用以下命令重新启动`syslog`：
+取消以 `#cron.*` 开头的注释行，然后使用以下命令重新启动`syslog`：
 
 ```bash
 sudo service rsyslog restart
@@ -258,5 +260,3 @@ sudo rm /usr/local/share/man/man1/rclone.1
 ## 原文地址
 
 - [Automated Backups with cron and RClone](https://dev.to/itsbetma/automated-backups-with-cron-and-rclone-3do4)
-
-如果您喜欢有关 Git、Linux、生产力技巧、Typescript 和 Python 的内容，请关注原文作者[Marco Antonio Bet](https://dev.to/itsbetma)
