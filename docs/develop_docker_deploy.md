@@ -523,11 +523,15 @@ docker pull nacos/nacos-server:latest
 docker run -itd \
     --name nacos-standalone \
     -e MODE=standalone \
-    -p 8849:8848 \
+    -e NACOS_SERVERS=hostname \
+    -p 8848:8848 \
+    -p 9848:9848 \
     nacos/nacos-server:latest
 ```
 
-- 管理后台: <http://localhost:8849/nacos/index.html>
+- 管理后台: <http://localhost:8848/nacos/index.html>
+
+注：Nacos2.X版本新增了gRPC的通信方式，至少需要9848端口，否则grpc注册失败。
 
 ### Consul
 
