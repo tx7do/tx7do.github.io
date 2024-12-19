@@ -2,9 +2,15 @@
 
 ## 什么是 Headless CMS？
 
-Headless CMS 是一种 **内容管理系统（Content Management System）**，它将`表示层（内容呈现的地方）`与`后端（内容管理的地方）`分离开来。Headless CMS 可让您在一个地方管理内容，并能够在您选择的任何数字渠道上部署该内容。将前端与后端分离可解锁您的内容，使营销人员能够更轻松地独立管理内容，开发人员可以更快地构建、自动执行更改并大规模管理数字内容。在传统的 CMS 中，内容与代码纠缠在一起并被锁定在孤岛中，这使得重复使用内容（以及创造现代化数字体验）变得几乎不可能。
+Headless CMS 是一种 **内容管理系统（Content Management System）**，它将`【头部Head】表示层（内容呈现的地方）`与【身体Body】`后端（内容管理的地方）`分离开来。即，把表示层和后端信息层分离开了。
 
-![](/assets/images/cms/CMS_Evolution_Graphic.png)
+这样，我们可以根据需要在 Web、移动和数字媒体平台上重复使用和重新混合内容。您甚至可以在印刷品中重复使用您的内容。
+
+与格式无关的内容为所有参与者（作者、开发人员和用户）提供了变革性的体验。
+
+作者受益于使用结构化数据模型构建的完全可自定义的编辑器。开发人员获得简化的 API 以实现高效的查询和过滤。最终，用户可以在他们想要的位置以他们想要的方式享受内容。
+
+![横向对比](/assets/images/cms/CMS_Evolution_Graphic.png)
 
 ## Headless CMS 的起源
 
@@ -16,20 +22,24 @@ Headless CMS 是一种 **内容管理系统（Content Management System）**，�
 
 ## Headless CMS 与 传统 CMS 差异性一览表
 
-|            | 传统 CMS     | Headless CMS     |
+|            | 传统 CMS     | 无头 CMS     |
 | ---------- | ------------ | ---------------- |
-| 托管、发布 |              |                  |
 | 开发导向   | 研发导向     | 产品导向         |
 | 内容模型   | 单一页面     | 多个展现产品     |
 | 支持的设备 | 单一有限     | 无限制           |
-| 发布范围   | 一对一       | 一对多           |
+| 架构   | 一对一       | 一对多           |
+| 可扩展性   | 单体       | 模块化           |
 | 工作流     | 瀑布式       | 敏捷开发         |
 | 更新流程   | 计划任务     | 持续更新         |
 | 软件后端   | 单体、一体化 | 微服务、同类最优 |
 | 投入       | 前期成本高   | 可以快速得到验证 |
 | 技术债务   | 固有风险     | 可管控           |
 
+![](/assets/images/cms/compare_tranditional_headless_cms.png)
+
 ## Headless CMS 架构是如何工作的？
+
+![无头CMS](/assets/images/cms/headless_cms_arch.png)
 
 Headless CMS 中的内容通过 API 进行交付，使内容可无缝的显示在任何网站、设备或其他任何数码终端上。这使得 Headless CMS 中的内容可以无限的重复使用，无论目前使用的全渠道客户体验如何，还是未来会新增哪些渠道。这与 Wordpress 和其他将前端与后端紧密耦合的 单体 CMS（monolithic CMS）不同，它们会让您无法确定内容可以（和不能）如何显示。
 
@@ -53,6 +63,18 @@ API 是允许您存储、访问和检索存储库内容的接口。一些解决�
 
 前端应用程序是系统中面向用户的部分，通过 API 使用内容。您可以使用任何技术或框架来构建这些应用程序，因为它们独立于 CMS。开发人员调用 API 并编写在应用程序中呈现内容所需的代码。
 
+## 它与传统 CMS 有何不同？
+
+![传统 CMS](/assets/images/cms/monolithic_cms_arch.png)
+
+与无头式相反，“传统 CMS” 是一种您可以自行安装和管理的软件，也可以在托管服务器环境中安装和管理。传统 CMS 也被称为“单片式”，因为它们将所有功能和假设都打包到单个系统中。
+
+传统CMS 通常会提供一个“所见即所得”（WYSIWYG）的内容编辑界面，因为它们只有一个呈现内容的上下文——通常是网页。
+
+过去几年，我们看到越来越多的 CMS 尝试以更灵活的方式提供内容。这些 CMS 通常被称为“无头”或“API 优先”CMS。其中一些 CMS 称自己为“内容基础设施”、“内容中心”甚至“内容即服务” 。
+
+然而，当你仔细观察时，它们基本上都归结为一些具有基于 Web 的用户界面的数据库后端，以及可通过 API 访问的内容。
+
 ## Headless CMS（无头 CMS） 和 Decoupled CMS（解耦 CMS） 之间的区别
 
 随着您进一步了解不同类型的内容管理解决方案，您可能会遇到另一个术语“解耦 CMS”。顾名思义，解耦 CMS 的定义特征是后端和前端是分开的。这种分离类似于 Headless CMS，但是，解耦 CMS 带有一个 Head，但 Headless CMS 使用它完全是可选的。有些人互换使用这些术语，但它们并不相同。主要区别在于 **Headless CMS 根本不包含表示层**，而是允许开发人员决定如何显示内容。这通常是通过交互式 JSON 框架（如 React 或 Vue.js）或站点生成器（如 Vercel）实现的。
@@ -73,9 +95,43 @@ API 是允许您存储、访问和检索存储库内容的接口。一些解决�
 
 Headless CMS 使内容可重用性变得轻而易举。内容可重用性是充分利用内容创建资源的关键要素。当所有内容都可以在任何数字终端上使用时，IT 团队可以跨设备和渠道重新利用内容。它还允许内容跨不同地区、用例和活动进行扩展。通过集成个性化和本地化工具，可以针对各种用户体验优化内容，以确保正确的内容在正确的时间到达正确的受众。
 
+## 开发人员灵活性
+
+由于无头内容是通过 API 提供的，因此开发人员可以选择自己的前端工具。如果您更喜欢使用 Javascript 而不是 PHP 或 Ruby，您可以这样做。您还可以替换技术栈的各个部分或从一个框架移动到另一个框架，而不会影响 CMS。
+
+## 增强安全性
+
+由于无头内容与表示层分离，因此受攻击的范围较小。
+
+## Headless CMS 的应用场景
+
+无头 CMS 最适合需要高度可定制且易于管理的内容管理系统，但不一定需要前端网站的企业。这包括媒体、娱乐、出版和电子商务行业的企业，以及需要管理大量内部流程内容的公司。这些行业的企业可以从无头 CMS 提供的可扩展性、灵活性和效率中受益。
+
+### 网站和网络应用程序
+
+它可与Gatsby、11ty和Next等静态网站生成器配合使用。它们也可以用于 Web 应用程序，并且受到 React、Vue.js、Svelte和Angular等现代 Javascript 框架的欢迎。
+
+### 产品和服务
+
+精心设计的无头 CMS 不会面向基于页面的内容结构（这应该很容易创建，但不是必需的）。如果是这样，您可以管理任何产品或服务的内容：语音助手、数字信息亭、印刷品、网站——所有这些都来自同一个地方。
+
+### 电子商务网站
+
+一些无头 CMS 足够灵活，可以配置为电子商务后端。您还可以将无头内容与现有电子商务平台和产品库存管理系统（如Shopify和 SAP Hybris）集成。
+
+### 移动应用程序
+
+无头 CMS 是完美的移动应用 CMS，不仅因为它们提供了出色的创作体验，还因为您可能还需要管理营销网站。使用无头 CMS，您可以在各个平台上重复使用内容，从而节省时间和金钱。
+
+### 数字标牌
+
+使用无头 CMS，内容可在整个业务中使用，从应用程序到店内数字标牌。
+
 ## 参考资料
 
 - [Headless CMS explained in 1 minute](https://www.contentful.com/headless-cms/)
 - [10 Best and Most Popular CMS For Hugo In 2024 (Pros and Cons)](https://gethugothemes.com/hugo-cms)
 - [将 Hugo 与 Strapi 集成](https://strapi.io/integrations/hugo-cms)
 - [什么是无头 CMS？](https://aws.amazon.com/cn/what-is/headless-cms/)
+- [Headless CMS Explained](https://www.sanity.io/headless-cms)
+- [A list of headless content management systems for Jamstack sites](https://jamstack.org/headless-cms/)
