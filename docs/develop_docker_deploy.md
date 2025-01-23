@@ -542,9 +542,12 @@ docker pull bitnami/consul-exporter:latest
 docker run -itd \
     --name consul-server-standalone \
     -p 8300:8300 \
+    -p 8301:8301 \
+    -p 8301:8301/udp \
     -p 8500:8500 \
+    -p 8600:8600 \
     -p 8600:8600/udp \
-    -e CONSUL_BIND_INTERFACE='eth0' \
+    -e CONSUL_DISABLE_KEYRING_FILE=true \
     -e CONSUL_AGENT_MODE=server \
     -e CONSUL_ENABLE_UI=true \
     -e CONSUL_BOOTSTRAP_EXPECT=1 \
@@ -654,6 +657,8 @@ docker pull bitnami/zookeeper:latest
 docker pull bitnami/kafka:latest
 docker pull bitnami/kafka-exporter:latest
 
+sudo chown -R 1001:1001 /root/app/kafka/
+
 docker run -itd \
     --name zookeeper-server \
     --network app-tier \
@@ -666,7 +671,7 @@ docker run -itd \
     --link zookeeper-server \
     --network app-tier \
     -p 9092:9092 \
-    -v /home/data/kafka:/bitnami/kafka \
+    -v /root/app/kafka:/bitnami/kafka \
     -e KAFKA_ENABLE_KRAFT=no \
     -e KAFKA_BROKER_ID=1 \
     -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
@@ -682,12 +687,14 @@ docker run -itd \
 ```bash
 docker pull bitnami/kafka:latest
 
+sudo chown -R 1001:1001 /root/app/kafka/
+
 docker run -itd \
     --name kafka-standalone \
     --user root \
     -p 9092:9092 \
     -p 9093:9093 \
-    -v /home/data/kafka:/bitnami/kafka \
+    -v /root/app/kafka:/bitnami/kafka \
     -e KAFKA_ENABLE_KRAFT=yes \
     -e KAFKA_CFG_NODE_ID=1 \
     -e KAFKA_CFG_PROCESS_ROLES=broker,controller \
