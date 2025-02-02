@@ -49,8 +49,6 @@ docker run -itd \
 2. [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 3. [Axios](https://github.com/axios/axios)
 
-**需要注意的是: 事实上，后两种API都是对`XMLHttpRequest`进行的封装。**
-
 ### 1. XMLHttpRequest
 
 ```typescript
