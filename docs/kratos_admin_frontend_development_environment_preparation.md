@@ -311,3 +311,8 @@ unset GOPROXY
 
 Clear-Variable GOPROXY
 ```
+
+## 项目代码
+
+* [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
+* [kratos-admin Github](https://github.com/tx7do/kratos-admin)

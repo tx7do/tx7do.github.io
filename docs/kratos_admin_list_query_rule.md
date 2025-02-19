@@ -80,3 +80,8 @@
 | hour         | `{"pub_date__hour" : "12"}`          | `WHERE EXTRACT('HOUR' FROM pub_date) = '12'`      | 小时(0-23)             |
 | minute       | `{"pub_date__minute" : "59"}`        | `WHERE EXTRACT('MINUTE' FROM pub_date) = '59'`    | 分钟 (0-59)            |
 | second       | `{"pub_date__second" : "59"}`        | `WHERE EXTRACT('SECOND' FROM pub_date) = '59'`    | 秒 (0-59)             |
+
+## 项目代码
+
+* [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
+* [kratos-admin Github](https://github.com/tx7do/kratos-admin)
