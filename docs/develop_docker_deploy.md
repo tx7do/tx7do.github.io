@@ -630,6 +630,7 @@ docker run -itd \
     -p 1883:1883 \
     -p 15675:15675 \
     -e RABBITMQ_PLUGINS=rabbitmq_top,rabbitmq_mqtt,rabbitmq_web_mqtt,rabbitmq_prometheus,rabbitmq_stomp,rabbitmq_auth_backend_http \
+    -e RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true \
     bitnami/rabbitmq:latest
 
 # 查看插件列表
