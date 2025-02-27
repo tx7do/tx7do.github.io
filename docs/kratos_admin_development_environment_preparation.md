@@ -312,6 +312,13 @@ unset GOPROXY
 Clear-Variable GOPROXY
 ```
 
+## IDE 插件安装
+
+后端开发需要安装BUF的插件，否则，通过Buf引用的第三方proto，IDE会无法解析。
+
+- [VSC](https://marketplace.visualstudio.com/items?itemName=bufbuild.vscode-buf)
+- [Goland](https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers)
+
 ## 项目代码
 
 * [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
