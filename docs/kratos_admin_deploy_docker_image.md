@@ -54,3 +54,8 @@ docker run -itd --name admin-server --network=app-tier -p 7788:7788 --link postg
 ```
 
 在这里我们拿后台管理服务来举例，主要就是需要修改服务的名字，映射的端口，别的一般倒没什么。需要注意的是，`SERVICE_NAME`对应的是服务路径`app/{服务名}/service`当中的`{服务名}`。
+
+## 项目代码
+
+* [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
+* [kratos-admin Github](https://github.com/tx7do/kratos-admin)
