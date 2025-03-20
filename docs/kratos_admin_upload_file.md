@@ -191,10 +191,10 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/go-utils/trans"
 
-	"kratos-upload-file-example/app/admin/service/internal/data"
+	"kratos-admin/app/admin/service/internal/data"
 
-	adminV1 "kratos-upload-file-example/api/gen/go/admin/service/v1"
-	fileV1 "kratos-upload-file-example/api/gen/go/file/service/v1"
+	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
+	fileV1 "kratos-admin/api/gen/go/file/service/v1"
 )
 
 type FileService struct {
@@ -294,9 +294,9 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 
-	"kratos-upload-file-example/app/admin/service/internal/service"
+	"kratos-admin/app/admin/service/internal/service"
 
-	fileV1 "kratos-upload-file-example/api/gen/go/file/service/v1"
+	fileV1 "kratos-admin/api/gen/go/file/service/v1"
 )
 
 func registerFileUploadHandler(srv *http.Server, svc *service.FileService) {
