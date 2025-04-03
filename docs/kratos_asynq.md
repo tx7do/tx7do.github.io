@@ -83,9 +83,10 @@ Web UI我们可以通过Docker的方式来进行安装：
 docker pull hibiken/asynqmon:latest
 
 docker run -d \
-    --name asynq \
+    --name asynqmon \
     -p 8080:8080 \
-    hibiken/asynqmon:latest --redis-addr=host.docker.internal:6379
+    hibiken/asynqmon:latest \
+    --redis-url=redis://:*Abcd123456@host.docker.internal:6379/1
 ```
 
 安装好Web UI之后，我们就可以打开浏览器访问管理后台了：<http://localhost:8080>
