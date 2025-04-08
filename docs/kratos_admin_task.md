@@ -121,15 +121,15 @@ docker run -d \
 
 * 仪表盘
 
-![AsynqMon Dashboard](/assets/images/task_queue/asynq_web_ui_dashboard.png)
+![AsynqMon Dashboard](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_dashboard.png)
 
 * 任务视图
 
-![AsynqMon Task View](/assets/images/task_queue/asynq_web_ui_task_view.png)
+![AsynqMon Task View](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_task_view.png)
 
 * 性能
 
-![AsynqMon Metrics](/assets/images/task_queue/asynq_web_ui_metrics.png)
+![AsynqMon Metrics](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_metrics.png)
 
 ## 如何在Kratos Admin中使用定时任务
 
@@ -280,7 +280,7 @@ func (s *TaskService) StartAllTask(ctx context.Context) (int32, error) {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
+* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
 * [kratos-admin Github](https://github.com/tx7do/kratos-admin)
 
 ## 参考资料

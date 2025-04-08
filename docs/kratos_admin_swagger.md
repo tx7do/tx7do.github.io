@@ -213,7 +213,7 @@ func NewRESTServer() *rest.Server {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/kratos-admin)
+* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
 * [kratos-admin Github](https://github.com/tx7do/kratos-admin)
 
 ## 参考资料
