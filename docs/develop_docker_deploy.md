@@ -513,7 +513,10 @@ docker run -itd \
     bitnami/etcd:latest
 ```
 
-- 管理工具: [etcd-manager](https://www.electronjs.org/apps/etcd-manager)
+管理工具
+
+- [etcd-manager](https://github.com/gtamas/etcdmanager)
+- [ETCD Keeper](https://github.com/evildecay/etcdkeeper) 如果为docker部署，etcd的地址请填写为：`host.docker.internal:2379`
 
 ### Nacos
 
@@ -547,6 +550,7 @@ docker run -itd \
     -p 8500:8500 \
     -p 8600:8600 \
     -p 8600:8600/udp \
+    -e CONSUL_BIND_INTERFACE='eth0' \
     -e CONSUL_DISABLE_KEYRING_FILE=true \
     -e CONSUL_AGENT_MODE=server \
     -e CONSUL_ENABLE_UI=true \
@@ -777,7 +781,7 @@ docker run -itd \
     eclipse-mosquitto:latest
 ```
 
-### EMX
+### EMQX
 
 ```bash
 docker pull emqx:latest
