@@ -523,18 +523,42 @@ docker run -itd \
 ```bash
 docker pull nacos/nacos-server:latest
 
+# Nacos 2.x
 docker run -itd \
     --name nacos-standalone \
     -e MODE=standalone \
     -e NACOS_SERVERS=hostname \
     -p 8848:8848 \
     -p 9848:9848 \
+    -e NACOS_AUTH_ENABLE=false \
+    nacos/nacos-server:latest
+
+# Nacos 3.x
+docker run -itd \
+    --name nacos-standalone \
+    -p 8848:8848 \
+    -p 9848:9848 \
+    -p 8088:8080 \
+    -e MODE=standalone \
+    -e NACOS_SERVERS=hostname \
+    -e NACOS_AUTH_ENABLE=false \
+    -e PREFER_HOST_MODE=hostname \
+    -e NACOS_AUTH_TOKEN=MjFFQzIwMjAtM0FFQS0xMDY5LUEyREQtMDgwMDJCMzAzMDlE \
+    -e NACOS_AUTH_IDENTITY_KEY=dG9rZW4= \
+    -e NACOS_AUTH_IDENTITY_VALUE=dG9rZW4= \
     nacos/nacos-server:latest
 ```
 
-- 管理后台: <http://localhost:8848/nacos/index.html>
+- Nacos3.X以前的管理后台: <http://localhost:8848/nacos/index.html>
+- Nacos3.X的管理后台：<http://localhost:8088>
 
 注：Nacos2.X版本新增了gRPC的通信方式，至少需要9848端口，否则grpc注册失败。
+
+Nacos3.X版本开始，需要设置以下环境变量：
+
+- NACOS_AUTH_TOKEN 必须是BASE64编码，原始字符串必须大于32位。
+- NACOS_AUTH_IDENTITY_KEY
+- NACOS_AUTH_IDENTITY_VALUE 
 
 ### Consul
 
