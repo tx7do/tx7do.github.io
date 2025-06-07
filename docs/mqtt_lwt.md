@@ -6,7 +6,7 @@ Last Will and Testament（LWT，遗嘱消息）其作用是当客户端异常断
 
 该消息，在客户端正常离线的时候不会被发出，只有客户端非正常断开网络连接的时候才会发出。
 
-LWT的协议设计上，从两个维度设计分别为：
+LWT的Topic设计上，从两个维度设计分别为：
 
 1. 用户维度：`user/status/{user_id}`
 2. 设备维度：`device/status/{device_id}`
