@@ -28,6 +28,16 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 )
 
+const UserStatusTopic = "user/status/%d"
+
+func NewUserStatusTopic(userID uint) string {
+	return fmt.Sprintf(UserStatusTopic, userID)
+}
+
+func NewUserStatusRequestJSON(online bool) string {
+	return fmt.Sprintf("{\"online\": %t}", online)
+}
+
 // 消息接收回调函数
 var messageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("收到消息: 主题=%s, 内容=%s\n", msg.Topic(), string(msg.Payload()))
@@ -39,6 +49,7 @@ func main() {
 	clientID := flag.String("id", "go-mqtt-client-"+time.Now().Format("150405"), "客户端ID")
 	topic := flag.String("topic", "test/topic", "订阅主题")
 	message := flag.String("msg", "Hello MQTT from Go!", "发布的消息内容")
+	userID := flag.Uint("uid", 1, "用户ID")
 	username := flag.String("u", "user", "用户名")
 	password := flag.String("p", "user", "密码")
 	flag.Parse()
@@ -54,7 +65,7 @@ func main() {
 		SetMaxReconnectInterval(10 * time.Second) // 最大重连间隔
 
 	// 连接前回调（可选，如设置遗嘱消息）
-	opts.SetWill(fmt.Sprintf("user/status/%s", *username), "offline", 1, true)
+	opts.SetWill(NewUserStatusTopic(*userID), NewUserStatusRequestJSON(false), 1, true)
 
 	// 创建客户端
 	client := mqtt.NewClient(opts)
@@ -62,9 +73,11 @@ func main() {
 		log.Fatalf("连接失败: %v", token.Error())
 	}
 	defer func() {
-		client.Publish(fmt.Sprintf("user/status/%s", *clientID), 1, true, "offline").Wait()
+		client.Publish(NewUserStatusTopic(*userID), 1, true, NewUserStatusRequestJSON(false)).Wait()
 		client.Disconnect(250) // 程序退出时断开连接
 	}()
+
+	client.Publish(NewUserStatusTopic(*userID), 1, true, NewUserStatusRequestJSON(true)).Wait()
 
 	log.Printf("已连接到 MQTT 服务器: %s\n", *server)
 	log.Printf("客户端ID: %s\n", *clientID)
