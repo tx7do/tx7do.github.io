@@ -64,11 +64,17 @@ VITE_ROUTER_ACCESS_MODE=frontend
 然后，我们需要在本地的固定路由里面写入`authority`字段，里边填写的是后端配置的角色码，如果该字段不填写，则为所有人可见，如果为字段数据为空，则为所有人不可见：
 
 ```typescript
+const system: RouteRecordRaw[] = [
  {
+    path: '/system',
+    name: 'System',
+    ...
     meta: {
       authority: ['super'],
+      ...
     },
-},
+  },
+];
 ```
 
 根据`src/store/auth`里面的代码显示：
@@ -79,15 +85,13 @@ VITE_ROUTER_ACCESS_MODE=frontend
 authStore.setUserInfo(userInfo);
 ```
 
-所以，我们需要在用户的登陆数据里面加入一个`roles`的字段：
+所以，我们需要在用户的数据里面加入一个`roles`的字段，该字段为角色码列表，将其传递给前端：
 
 ```protobuf
 message User {
     repeated string roles;
 }
 ```
-
-并且读取角色表里面的角色值，传递给前端。
 
 #### 菜单可见，但禁止访问
 
@@ -106,6 +110,8 @@ message User {
 在某些情况下，我们需要对按钮进行最为细粒度的控制，我们可以借助 `权限码（Permission Code）`或者 `角色码（Role Code）`来控制按钮的显示。
 
 ### 权限码
+
+权限码是系统中最小粒度的权限标识，用于唯一标记某个具体的操作权限或资源访问权限。它通常以字符串（如user:add、order:delete）或数值形式存在，代表用户可以执行的单个操作或访问的单个资源。
 
 权限码为接口返回的权限码，通过权限码来判断按钮是否显示，逻辑在`src/store/auth`下：
 
@@ -136,7 +142,7 @@ async function fetchAccessCodes() {
 }
 ```
 
-我们只需要调用`fetchAccessCodes`方法便可以拥有权限码，权限码返回的数据结构为字符串数组，例如：`['AC_100100', 'AC_100110', 'AC_100120', 'AC_100010']`。
+我们只需要调用`fetchAccessCodes`方法便可以拥有权限码，权限码返回的数据结构为字符串数组，例如：`['product:add', 'product:edit', 'order:refund', 'account:query']`。
 
 有了权限码，就可以使用 `@vben/access` 提供的`AccessControl`组件及API来进行按钮的显示与隐藏。
 
@@ -149,11 +155,11 @@ import { AccessControl } from '@vben/access';
 
 <template>
   <!-- 需要指明 type="code" -->
-  <AccessControl :codes="['super']" type="code">
-    <Button> Super 权限可见 ["super"] </Button>
+  <AccessControl :codes="['product:add']" type="code">
+    <Button> 添加商品 ["product:add"] </Button>
   </AccessControl>
-  <AccessControl :codes="['admin']" type="code">
-    <Button> Admin 权限可见 ["admin"] </Button>
+  <AccessControl :codes="['product:edit']" type="code">
+    <Button> 编辑商品 ["product:edit"] </Button>
   </AccessControl>
 </template>
 ```
@@ -168,11 +174,11 @@ const { hasAccessByCodes } = useAccess();
 </script>
 
 <template>
-  <Button v-if="hasAccessByCodes(['super'])">
-    Super 权限可见 ["super"]
+  <Button v-if="hasAccessByCodes(['product:add'])">
+    添加商品 ["product:add"]
   </Button>
-  <Button v-if="hasAccessByCodes(['admin'])">
-    Admin 权限可见 ["admin"]
+  <Button v-if="hasAccessByCodes(['product:edit'])">
+    编辑商品 ["product:edit"]
   </Button>
 </template>
 ```
@@ -183,11 +189,11 @@ const { hasAccessByCodes } = useAccess();
 
 ```typescript
 <template>
-  <Button class="mr-4" v-access:code="'super'">
-    Super 权限可见 'super'
+  <Button class="mr-4" v-access:code="'product:add'">
+    添加商品 ["product:add"]
   </Button>
-  <Button class="mr-4" v-access:code="['admin']">
-    Admin 权限可见 ["admin"]
+  <Button class="mr-4" v-access:code="['product:edit']">
+    编辑商品 ["product:edit"]
   </Button>
 </template>
 ```
