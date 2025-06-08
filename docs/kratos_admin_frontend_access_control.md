@@ -1,22 +1,24 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 前端权限
+# 开箱即用的GO后台管理系统 Kratos Admin - 前端权限控制
 
-前端的权限主要分为两个部分：
+前端的权限归属于：功能权限。根据功能控制的细粒度，前端的权限主要分为两个部分：
 
-1. 路由的访问权限；
-2. 按钮的访问权限。
+1. 页面级权限；
+2. 按钮级权限。
 
-## 路由的访问权限
+## 页面级权限
 
-路由的访问权限又分为两种方式：
+页面级权限，我们可以通过菜单隐藏、路由拦截来实现。在实际应用中，从而我们就可以控制用户能否进入 “财务报表”“人事管理” 等页面。
+
+路由的控制方式分为两种方式：
 
 1. 后端控制；
 2. 前端控制。
 
 ### 后端访问控制
 
-* **实现原理**: 是通过接口动态生成路由表，且遵循一定的数据结构返回。前端根据需要处理该数据为可识别的结构，再通过 `router.addRoute` 添加到路由实例，实现权限的动态生成。
+* **实现原理**: 通过调用后端的接口，获取到一个遵循一定的数据结构的路由配置数据，前端拿到路由配置数据后，根据需要将该数据处理为可识别的结构，再通过 `router.addRoute` 添加到路由实例，实现页面权限的动态控制。
 
-* **缺点**: 后端需要提供符合规范的数据结构，前端需要处理数据结构，适合权限较为复杂的系统。
+* **缺点**: 后端需要提供符合规范的数据，前端相应的还需要需要处理数据，开发维护起来比较复杂，所以它也只适合权限较为复杂的系统。
 
 前端启用办法，修改`.env`配置文件`VITE_ROUTER_ACCESS_MODE`的值为`backend`：
 
@@ -50,7 +52,7 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
 
 * **实现原理**: 在前端固定写死路由的权限，指定路由有哪些权限可以查看。只初始化通用的路由，需要权限才能访问的路由没有被加入路由表内。在登录后或者其他方式获取用户角色后，通过角色去遍历路由表，获取该角色可以访问的路由表，生成路由表，再通过 `router.addRoute` 添加到路由实例，实现权限的过滤。
 
-* **缺点**: 权限相对不自由，如果后台改动角色，前台也需要跟着改动。适合角色较固定的系统。
+* **缺点**: 权限相对不自由，如果后台改动角色，前台也需要跟着改动，并且改动的工作量还不小。适合角色较固定的系统。
 
 前端启用办法，修改`.env`配置文件`VITE_ROUTER_ACCESS_MODE`的值为`frontend`：
 
@@ -99,9 +101,9 @@ message User {
 },
 ```
 
-## 按钮的访问权限
+## 按钮级权限
 
-在某些情况下，我们需要对按钮进行细粒度的控制，我们可以借助接口或者角色来控制按钮的显示。
+在某些情况下，我们需要对按钮进行最为细粒度的控制，我们可以借助 `权限码（Permission Code）`或者 `角色码（Role Code）`来控制按钮的显示。
 
 ### 权限码
 
@@ -134,7 +136,7 @@ async function fetchAccessCodes() {
 }
 ```
 
-权限码返回的数据结构为字符串数组，例如：`['AC_100100', 'AC_100110', 'AC_100120', 'AC_100010']`
+我们只需要调用`fetchAccessCodes`方法便可以拥有权限码，权限码返回的数据结构为字符串数组，例如：`['AC_100100', 'AC_100110', 'AC_100120', 'AC_100010']`。
 
 有了权限码，就可以使用 `@vben/access` 提供的`AccessControl`组件及API来进行按钮的显示与隐藏。
 
@@ -142,24 +144,16 @@ async function fetchAccessCodes() {
 
 ```typescript
 <script lang="ts" setup>
-import { AccessControl, useAccess } from '@vben/access';
-
-const { accessMode, hasAccessByCodes } = useAccess();
+import { AccessControl } from '@vben/access';
 </script>
 
 <template>
   <!-- 需要指明 type="code" -->
-  <AccessControl :codes="['AC_100100']" type="code">
-    <Button> Super 账号可见 ["AC_1000001"] </Button>
+  <AccessControl :codes="['super']" type="code">
+    <Button> Super 权限可见 ["super"] </Button>
   </AccessControl>
-  <AccessControl :codes="['AC_100030']" type="code">
-    <Button> Admin 账号可见 ["AC_100010"] </Button>
-  </AccessControl>
-  <AccessControl :codes="['AC_1000001']" type="code">
-    <Button> User 账号可见 ["AC_1000001"] </Button>
-  </AccessControl>
-  <AccessControl :codes="['AC_100100', 'AC_100010']" type="code">
-    <Button> Super & Admin 账号可见 ["AC_100100","AC_1000001"] </Button>
+  <AccessControl :codes="['admin']" type="code">
+    <Button> Admin 权限可见 ["admin"] </Button>
   </AccessControl>
 </template>
 ```
@@ -168,23 +162,17 @@ const { accessMode, hasAccessByCodes } = useAccess();
 
 ```typescript
 <script lang="ts" setup>
-import { AccessControl, useAccess } from '@vben/access';
+import { useAccess } from '@vben/access';
 
 const { hasAccessByCodes } = useAccess();
 </script>
 
 <template>
-  <Button v-if="hasAccessByCodes(['AC_100100'])">
-    Super 账号可见 ["AC_1000001"]
+  <Button v-if="hasAccessByCodes(['super'])">
+    Super 权限可见 ["super"]
   </Button>
-  <Button v-if="hasAccessByCodes(['AC_100030'])">
-    Admin 账号可见 ["AC_100010"]
-  </Button>
-  <Button v-if="hasAccessByCodes(['AC_1000001'])">
-    User 账号可见 ["AC_1000001"]
-  </Button>
-  <Button v-if="hasAccessByCodes(['AC_100100', 'AC_1000001'])">
-    Super & Admin 账号可见 ["AC_100100","AC_1000001"]
+  <Button v-if="hasAccessByCodes(['admin'])">
+    Admin 权限可见 ["admin"]
   </Button>
 </template>
 ```
@@ -195,24 +183,46 @@ const { hasAccessByCodes } = useAccess();
 
 ```typescript
 <template>
-  <Button class="mr-4" v-access:code="'AC_100100'">
-    Super 账号可见 'AC_100100'
+  <Button class="mr-4" v-access:code="'super'">
+    Super 权限可见 'super'
   </Button>
-  <Button class="mr-4" v-access:code="['AC_100030']">
-    Admin 账号可见 ["AC_100010"]
-  </Button>
-  <Button class="mr-4" v-access:code="['AC_1000001']">
-    User 账号可见 ["AC_1000001"]
-  </Button>
-  <Button class="mr-4" v-access:code="['AC_100100', 'AC_1000001']">
-    Super & Admin 账号可见 ["AC_100100","AC_1000001"]
+  <Button class="mr-4" v-access:code="['admin']">
+    Admin 权限可见 ["admin"]
   </Button>
 </template>
 ```
 
-### 角色
+### 角色码
 
-角色判断方式不需要接口返回的权限码，直接通过角色来判断按钮是否显示。
+角色码所依赖的数据是：`useUserStore`里的`userRoles`：
+
+```typescript
+import { useUserStore } from '@vben/stores';
+
+const userStore = useUserStore();
+
+function hasAccessByRoles(roles: string[]) {
+  const userRoleSet = new Set(userStore.userRoles);
+  const intersection = roles.filter((item) => userRoleSet.has(item));
+  return intersection.length > 0;
+}
+```
+
+它是通过调用下面这个方法拉取到角色码：
+
+```typescript
+async function fetchUserInfo() {
+    return (await defAuthnService.GetMe({ id: 0 })) as UserInfo;
+}
+```
+
+再调用下面的代码保存到本地：
+
+```typescript
+// 设置角色信息
+const roles = userInfo?.roles ?? [];
+this.setUserRoles(roles);
+```
 
 #### 组件方式
 
@@ -222,16 +232,16 @@ import { AccessControl } from '@vben/access';
 </script>
 
 <template>
-  <AccessControl :codes="['super']">
+  <AccessControl :codes="['super']" type="role">
     <Button> Super 角色可见 </Button>
   </AccessControl>
-  <AccessControl :codes="['admin']">
+  <AccessControl :codes="['admin']" type="role">
     <Button> Admin 角色可见 </Button>
   </AccessControl>
-  <AccessControl :codes="['user']">
+  <AccessControl :codes="['user']" type="role">
     <Button> User 角色可见 </Button>
   </AccessControl>
-  <AccessControl :codes="['super', 'admin']">
+  <AccessControl :codes="['super', 'admin']" type="role">
     <Button> Super & Admin 角色可见 </Button>
   </AccessControl>
 </template>
