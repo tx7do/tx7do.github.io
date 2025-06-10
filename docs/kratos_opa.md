@@ -21,7 +21,7 @@ OPA 首次进入 CNCF 并成为 sandbox 级别的项目是在 2018 年，在 202
 3. Rego策略（Policy），在OPA当中使用了DLS语言Rego进行编写；
 4. 响应数据（Response），它不一定是单纯的True/False，也可以是JSON格式的数据返回。
 
-以上四个核心概念，在官方提供的交货期里边具有直观的体现：<https://play.openpolicyagent.org>，你可以在当中对模型和数据进行测试。
+以上四个核心概念，在官方提供的试炼场里边具有直观的体现：<https://play.openpolicyagent.org>，你可以在当中对模型和数据进行测试。
 
 从微观上，一个请求输入由以下一个三元组组成：
 
