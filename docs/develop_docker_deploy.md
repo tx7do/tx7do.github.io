@@ -318,6 +318,8 @@ docker run -itd \
 
 ### ElasticSearch
 
+oldest version
+
 ```bash
 docker pull bitnami/elasticsearch:latest
 
@@ -345,6 +347,22 @@ docker run -itd \
 http://localhost:13580/
 ```
 
+newst version
+
+```bash
+docker pull bitnami/elasticsearch:latest
+
+docker run -itd \
+    --name elasticsearch \
+    -p 9200:9200 \
+    -p 9300:9300 \
+    -e ELASTICSEARCH_USERNAME=elastic \
+    -e ELASTICSEARCH_PASSWORD=elastic \
+    -e ELASTICSEARCH_NODE_NAME=elasticsearch-node-1 \
+    -e ELASTICSEARCH_CLUSTER_NAME=elasticsearch-cluster \
+    bitnami/elasticsearch:latest
+```
+
 ### Clickhouse
 
 ```bash
@@ -366,6 +384,21 @@ docker run -itd \
 
 - 默认账号: default  
 - 密码：无
+
+```bash
+docker pull bitnami/clickhouse:latest
+
+docker run -itd \
+    --name clickhouse-server \
+    --network=app-tier \
+    -p 8123:8123 \
+    -p 9000:9000 \
+    -p 9004:9004 \
+    -e ALLOW_EMPTY_PASSWORD=no \
+    -e CLICKHOUSE_ADMIN_USER=default \
+    -e CLICKHOUSE_ADMIN_PASSWORD=123456 \
+    bitnami/clickhouse:latest
+```
 
 ### Doris
 
