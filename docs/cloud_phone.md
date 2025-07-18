@@ -1,5 +1,8 @@
 # 云手机
 
+- Waydroid只能单开一个Android实例，所以要批量部署，可能需要部署多个宿主Ubuntu；
+- Redroid基于Docker部署，一个宿主可以部署多个。
+
 ## 虚拟手机开源方案
 
 - [ReDroid (Remote anDroid)](https://github.com/remote-android/redroid-doc) Docker + AnBox
@@ -12,6 +15,139 @@
 - [OpenSTF](https://github.com/DeviceFarmer/stf)
 - [ATXServer2](https://github.com/openatx)
 - [Sonic](https://sonic-cloud.cn)
+
+## 打开Linux内核的Binder 和 Ashmem
+
+### 为什么需要 Binder 和 Ashmem？
+
+#### 1. Binder（binder_linux）
+
+- Android 系统的进程间通信（IPC）机制，用于应用与系统服务（如 SurfaceFlinger）通信。
+- Android容器 通过 Binder 实现 Linux 与 Android 容器的交互。
+
+#### 2. Ashmem（ashmem_linux）
+
+- Android 的共享内存机制，用于高效传输图形数据（如图像、视频）。
+- 没有 Ashmem 支持，图形渲染会失败。
+
+### 如何确认内核是否支持？
+
+输入以下命令检查内核配置是否：
+
+```bash
+zcat /proc/config.gz | grep -E "CONFIG_ANDROID_BINDER_IPC|CONFIG_ANDROID_BINDERFS|CONFIG_ANDROID_ASHMEM"
+```
+
+理想输出应为：
+
+```bash
+CONFIG_ANDROID_BINDER_IPC=y      # Binder核心支持
+CONFIG_ANDROID_BINDERFS=y        # Binder文件系统支持
+CONFIG_ANDROID_ASHMEM=y          # Ashmem支持
+```
+
+检查模块是否加载
+
+```bash
+lsmod | grep -E "binder|ashmem"
+```
+
+检查 Binder 设备节点
+
+```bash
+ls -l /dev/binder          # 传统 Binder 设备
+ls -l /dev/binderfs        # BinderFS 挂载点（若已挂载）
+```
+
+### 若模块未加载，手动加载
+
+```bash
+sudo apt install linux-modules-extra-`uname -r`
+sudo apt install linux-generic-hwe-20.04
+```
+
+```bash
+sudo modprobe binder_linux devices="binder,hwbinder,vndbinder"
+sudo modprobe ashmem_linux
+```
+
+### 持久化加载配置
+
+```bash
+sudo tee /etc/modules-load.d/waydroid.conf <<EOF
+binder_linux
+ashmem_linux
+EOF
+```
+
+## Waydroid
+
+添加软件源：
+
+```bash
+curl https://repo.waydro.id | sudo bash
+```
+
+安装Waydroid：
+
+```bash
+sudo apt install waydroid -y
+```
+
+初始化Waydroid，下载内建GAPPS的镜像。如果不加入`-s GAPPS`参数的话，Waydroid就会下载不含`GMS`服务的vanilla镜像。
+
+```bash
+sudo waydroid init -s GAPPS -f
+```
+
+启动Waydroid
+
+```bash
+sudo systemctl start waydroid-container
+```
+
+开机自启动
+
+```bash
+sudo systemctl enable waydroid-container
+```
+
+创建一个新的Session：
+
+```bash
+waydroid session start
+```
+
+## ReDroid
+
+### cnflysky/redroid-rk3588
+
+```bash
+sudo docker pull cnflysky/redroid-rk3588:lineage-20
+
+sudo docker save cnflysky/redroid-rk3588:lineage-20 -o redroid-rk3588.tar
+
+docker load -i redroid-rk3588.tar
+
+docker run -itd \
+    --restart unless-stopped \
+    --privileged \
+    -p 5000:5555 \
+    cnflysky/redroid-rk3588:lineage-20 \
+    androidboot.redroid_height=1920 androidboot.redroid_width=1080
+
+### redroid/redroid
+
+docker pull --platform linux/arm64/v8 redroid/redroid:latest
+
+docker save redroid/redroid:latest -o redroid.tar
+
+docker load -i redroid.tar
+
+docker run -itd --rm --privileged \
+    -p 5000:5555 \
+    redroid/redroid:latest
+```
 
 ## 参考资料
 
@@ -44,3 +180,5 @@
 - [scrcpy - Github](https://github.com/Genymobile/scrcpy)
 - [Sonic](https://sonic-cloud.cn/)
 - [ATXServer2 - Github](https://github.com/openatx/atxserver2)
+- [编译适用于RK3588的Redroid镜像](https://cnflysky.com/tech/%E7%BC%96%E8%AF%91%E9%80%82%E7%94%A8%E4%BA%8ERK3588%E7%9A%84Redroid%E9%95%9C%E5%83%8F.html)
+- [Linux跑Android APP，Ubuntu安裝Waydroid教學](https://ivonblog.com/posts/ubuntu-waydroid/)
