@@ -120,6 +120,55 @@ nmcli device wifi list
 sudo nmcli device wifi connect "SSID" password "密码"
 ```
 
+## GNOME
+
+```bash
+sudo apt install ubuntu-gnome-desktop
+```
+
+安装的时候选择显示管理器，选择`gdm3`。
+
+查看配置文件`/etc/pam.d/gdm-password`：
+
+如果以下配置是注释的，那么桌面系统是禁止使用root账号登录的，如果希望能够使用root账号登录，则请取消注释：
+
+```ini
+#auth   required        pam_succeed_if.so user != root quiet_success
+```
+
+现在就可以启用Wayland了：
+
+1. **注销当前用户**（回到登录界面）
+2. 在登录界面，点击用户名旁边的 齿轮图标（设置按钮）或者屏幕右上角的一个圆形图标按钮。
+3. 在弹出的菜单中选择 **"Ubuntu on Wayland"** 选项
+4. 输入密码登录，系统会以 Wayland 模式启动
+
+如果无法正常启动Wayland，使用下面的命令恢复到xfce：
+
+```bash
+sudo dpkg-reconfigure lightdm
+```
+
+## Docker
+
+如果需要进入容器：
+
+```bash
+docker exec -it <容器名或ID> sh
+```
+
+检查容器是否有网络相关的限制
+
+```bash
+docker inspect -f '{{.HostConfig.CapAdd}} {{.HostConfig.NetworkMode}}' <容器名或ID>
+```
+
+若是网络不通，有可能是网关缺失，手动添加（需替换为宿主机网关，通常是172.17.0.1）
+
+```bash
+ip route add default via 172.17.0.1 dev eth0
+```
+
 ## 参考资料
 
 - [ROC-RK3588S-PC 使用USB线缆升级固件](https://wiki.t-firefly.com/zh_CN/ROC-RK3588S-PC/upgrade_firmware.html#shao-xie-gu-jian)
