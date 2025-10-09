@@ -130,23 +130,70 @@ sudo docker save cnflysky/redroid-rk3588:lineage-20 -o redroid-rk3588.tar
 docker load -i redroid-rk3588.tar
 
 docker run -itd \
-    --restart unless-stopped \
+    --restart always \
     --privileged \
-    -p 5000:5555 \
+    -p 5555:5555 \
     cnflysky/redroid-rk3588:lineage-20 \
-    androidboot.redroid_height=1920 androidboot.redroid_width=1080
+    androidboot.redroid_height=1920 \
+    androidboot.redroid_width=1080
+```
 
 ### redroid/redroid
 
+```bash
 docker pull --platform linux/arm64/v8 redroid/redroid:latest
 
 docker save redroid/redroid:latest -o redroid.tar
 
 docker load -i redroid.tar
 
-docker run -itd --rm --privileged \
-    -p 5000:5555 \
+docker run -itd \
+    --restart always \
+    --privileged \
+    -p 5555:5555 \ 
+    -v ~/data:/data \
     redroid/redroid:latest
+```
+
+### shangzebei/rk3588
+
+```bash
+docker pull --platform linux/arm64/v8 shangzebei/rk3588:latest
+
+docker save shangzebei/rk3588:latest -o shangzebei.tar
+
+docker load -i shangzebei.tar
+
+docker run -itd \
+    --restart always \
+    --privileged \
+    --stdin_open true \
+    --tty true \
+    -p 5555:5555 \ 
+    -v ~/app/android/data:/data \
+	-v /dev/net/tun:/dev/tun \
+    -v /dev/mali0:/dev/mali0 \
+    shangzebei/rk3588:latest \
+    androidboot.redroid_width=2560 \
+    androidboot.redroid_height=1440 \
+    androidboot.redroid_dpi=480 \
+    androidboot.redroid_gpu_mode=mali
+```
+
+### dobox:rk3588
+
+```bash
+docker pull --platform linux/arm64/v8 registry.cn-hangzhou.aliyuncs.com/whsyf/dobox:rk3588-202303011
+
+sudo docker run -itd \
+    --restart always \
+    --privileged \
+    --name dobox \
+    -v ~/android_data:/data \
+    -v /dev/net/tun:/dev/tun \
+    -v /dev/mali0:/dev/mali0 \
+    -p 5501:5555 \
+    registry.cn-hangzhou.aliyuncs.com/whsyf/dobox:rk3588-202303011
 ```
 
 ## 参考资料
@@ -182,3 +229,4 @@ docker run -itd --rm --privileged \
 - [ATXServer2 - Github](https://github.com/openatx/atxserver2)
 - [编译适用于RK3588的Redroid镜像](https://cnflysky.com/tech/%E7%BC%96%E8%AF%91%E9%80%82%E7%94%A8%E4%BA%8ERK3588%E7%9A%84Redroid%E9%95%9C%E5%83%8F.html)
 - [Linux跑Android APP，Ubuntu安裝Waydroid教學](https://ivonblog.com/posts/ubuntu-waydroid/)
+- [Android安全- 在 ROCK 5B 开发板上使用 Docker 运行 Android](http://www.yxfzedu.com/article/3202)
