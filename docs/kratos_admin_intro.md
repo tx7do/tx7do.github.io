@@ -45,29 +45,101 @@
 
 ![后台分析界面](/assets/images/kratos_admin/admin_dashboard.png)
 
+- 租户管理界面
+
+![租户管理界面](/assets/images/kratos_admin/admin_tenant_list.png)
+
+- 租户创建界面
+
+![租户创建界面](/assets/images/kratos_admin/admin_tenant_create.png)
+
 - 用户管理界面
 
-![后台用户管理界面](/assets/images/kratos_admin/admin_user_management.png)
+![用户管理界面](/assets/images/kratos_admin/admin_user_list.png)
 
-- 后台创建用户界面
+- 用户创建界面
 
-![后台创建用户界面](/assets/images/kratos_admin/admin_create_user.png)
+![用户创建界面](/assets/images/kratos_admin/admin_user_create.png)
+
+- 组织管理界面
+
+![组织管理界面](/assets/images/kratos_admin/admin_organization_list.png)
+
+- 组织创建界面
+
+![组织创建界面](/assets/images/kratos_admin/admin_organization_create.png)
+
+- 部门管理界面
+
+![部门管理界面](/assets/images/kratos_admin/admin_department_list.png)
+
+- 部门创建界面
+
+![部门创建界面](/assets/images/kratos_admin/admin_department_create.png)
+
+- 职位管理界面
+
+![职位管理界面](/assets/images/kratos_admin/admin_position_list.png)
+
+- 职位创建界面
+
+![职位创建界面](/assets/images/kratos_admin/admin_position_create.png)
+
+- 角色管理界面
+
+![角色管理界面](/assets/images/kratos_admin/admin_role_list.png)
+
+- 角色创建界面
+
+![角色创建界面](/assets/images/kratos_admin/admin_role_create.png)
 
 - 后台目录管理界面
 
-![后台目录管理界面](/assets/images/kratos_admin/admin_menu_management.png)
+![后台目录管理界面](/assets/images/kratos_admin/admin_menu_list.png)
 
-- 组织架构管理界面
+- 后台目录创建界面
 
-![组织架构管理界面](/assets/images/kratos_admin/admin_organization_management.png)
+![后台目录创建界面](/assets/images/kratos_admin/admin_menu_create.png)
 
-- 用户角色管理界面
+- 调度任务管理界面
 
-![用户角色管理界面](/assets/images/kratos_admin/admin_role_management.png)
+![调度任务管理界面](/assets/images/kratos_admin/admin_task_list.png)
 
-- 用户职位管理界面
+- 调度任务创建界面
 
-![用户职位管理界面](/assets/images/kratos_admin/admin_position_management.png)
+![调度任务创建界面](/assets/images/kratos_admin/admin_task_create.png)
+
+- 数据字典管理界面
+
+![数据字典管理界面](/assets/images/kratos_admin/admin_dict_list.png)
+
+- 数据字典条目创建界面
+
+![数据字典条目创建界面](/assets/images/kratos_admin/admin_dict_entry_create.png)
+
+- API资源管理界面
+
+![API资源管理界面](/assets/images/kratos_admin/admin_api_resource_list.png)
+
+- 登录限制管理界面
+
+![登录限制管理界面](/assets/images/kratos_admin/admin_login_restriction_list.png)
+
+- 后台登录日志列表界面
+
+![后台登录日志列表界面](/assets/images/kratos_admin/admin_login_log_list.png)
+
+- 后台操作日志列表界面
+
+![后台操作日志列表界面](/assets/images/kratos_admin/admin_operation_log_list.png)
+
+- 站内信消息管理界面
+
+![站内信消息管理界面](/assets/images/kratos_admin/admin_internal_message_list.png)
+
+- 站内信消息发布界面
+
+![站内信消息发布界面](/assets/images/kratos_admin/admin_internal_message_publish.png)
 
 - 后端内置Swagger UI界面
 

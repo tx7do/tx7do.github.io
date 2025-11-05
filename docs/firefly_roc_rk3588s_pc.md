@@ -163,10 +163,42 @@ docker exec -it <容器名或ID> sh
 docker inspect -f '{{.HostConfig.CapAdd}} {{.HostConfig.NetworkMode}}' <容器名或ID>
 ```
 
-若是网络不通，有可能是网关缺失，手动添加（需替换为宿主机网关，通常是172.17.0.1）
+若是网络不通，有可能是网关缺失，
+
+手动添加临时路由：（需替换为宿主机网关，通常是172.17.0.1）
 
 ```bash
+docker exec -it <容器名或ID> sh
+
 ip route add default via 172.17.0.1 dev eth0
+```
+
+永久性添加路由：
+
+```bash
+docker exec -it <容器名或ID> sh
+
+# 编写路由配置脚本
+cat > /system/etc/init/route-config.rc << 'EOF'
+# 等待 Android 系统完全启动（sys.boot_completed=1 表示启动完成）
+on property:sys.boot_completed=1
+  # 切换到 root 用户执行命令（确保权限）
+  exec - root root -- /system/bin/sh -c "
+    # 检查默认路由是否已存在，不存在则添加
+    if ! ip route show | grep -q 'default via 172.17.0.1 dev eth0'; then
+      ip route add default via 172.17.0.1 dev eth0
+    fi
+
+    # （可选）添加其他自定义路由
+    # if ! ip route show | grep -q '192.168.1.0/24 via 172.17.0.1 dev eth0'; then
+    #   ip route add 192.168.1.0/24 via 172.17.0.1 dev eth0
+    # fi
+  "
+EOF
+
+
+# 赋予执行权限
+chmod +x /etc/profile.d/auto-route.sh
 ```
 
 ## 参考资料
