@@ -8,7 +8,7 @@
 
 那么，我们需要用什么方法和工具来实施这些工作内容呢？Swagger，或者说 OpenAPI。
 
-我在使用Python的一个框架[FastAPI][3]的时候，发现它把Swagger UI内嵌了后端服务当中，可以直接访问 <http://127.0.0.1:8000/docs>:
+我在使用Python的一个框架[FastAPI][3]的时候，发现它是把`Swagger UI`内嵌在后端服务当中，可以直接访问：<http://127.0.0.1:8000/docs>:
 
 ![Fast API Swagger UI](https://fastapi.tiangolo.com/img/index/index-01-swagger-ui-simple.png)
 
@@ -56,7 +56,7 @@ Swagger UI依赖读取的是OpenAPI的json或者yaml格式的API文档，这个�
 
 因为Kratos是依托于Protobuf和gRPC来设计API的，所以，我们可以由相关的生成器工具来生成。
 
-Protobuf是一个DSL语言，它需要一个叫做protoc的工具来将API编译转换成目标语言。而它的具体工具是依靠插件来实现的。
+Protobuf是一个DSL语言，它需要一个叫做`protoc`的工具来将API编译转换成目标语言。而它的具体功能是依靠插件来实现的。
 
 目前已有的由Go编写的OpenAPI生成插件有两个：
 
@@ -75,13 +75,19 @@ go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 生成 OpenAPI v2 json文档：
 
 ```bash
-protoc --proto_path=. --openapiv2_out=paths=source_relative:../ --openapiv2_opt logtostderr=true --openapiv2_opt json_names_for_fields=true ./*.proto
+protoc --proto_path=. \
+    --openapiv2_out=paths=source_relative:../ \
+    --openapiv2_opt logtostderr=true \
+    --openapiv2_opt json_names_for_fields=true \
+    ./*.proto
 ```
 
 生成 OpenAPI v3 yaml文档：
 
 ```bash
-protoc --proto_path=. --openapi_out=naming=json=paths=source_relative:../ ./*.proto
+protoc --proto_path=. \
+    --openapi_out=naming=json=paths=source_relative:../ \
+    ./*.proto
 ```
 
 但是，直接使用命令是很不方便的，我们可以使用一个叫做[Buf.Build](https://buf.build/)来进行工程化生成。
@@ -121,7 +127,8 @@ plugins:
 接着我们就可以在项目根目录下使用下面的命令来生成了：
 
 ```bash
-buf generate --path api/admin/service/v1 --template api/admin/service/v1/buf.openapi.gen.yaml
+buf generate --path api/admin/service/v1 \
+    --template api/admin/service/v1/buf.openapi.gen.yaml
 ```
 
 最终，在`./app/admin/service/cmd/server/assets`这个目录下面，将会生成出来一个文件名为`openapi.yaml`的文件。
