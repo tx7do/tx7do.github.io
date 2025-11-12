@@ -1,8 +1,6 @@
 # 开箱即用的GO后台管理系统 Kratos Admin - 支持ClickHouse
 
-ClickHouse 是一款由俄罗斯搜索引擎公司 **Yandex** 开发的开源列式存储数据库，专为**海量数据实时分析**设计。它以**极致的查询性能
-**和**高吞吐写入能力**著称，尤其擅长处理
-PB 级别的结构化数据，并能在毫秒到秒级内完成复杂的聚合分析（如多维度统计、漏斗计算、用户行为分析等），是大数据分析、数据仓库、实时报表等场景的核心工具。
+ClickHouse 是一款由俄罗斯搜索引擎公司 **Yandex** 开发的开源列式存储数据库，专为**海量数据实时分析**设计。它以**极致的查询性能**和**高吞吐写入能力**著称，尤其擅长处理PB 级别的结构化数据，并能在毫秒到秒级内完成复杂的聚合分析（如多维度统计、漏斗计算、用户行为分析等），是大数据分析、数据仓库、实时报表等场景的核心工具。
 
 ## ClickHouse 的核心概念
 
@@ -47,8 +45,7 @@ docker run -itd \
 
 我把ClickHouse的SDK封装了起来，并且提供了配置文件的支持，使用起来非常简单。
 
-ClickHouse支持go的sql标准库更新查询，但是，会有一些限制，比如不支持事务等。所以，想要完整的功能，还是需要使用ClickHouse的官方SDK。因此，我们仅提供了原生的
-ClickHouse SDK 封装。
+ClickHouse支持go的sql标准库更新查询，但是，会有一些限制，比如不支持事务等。所以，想要完整的功能，还是需要使用ClickHouse的官方SDK。因此，我们仅提供了原生的ClickHouse SDK 封装。
 
 首先，我们需要安装库：
 
@@ -68,6 +65,8 @@ data:
     database: "finances"
 ```
 
+添加好了配置之后，我们就可以在`data`包里面创建Clickhouse的客户端了：
+
 ```go
 package data
 
@@ -82,7 +81,6 @@ func NewClickHouseClient(logger log.Logger, cfg *conf.Bootstrap) *clickhouse.Cli
 	}
 	return cli
 }
-
 ```
 
 在`data/init.go`注入到wire：
@@ -98,7 +96,6 @@ import "github.com/google/wire"
 var ProviderSet = wire.NewSet(
 	NewClickHouseClient,
 )
-
 ```
 
 在这里，我们以股票的K线（蜡烛图）为实例，来讲解如何使用ClickHouse。
