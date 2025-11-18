@@ -2,6 +2,8 @@
 
 ## 实现代码
 
+基于QT6.10
+
 ```qmllang
 // DateTimePicker.qml
 import QtQuick
