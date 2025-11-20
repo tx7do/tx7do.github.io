@@ -337,3 +337,8 @@ func handleChatMessage(sessionId websocket.SessionID, message *ChatMessage) erro
 ### [kratos-chatroom](https://github.com/go-kratos/examples/tree/main/chatroom)
 
 最简单的Websocket聊天室，客户端发送消息，服务端接收之后立即广播给其他客户端。
+
+## 中间件代码
+
+* [kratos-transport Gitee](https://gitee.com/tx7do/kratos-transport)
+* [kratos-transport Github](https://github.com/tx7do/kratos-transport)

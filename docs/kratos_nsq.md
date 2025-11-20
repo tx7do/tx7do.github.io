@@ -374,6 +374,11 @@ func (s *SaverService) SaveEventReport(_ context.Context, _ string, _ broker.Hea
 
 需要注意的是，这个项目使用的是Kafka，但是差异不大，因为接口是一致的，只是注入的参数有差异罢了。
 
+## 中间件代码
+
+* [kratos-transport Gitee](https://gitee.com/tx7do/kratos-transport)
+* [kratos-transport Github](https://github.com/tx7do/kratos-transport)
+
 ## 参考资料
 
 - [什么是消息队列？](https://aws.amazon.com/cn/message-queue/)

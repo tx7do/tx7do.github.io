@@ -337,6 +337,11 @@ t.Log(*reply.Humidity, *reply.Temperature)
 
 Thrift客户端跟gRpc的客户端是一样的，使用`Dial`方法创建一个连接，然后直接调用RPC方法。
 
+## 中间件代码
+
+* [kratos-transport Gitee](https://gitee.com/tx7do/kratos-transport)
+* [kratos-transport Github](https://github.com/tx7do/kratos-transport)
+
 ## 参考文档
 
 * [Thrift官方网站](https://thrift.apache.org/)

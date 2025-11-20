@@ -1470,6 +1470,11 @@ func NewRESTServer(
 
 当你学习到了这些知识点之后，你会发现上手使用Kratos微服务框架所涉及的知识点也并不繁杂，学习的门槛还是很低的。基于本文中的demo项目，我相信你可以很快的上手写项目了。
 
+## 项目代码
+
+* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
+* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+
 ## 参考资料
 
 - [Microservices vs. monolithic architecture](https://www.atlassian.com/microservices/microservices-architecture/microservices-vs-monolith)

@@ -410,6 +410,11 @@ err = srv.HandleFunc(addTask, handleAdd)
 
 示例代码可以在单元测试代码中找到：<https://github.com/tx7do/kratos-transport/tree/main/transport/machinery/server_test.go>
 
+## 中间件代码
+
+* [kratos-transport Gitee](https://gitee.com/tx7do/kratos-transport)
+* [kratos-transport Github](https://github.com/tx7do/kratos-transport)
+
 ## 参考资料
 
 * [Celery - Github](https://github.com/celery/celery)
