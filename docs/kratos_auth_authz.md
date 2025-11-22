@@ -1,349 +1,319 @@
 # Kratos微服务框架下的认证和鉴权
 
-从单体应用到微服务架构，优势很多，但是并不是代表着就没有一点缺点了。
+从单体应用迁移到微服务架构，虽能收获松耦合、可扩展等诸多优势，但也引入了新的安全挑战。微服务通过开放 API 实现服务间通信，与单体应用相比：​
 
-微服务架构，意味着每个服务都是松散耦合的。因此，作为软件工程师和架构师，我们在分布式架构中面临着安全挑战。微服务对外开放的端点，我们称之为：API。
+- 攻击面显著扩大：每个独立服务都需单独保障安全性，风险点呈指数级增加​
+- 通信安全性要求更高：API 调用不仅要验证身份，还需保障传输安全与可用性​
 
-* 单体应用只需要保护自己就可以了，而微服务的攻击面则很大，这意味着越多的服务将会带来更大的风险，每个服务都得保证其安全性。
-* 在单体架构中，组件之间通过方法来相互调用。而微服务则是依靠开放的API来相互调用，除了要保证其安全性，还得保障其可用性。
+因此，微服务架构需要一套与单体应用截然不同的安全解决方案，核心聚焦于认证（Authentication） 与鉴权（Authorization） 两大核心能力。
 
-因此，根据上述的安全挑战，我们可以得出一个结论：微服务与单体应用有着不同的安全处理方式。
-
-## 认证和授权的区别
-
-我们在谈论应用程序安全的时候，总是会提到：认证 （Authentication）和 鉴权 （Authorization）这两个术语。但是，总有人很容易混淆概念。
+## 一、认证与鉴权的核心区别​
 
 ![认证和授权的区别](/assets/images/authn_vs_authz.jpg)
 
-在 **身份验证（Authentication）** 的过程当中，我们需要检查用户的身份以提供对系统的访问。在这个过程当中验证的是 **“你是谁？”** 。故而，用户需要提供登陆所需的详细信息以供身份的验证。
+### 身份认证（Authentication）​
 
-**授权（Authorization）** ，是通过了身份验证之后的用户，系统是否授权给他访问特定信息（读）或者执行特定的操作（写）的过程。此过程确定了 **用户拥有哪些权限**。
+- 核心问题：**"你是谁？"​**
+- 核心目标：验证用户身份的合法性，确认请求者是否为其声称的身份​
+- 典型场景：用户登录时提交用户名密码、手机号验证码等凭证​
 
-## 微服务下的认证和授权策略
+### 授权（Authorization）​
 
-我可以想到的解决方案有以下这么几种：
+- 核心问题：**"你有什么权限？"​**
+- 核心目标：在身份认证通过后，判断用户是否有权访问特定资源或执行特定操作​
+- 典型场景：普通用户能否修改他人数据、管理员能否删除系统配置
 
-1. 无API网关
-1.1 每个服务各自为政，各自进行认证和鉴权
-1.2 拆分出 **认证授权服务** 进行全局的认证和鉴权
-1. 有API网关
-2.1 在网关上进行全局的认证，每个服务各自鉴权
-2.2 在网关上进行全局的认证和鉴权
-2.3 拆分出 **认证服务** 进行全局的认证，在网关上进行鉴权
+## 二、微服务下的认证与鉴权策略选型​
 
-我比较推崇 2.3 这种策略，为什么呢？
+| 架构模式 | 策略类型   |  核心特点   |
+|-----|-------|-----|
+|  无 API 网关   |  1.1 服务各自认证鉴权 | 耦合度高、重复开发、维护成本高 |
+|   |  1.2 独立认证授权服务 | 认证鉴权集中化，但未解决 API 层统一拦截问题 |
+| 有 API 网关  | 2.1 网关认证 + 服务鉴权  | 认证统一化，鉴权分散导致权限管理混乱 |
+|   |  2.2 网关统一认证鉴权 | 性能高效，但网关压力过大，灵活性不足 |
+|   |  2.3 独立认证服务 + 网关鉴权 | 认证与鉴权解耦，兼顾性能与灵活性（推荐） |
 
-1. 认证对于鉴权来说，是频度较低的服务：登陆不常有，鉴权则发生在每一个API调用上；
-2. 往往认证会相对复杂，具有特异性，难以做到通用化。而鉴权不会特别复杂，容易做到通用化。
+推荐策略：2.3 独立认证服务 + 网关鉴权​
 
-## 有状态和无状态身份验证
+选择该策略的核心原因：​
 
-当一个设备（客户端）向一个设备（服务端）发送请求的时候，服务端如何判断这个客户端是谁？传统意义上的认证方式又两种：**有状态认证**、**无状态认证**。有状态认证和无状态认证**最大的区别**就是**服务器会不会保存客户端的信息**。
+- **频率差异适配**：认证（如登录）是低频操作，独立部署可专注处理复杂身份校验；鉴权（如 API 调用）是高频操作，在网关层处理可降低服务响应延迟​
+- **复杂度分离**：认证涉及用户凭证校验、令牌生成等特异性逻辑，独立服务便于定制化；鉴权规则（如 RBAC）具有通用性，网关层统一实现可减少重复开发
 
-### 有状态身份验证
+## 三、有状态 vs 无状态身份验证​
 
-有状态认证，以cookie-session模型为例，当客户端第一次请求服务端的时候，服务端会返回客户端一个唯一的标识（默认在cookie中），并保存对应的客户端信息，客户端接受到唯一标识之后，将标识保存到本地cookie中，以后的每次请求都携带此cookie，服务器根据此cookie标识就可以判断请求的用户是谁，然后查到对应用户的信息。
+服务端识别客户端身份的两种核心模式，其本质区别在于是否存储客户端状态信息：​
 
-### 无状态身份验证
+### 有状态认证（Cookie-Session 模式）​
 
-无状态的认证，客户端在提交身份信息，服务端验证身份后，根据一定的算法生成一个token令牌返回给客户端，之后每次请求服务端，客户端都需要携带此令牌，服务器接受到令牌之后进行校验，校验通过后，提取令牌的信息用来区别用户。
+- 工作流程：客户端首次登录后，服务端生成 Session 并存储用户信息，返回 SessionID（通常通过 Cookie 传递）；后续请求客户端携带 SessionID，服务端查询 Session 确认身份​
+- 优缺点：实现简单，但服务端需维护 Session 状态，扩展性差，不适合分布式部署​
 
-## 开始实施
+### 无状态认证（Token 模式）​
 
-在具体的技术选择上：
+- 工作流程：客户端登录后，服务端验证身份并生成加密 Token（如 JWT）返回；后续请求客户端携带 Token，服务端通过解密 Token 直接获取用户信息，无需存储状态​
+- 优缺点：服务端无状态，扩展性强，适合微服务架构；需解决 Token 安全传输与失效管理问题​
 
-* 微服务框架使用[Kratos](https://go-kratos.dev/)；
-* 认证使用[JWT](https://jwt.io/)；
-* 鉴权使用[Casbin](https://casbin.org/)。
+## 四、技术实现方案​
 
-### JWT
+结合 Kratos 框架特性，最终技术选型如下：​
 
-在微服务架构下，无状态的身份验证是更为合适的方式，其中以 [JWT](https://jwt.io/) 为代表，最为流行。
+- 微服务框架：[Kratos][1]（B 站开源，轻量、高可用、原生支持微服务生态）​
+- 认证机制：[JWT][4]（无状态 Token，适合分布式环境）​
+- 鉴权框架：[Casbin][3]（支持多权限模型，通用性强）
 
-#### [什么是JWT？](https://www.jianshu.com/p/576dbf44b2ae)
+### 4.1 JWT：无状态认证的核心实现​
 
-**Json web token (JWT)**, 是为了在网络应用环境间传递声明而执行的一种基于JSON的开放标准 [RFC 7519](https://tools.ietf.org/html/rfc7519) 该token被设计为紧凑且安全的，特别适用于分布式站点的 [单点登录（SSO）](https://en.wikipedia.org/wiki/Single_sign-on) 场景。JWT的声明一般被用来在身份提供者和服务提供者间传递被认证的用户身份信息，以便于从资源服务器获取资源，也可以增加一些额外的其它业务逻辑所必须的声明信息，该token也可直接被用于认证，也可被加密。
+#### 什么是 JWT？​
 
-#### [JWT需要注意的点](https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html)
+JSON Web Token（JWT）是基于 RFC 7519 标准的轻量级令牌，用于在分布式系统中安全传递用户身份信息。其结构由三部分组成：​
 
-1. JWT 默认是不加密，但也是可以加密的。生成原始 Token 以后，可以用密钥再加密一次。
-2. JWT 不加密的情况下，不能将秘密数据写入 JWT。
-3. JWT 不仅可以用于认证，也可以用于交换信息。有效使用 JWT，可以降低服务器查询数据库的次数。
-4. JWT 的最大缺点是，由于服务器不保存 session 状态，因此无法在使用过程中废止某个 token，或者更改 token 的权限。也就是说，一旦 JWT 签发了，在到期之前就会始终有效，除非服务器部署额外的逻辑。
-5. JWT 本身包含了认证信息，一旦泄露，任何人都可以获得该令牌的所有权限。为了减少盗用，JWT 的有效期应该设置得比较短。对于一些比较重要的权限，使用时应该再次对用户进行认证。
-6. 为了减少盗用，JWT 不应该使用 HTTP 协议明码传输，要使用 HTTPS 协议传输。
+- Header（头部）：指定令牌类型与加密算法​
+- Payload（负载）：存储用户 ID、权限等核心信息（不建议存储敏感数据）​
+- Signature（签名）：通过密钥对前两部分加密，防止篡改​
 
-### Casbin
+#### JWT 使用注意事项​
 
-Casbin 根本上是依托规则引擎做的软件设计，抽取出来的模型可以做到通用化，能够轻松的使用多种不同的控制模型：ACL, RBAC, ABAC等。
+1. 默认不加密，敏感数据禁止存入 Payload​
+2. 令牌有效期应设置较短（如 1 小时），通过刷新令牌机制延长会话​
+3. 必须通过 HTTPS 传输，防止令牌被窃取​
+4. 服务端无法主动废止已签发的令牌，需通过黑名单机制处理特殊场景（如用户登出）​
+5. 可用于身份认证与数据交换，减少数据库查询次数
 
-#### [什么是Casbin？](https://casbin.org/docs/zh-CN/overview)
+### 4.2 Casbin：通用鉴权框架​
 
-**Casbin**是一个强大的、高效的开源访问控制框架，其权限管理机制支持多种访问控制模型。目前这个框架的生态已经发展的越来越好了。提供了各种语言的类库，自定义的权限模型语言，以及模型编辑器。
+#### 什么是 Casbin？​
 
-#### Casbin 可以
+Casbin 是一个开源访问控制框架，核心优势在于 **将权限模型与业务逻辑解耦**，支持 ACL、RBAC、ABAC 等多种权限模型，提供跨语言支持与灵活的规则配置。​
 
-1. 支持自定义请求的格式，默认的请求格式为`{subject, object, action}`。
-2. 具有访问控制模型model和策略policy两个核心概念。
-3. 支持RBAC中的多层角色继承，不止主体可以有角色，资源也可以具有角色。
-4. 支持内置的超级用户 例如：`root` 或 `administrator`。超级用户可以执行任何操作而无需显式的权限声明。
-5. 支持多种内置的操作符，如 `keyMatch`，方便对路径式的资源进行管理，如 `/foo/bar` 可以映射到 `/foo*`
+#### Casbin 的核心能力​
 
-#### Casbin 不能
+- ✅ 支持自定义请求格式（默认：`{主体(subject), 资源(object), 操作(action)}`）​
+- ✅ 支持 RBAC 多层角色继承（用户与资源均可拥有角色）​
+- ✅ 内置超级用户机制与路径匹配运算符（如`keyMatch`匹配`/foo/*`路径）​
+- ❌ 不负责身份认证（需与 JWT 等认证机制配合）​
+- ❌ 不管理用户 / 角色列表（仅存储用户 - 角色映射关系）
 
-1. 身份认证 authentication（即验证用户的用户名和密码），Casbin 只负责访问控制。应该有其他专门的组件负责身份认证，然后由 Casbin 进行访问控制，二者是相互配合的关系。
-2. 管理用户列表或角色列表。 Casbin 认为由项目自身来管理用户、角色列表更为合适， 用户通常有他们的密码，但是 Casbin 的设计思想并不是把它作为一个存储密码的容器。 而是存储RBAC方案中用户和角色之间的映射关系。
+### 4.3 Kratos 框架下的落地实现​
 
-### Kratos
+Kratos 通过中间件机制实现认证与鉴权的统一拦截，以下是完整实现步骤：
 
-Kratos是B站开源出来的一个微服务框架，我在做技术选型的时候，横向的对比了市面上的主流几款微服务架构，总结下来，还是Kratos更加适合我使用，于是就选择了它。
+#### 第一步：定义 SecurityUser 结构体​
 
-Kratos的认证和权鉴都是依托中间件来实现的。认证方面，Kratos官方已经支持了[Jwt中间件](https://github.com/go-kratos/kratos/tree/main/middleware/auth/jwt) 。鉴权方面，Kratos官方还没有对此的支持，于是我就自己简单的实现了一个[Casbin中间件](https://github.com/tx7do/kratos-casbin) ，简单封装，足够使用就是了。
-
-#### 实现SecurityUser
-
-`SecurityUser`用于创建Jwt的令牌，以及后面Casbin解析和存取权鉴相关的数据，需要实现它。
-
-并且实现一个`SecurityUserCreator`注册进中间件。
+用于封装 JWT 令牌信息与 Casbin 鉴权所需的核心数据（主体、资源、操作）：
 
 ```go
 const (
-    ClaimAuthorityId = "authorityId"
+    ClaimAuthorityId = "authorityId" // JWT负载中存储权限ID的字段
 )
 
+// SecurityUser 实现认证鉴权所需的用户信息接口
 type SecurityUser struct {
-    Path        string
-    Method      string
-    AuthorityId string
+    Path        string // 访问的资源路径（对应API操作名）
+    Method      string // 请求方法（*表示所有方法）
+    AuthorityId string // 用户权限ID（如admin/moderator）
 }
 
+// NewSecurityUser 创建SecurityUser实例
 func NewSecurityUser() authzM.SecurityUser {
     return &SecurityUser{}
 }
 
+// ParseFromContext 从上下文解析JWT信息与请求信息
 func (su *SecurityUser) ParseFromContext(ctx context.Context) error {
+    // 从上下文获取JWT负载
     if claims, ok := jwt.FromContext(ctx); ok {
         su.AuthorityId = claims.(jwtV4.MapClaims)[ClaimAuthorityId].(string)
     } else {
         return errors.New("jwt claim missing")
     }
 
+    // 从上下文获取请求操作信息
     if header, ok := transport.FromServerContext(ctx); ok {
-        su.Path = header.Operation()
+        su.Path = header.Operation() // Kratos中API操作名（如/admin.v1.AdminService/Login）
         su.Method = "*"
     } else {
-        return errors.New("jwt claim missing")
+        return errors.New("request header missing")
     }
     
     return nil
 }
 
-func (su *SecurityUser) GetSubject() string {
-    return su.AuthorityId
-}
-
-func (su *SecurityUser) GetObject() string {
-    return su.Path
-}
-
-func (su *SecurityUser) GetAction() string {
-    return su.Method
-}
-
-func (su *SecurityUser) CreateAccessJwtToken(secretKey []byte) string {
-    claims := jwtV4.NewWithClaims(jwtV4.SigningMethodHS256,
-    jwtV4.MapClaims{
-        ClaimAuthorityId: su.AuthorityId,
-    })
-    
-    signedToken, err := claims.SignedString(secretKey)
-    if err != nil {
-        return ""
-    }
-    
-    return signedToken
-}
-
-func (su *SecurityUser) ParseAccessJwtTokenFromContext(ctx context.Context) error {
-    claims, ok := jwt.FromContext(ctx)
-    if !ok {
-        return errors.New("no jwt token in context")
-    }
-    if err := su.ParseAccessJwtToken(claims); err != nil {
-        return err
-    }
-    return nil
-}
-
-func (su *SecurityUser) ParseAccessJwtTokenFromString(token string, secretKey []byte) error {
-    parseAuth, err := jwtV4.Parse(token, func(*jwtV4.Token) (interface{}, error) {
-        return secretKey, nil
-    })
-    if err != nil {
-        return err
-    }
-
-    claims, ok := parseAuth.Claims.(jwtV4.MapClaims)
-    if !ok {
-        return errors.New("no jwt token in context")
-    }
-    
-    if err := su.ParseAccessJwtToken(claims); err != nil {
-        return err
-    }
-    
-    return nil
-}
-
-func (su *SecurityUser) ParseAccessJwtToken(claims jwtV4.Claims) error {
-    if claims == nil {
-        return errors.New("claims is nil")
-    }
-    
-    mc, ok := claims.(jwtV4.MapClaims)
-    if !ok {
-        return errors.New("claims is not map claims")
-    }
-    
-    strAuthorityId, ok := mc[ClaimAuthorityId]
-    if ok {
-        su.AuthorityId = strAuthorityId.(string)
-    }
-    
-    return nil
-}
+// 以下方法实现authzM.SecurityUser接口，提供Casbin所需的三元组信息
+func (su *SecurityUser) GetSubject() string { return su.AuthorityId } // 主体（用户权限ID）
+func (su *SecurityUser) GetObject() string  { return su.Path }        // 资源（API操作名）
+func (su *SecurityUser) GetAction() string  { return su.Method }      // 操作（请求方法）
 ```
 
-#### JWT中间件
+#### 第二步：实现 JWT 认证中间件​
 
-##### 创建白名单
-
-在白名单下的API将会被忽略认证和权限验证
-
-**需要注意的是**：这里面注册的是 **操作名（operation）**，而非是API的Path。具体的操作名是什么，可以在Protoc生成的 `*_grpc.pb.go` 和 `*_http.pb.go` 找到。
+##### 1. 创建白名单匹配器（免认证接口）​
 
 ```go
-// NewWhiteListMatcher 创建白名单
+// NewWhiteListMatcher 定义无需认证鉴权的API操作名
 func NewWhiteListMatcher() selector.MatchFunc {
-    whiteList := make(map[string]bool)
-    whiteList["/admin.v1.AdminService/Login"] = true
+    whiteList := map[string]bool{
+        "/admin.v1.AdminService/Login": true, // 登录接口免认证
+    }
+    // 返回匹配函数：白名单内的操作返回false（跳过中间件）
     return func(ctx context.Context, operation string) bool {
-            if _, ok := whiteList[operation]; ok {
-            return false
-        }
-        return true
+        return !whiteList[operation]
     }
 }
 ```
 
-##### 创建中间件
+##### 2. 构建 JWT 中间件​
 
 ```go
-// NewMiddleware 创建中间件
-func NewMiddleware(logger log.Logger) http.ServerOption {
+// NewAuthMiddleware 创建JWT认证中间件
+func NewAuthMiddleware(logger log.Logger, apiKey string) http.ServerOption {
     return http.Middleware(
-        recovery.Recovery(),
-        tracing.Server(),
-        logging.Server(logger),
+        recovery.Recovery(),       // 异常恢复中间件
+        tracing.Server(),          // 链路追踪中间件
+        logging.Server(logger),    // 日志中间件
+        // 选择性应用JWT中间件（白名单接口跳过）
         selector.Server(
             jwt.Server(
+                // JWT密钥验证函数
                 func(token *jwtV4.Token) (interface{}, error) {
-                    return []byte(ac.ApiKey), nil
+                    return []byte(apiKey), nil
                 },
-                jwt.WithSigningMethod(jwtV4.SigningMethodHS256),
+                jwt.WithSigningMethod(jwtV4.SigningMethodHS256), // 指定HS256加密算法
             ),
-        ).
-        Match(NewWhiteListMatcher()).Build(),
+        ).Match(NewWhiteListMatcher()).Build(),
     )
 }
 ```
 
-##### 注册中间件
+##### 3. 注册中间件​
 
 ```go
+// 服务启动选项配置
 var opts = []http.ServerOption{
-    NewMiddleware(logger),
+    NewAuthMiddleware(logger, ac.ApiKey), // 注册JWT认证中间件
+    // CORS跨域配置
     http.Filter(handlers.CORS(
-    handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-    handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
-    handlers.AllowedOrigins([]string{"*"}),
+        handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+        handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
+        handlers.AllowedOrigins([]string{"*"}),
     )),
 }
 ```
 
-##### 前端发送Token
+##### 4. 前端 Token 传递方式​
 
-前端只需要在HTTP的Header里面加入以下数据即可：
-
-| 键  | 值                  |
-|-----|--------------------|
-|  Authorization   | Bearer {JWT Token} |
+前端需在 HTTP 请求头中携带 JWT 令牌，格式为`Bearer {Token}`：​
 
 ```typescript
+// 生成认证请求头
 export default function authHeader() {
   const userStr = localStorage.getItem("user");
-  let user = null;
-  if (userStr)
-    user = JSON.parse(userStr);
-
+  let user = userStr ? JSON.parse(userStr) : null;
+  
   if (user && user.token) {
-    return { Authorization: 'Bearer ' + user.token };
+    return { Authorization: `Bearer ${user.token}` };
   } else {
     return {};
   }
 }
 ```
 
-#### Casbin中间件
+#### 第三步：实现 Casbin 鉴权中间件​
 
-Casbin的模型和策略配置读取，我简化的使用了读取本地配置文件。
+##### 1. 配置 Casbin 模型与策略​
 
-通常来说，模型文件变化不大，放本地配置文件或者直接硬代码都没问题。变化的通常都是策略配置，通常做法都是放置在数据库里面，方便通过后台去进行编辑改变。
+###### 模型文件（authz_model.conf）：定义 RBAC 权限模型
+
+```ini
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && r.act == p.act
+```
+
+###### 策略文件（authz_policy.csv）：定义具体权限规则​
+
+```csv
+p, ROLE_ADMIN, /admin.v1.AdminService/*, *
+p, ROLE_MODERATOR, /admin.v1.AdminService/ListUsers, *
+g, admin, ROLE_ADMIN
+g, moderator, ROLE_MODERATOR
+```
+
+##### 2. 构建 Casbin 中间件​
 
 ```go
-// NewMiddleware 创建中间件
-func NewMiddleware(ac *conf.Auth, logger log.Logger) http.ServerOption {
-    m, _ := model.NewModelFromFile("../../configs/authz/authz_model.conf")
-    a := fileAdapter.NewAdapter("../../configs/authz/authz_policy.csv")
-
+// NewAuthzMiddleware 创建Casbin鉴权中间件
+func NewAuthzMiddleware(logger log.Logger) http.ServerOption {
+    // 从文件加载Casbin模型与策略
+    model, _ := model.NewModelFromFile("../../configs/authz/authz_model.conf")
+    adapter := fileAdapter.NewAdapter("../../configs/authz/authz_policy.csv")
+    
     return http.Middleware(
         recovery.Recovery(),
         tracing.Server(),
         logging.Server(logger),
+        // 选择性应用鉴权中间件（白名单接口跳过）
         selector.Server(
             casbinM.Server(
-                casbinM.WithCasbinModel(m),
-                casbinM.WithCasbinPolicy(a),
-                casbinM.WithSecurityUserCreator(myAuthz.NewSecurityUser),
+                casbinM.WithCasbinModel(model),          // 注入Casbin模型
+                casbinM.WithCasbinPolicy(adapter),      // 注入权限策略
+                casbinM.WithSecurityUserCreator(NewSecurityUser), // 注入用户信息构造器
             ),
-        ).
-            Match(NewWhiteListMatcher()).Build(),
+        ).Match(NewWhiteListMatcher()).Build(),
     )
 }
 ```
 
-### 开始登陆吧
+##### 3. 注册鉴权中间件​
+
+在 HTTP 服务选项中添加 Casbin 中间件（需在 JWT 中间件之后）：​
+
+```go
+var opts = []http.ServerOption{
+    NewAuthMiddleware(logger, ac.ApiKey),   // 先认证
+    NewAuthzMiddleware(logger),             // 后鉴权
+    // ...其他中间件
+}
+```
+
+#### 第四步：实现登录接口（生成 JWT 令牌）​
 
 ```go
 func (s *AdminService) Login(_ context.Context, req *v1.LoginReq) (*v1.User, error) {
-    fmt.Println("Login", req.UserName, req.Password)
+    // 1. 验证用户名密码（实际场景需查询数据库）
+    if req.UserName == "" || req.Password == "" {
+        return nil, errors.New("invalid username or password")
+    }
 
-    var id uint64 = 10
-    var email = "hello@kratos.com"
+    // 2. 分配用户角色
     var roles []string
-
     switch req.UserName {
     case "admin":
         roles = append(roles, "ROLE_ADMIN")
     case "moderator":
         roles = append(roles, "ROLE_MODERATOR")
+    default:
+        return nil, errors.New("user not found")
     }
 
-    var securityUser myAuthz.SecurityUser
-    securityUser.AuthorityId = req.GetUserName()
+    // 3. 生成JWT令牌
+    securityUser := &SecurityUser{AuthorityId: req.UserName}
+    token := securityUser.CreateAccessJwtToken([]byte(s.apiKey))
 
-    token := securityUser.CreateAccessJwtToken([]byte(s.auth.GetApiKey()))
-
+    // 4. 返回用户信息与令牌
+    id := uint64(10)
+    email := "hello@kratos.com"
     return &v1.User{
         Id:       &id,
         UserName: &req.UserName,
@@ -354,28 +324,41 @@ func (s *AdminService) Login(_ context.Context, req *v1.LoginReq) (*v1.User, err
 }
 ```
 
-### 流程简要说明
+## 五、整体流程梳理​
 
-1. 前端发送登陆请求
-2. 登陆请求处理
-2.1 验证用户名密码
-2.2 `securityUser.CreateAccessJwtToken`生成Jwt的Token
-2.3 返回token给前端
-3. 其他正常的请求
-3.1 Jwt中间件进行令牌进行认证信息校验
-3.2 Casbin中间件解析Jwt中间件的Payload信息，根据用户信息以及操作名进行权鉴。
+### 1. 登录流程​
 
-## 技术栈
+前端提交用户名密码 → 登录接口验证身份 → 生成 JWT 令牌 → 返回给前端 → 前端存储令牌（localStorage）​
 
-* [Golang](https://go.dev/)
-* [React](https://reactjs.org/docs/getting-started.html)
-* [Kratos](https://go-kratos.dev/)
-* [Consul](https://www.consul.io/)
-* [Jaeger](https://www.jaegertracing.io/)
-* [JWT](https://jwt.io/)
-* [Casbin](https://casbin.org/)
+### 2. 正常请求流程​
 
-## 实例代码
+- 前端携带 JWT 令牌发起请求 → API 网关拦截请求​
+- JWT 中间件验证令牌有效性 → 解析用户信息存入上下文​
+- Casbin 中间件从上下文提取用户 / 资源 / 操作信息 → 校验权限​
+- 权限通过 → 转发请求到业务服务；权限拒绝 → 返回 403 错误​
 
-* [Kratos Casbin](https://github.com/tx7do/kratos-casbin)
-* [Kratos Examples](https://github.com/tx7do/kratos-examples/tree/main/casbin)
+## 六、技术栈总结​
+
+| 技术组件 | 核心作用   | 
+|-----|-------|
+|[Golang][2]|后端开发语言|
+|[React][5]|前端开发框架|
+|[Kratos][1]|微服务框架（提供中间件、服务治理能力）|
+|[Consul][6]|服务发现与配置中心|
+|[Jaeger][7]|分布式链路追踪|
+|[JWT][4]|无状态身份认证令牌|
+|[Casbin][3]|通用权限控制框架|
+
+## 七、开源示例代码
+
+- Casbin 中间件封装 [Kratos Casbin](https://github.com/tx7do/kratos-casbin)
+- 权鉴中间件封装 [Kratos Authz](https://github.com/tx7do/kratos-authz)
+- 完整示例项目 [Kratos Examples](https://github.com/tx7do/kratos-examples/tree/main/casbin)
+
+[1]: <https://go-kratos.dev/>
+[2]: <https://go.dev/>
+[3]: <https://casbin.org/>
+[4]: <https://jwt.io/>
+[5]: <https://reactjs.org/docs/getting-started.html>
+[6]: <https://www.consul.io/>
+[7]: <https://www.jaegertracing.io/>
