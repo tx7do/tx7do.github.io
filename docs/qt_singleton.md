@@ -143,7 +143,7 @@ private:
 
 // 静态断言：确保 T 是可构造的（避免抽象类作为单例）
 template<typename T>
-constexpr bool is_singleton_valid_v = std::is_constructible_v<T> && !std::is_abstract_v<T>;
+constexpr bool is_singleton_valid_v = !std::is_abstract_v<T>;
 
 // 单例模板类：支持带参数构造、自动注册清理、线程安全访问
 template<typename T>
@@ -161,7 +161,11 @@ public:
      */
     template<typename... Args>
     static void init(Args &&... args) {
+        static_assert(std::is_constructible_v<T, Args...>,
+                      "Singleton<T>::init requires T to be constructible with the provided arguments");
+
         QMutexLocker lockerInit(&mutex()); // 加锁保证初始化线程安全
+        
         if (instanceRef() != nullptr) {
             qWarning() << "[Singleton] " << typeid(T).name() << " has already been initialized";
             return;
@@ -218,10 +222,7 @@ public:
     ~Singleton() = delete;
 
     // 禁用拷贝/移动：确保单例唯一性
-    Singleton(const Singleton &) = delete;
-    Singleton &operator=(const Singleton &) = delete;
-    Singleton(Singleton &&) = delete;
-    Singleton &operator=(Singleton &&) = delete;
+    Q_DISABLE_COPY_MOVE(Singleton)
 
 private:
     /**
