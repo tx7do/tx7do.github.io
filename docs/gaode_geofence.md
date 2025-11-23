@@ -29,7 +29,7 @@ GCJ-02（G-Guojia国家，C-Cehui测绘，J-Ju局），又被称为火星坐标�
 BD-09（Baidu, BD）是百度地图使用的地理坐标系，其在GCJ-02上多增加了一次变换，用来保护用户隐私。从百度产品中得到的坐标都是BD-09坐标系。
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hujiulong/gcoord/HEAD/crs.jpg"/>
+  <img src="https://tx7do.github.io/assets/images/iot/map_offset.jpg"/>
   <p align="center">不同坐标系下的点在百度地图上会有偏移</p>
 </p>
 
