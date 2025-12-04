@@ -381,10 +381,43 @@ make api
 
 生成的代码会放在`api/gen/go/user/service/v1`目录下，供`Data层`和`Service层`调用。
 
-### 2.4 Server层绑定接口与Service（项目已实现，验证即可）
+### 2.4 Server 层绑定接口与 Service
 
-`kratos-gorm-example`已在internal/handler/user.go中实现了Handler层逻辑，负责将API请求转发到Service层。核心逻辑如下（无需修改，仅验证）：
+`kratos-gorm-example` 通过`NewRESTServer`方法完成 `HTTP Server` 的创建，并将 `UserService` 注册到 `Kratos` 的 `HTTP` 服务中，实现 API 接口与 `Service` 层的绑定。核心代码如下（文件路径：`app/user/service/internal/server/rest.go`）：
 
+```go
+// NewRESTServer new an HTTP server.
+func NewRESTServer(
+	cfg *conf.Bootstrap, logger log.Logger,
+	userService *service.UserService,
+) *http.Server {
+	if cfg == nil || cfg.Server == nil || cfg.Server.Rest == nil {
+		return nil
+	}
+
+	srv := bootstrap.CreateRestServer(cfg, logging.Server(logger))
+
+	userV1.RegisterUserServiceHTTPServer(srv, userService)
+
+	if cfg.GetServer().GetRest().GetEnableSwagger() {
+		swaggerUI.RegisterSwaggerUIServerWithOption(
+			srv,
+			swaggerUI.WithTitle("Kratos GORM Example User Service API"),
+			swaggerUI.WithMemoryData(assets.OpenApiData, "yaml"),
+		)
+	}
+
+	return srv
+}
+```
+
+代码说明：
+
+1. `bootstrap.CreateRestServer`：基于配置创建 Kratos 的 HTTP Server 实例，包含端口、中间件等基础配置；
+2. `userV1.RegisterUserServiceHTTPServer`：将实现了`UserService`接口的`userService`实例注册到 HTTP Server 中，完成 API 接口（如`/users`）与 `Service` 层方法的绑定；
+3. Swagger 相关配置：可选开启 Swagger UI，方便调试 API 接口。
+
+此步骤无需手动修改代码（项目已实现），只需验证该文件存在且代码完整即可 —— 启动服务后，Kratos 会自动将 HTTP 请求转发到对应的 Service 层方法。
 
 ## 五、核心步骤3：运行项目并测试CRUD接口
 
