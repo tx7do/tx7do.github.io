@@ -1,6 +1,6 @@
 # 微服务技术选型：从生态架构视角看go-kratos的不可替代性
 
-在 Go 语言微服务生态中，单一框架的能力边界往往决定项目上限，而 “核心框架 + 生态扩展” 的架构协同性，才是长期支撑业务迭代的关键。面对 Gin、Go-Micro、Kitex 等选项，go-kratos 不仅自身架构卓越，更通过[kratos-transport][2]（通信扩展）、[kratos-authn][6]/[authz][5]（安全扩展）、[kratos-cli][7]（工具扩展）及[go-kratos-admin][3]/[cms][4]/[go-curd][8]（应用模板），构建了 “核心定义标准、扩展补全能力、应用落地业务” 的全链路架构体系。本文从架构视角拆解这一生态，解析技术选型优先选择 [go-kratos][1] 的深层逻辑。
+在 Go 语言微服务生态中，单一框架的能力边界往往决定项目上限，而 “核心框架 + 生态扩展” 的架构协同性，才是长期支撑业务迭代的关键。面对 Gin、Go-Micro、Kitex 等选项，go-kratos 不仅自身架构卓越，更通过[kratos-transport][2]（通信扩展）、[kratos-authn][6]/[authz][5]（安全扩展）、[kratos-cli][7]（工具扩展）及[go-kratos-admin][3]/[cms][4]/[go-crud][8]（应用模板），构建了 “核心定义标准、扩展补全能力、应用落地业务” 的全链路架构体系。本文从架构视角拆解这一生态，解析技术选型优先选择 [go-kratos][1] 的深层逻辑。
 
 ## 一、微服务开发的核心痛点：框架选型的底层诉求
 
@@ -41,12 +41,12 @@ go-kratos 生态的 8 个项目并非孤立存在，而是形成 “核心框架
 - [kratos-authn][6]：支持 OAuth2.0、JWT、LDAP 等认证方式，通过中间件（如`middleware.WithJWT()`）在请求入口完成身份校验，校验结果通过`context`传递至业务层，无需修改业务代码；
 - [kratos-authz][5]：基于 RBAC 模型实现权限管控，支持接口级、数据级权限校验，通过中间件（如`middleware.WithRBAC()`）拦截无权限请求，权限规则可通过配置中心动态更新，与 go-kratos 的配置体系无缝集成。
 
-#### 工具扩展：kratos-cli 与 go-curd
+#### 工具扩展：kratos-cli 与 go-crud
 
 两者聚焦 “**降低重复开发成本**”，且严格遵循 go-kratos 分层规范：
 
 - [kratos-cli][7]：扩展原生 CLI 能力，支持生成 Protobuf IDL 模板、CRUD 接口代码（基于数据库表结构生成`api`层定义与`data`层访问逻辑）、Swagger 文档，例如通过`kratos cli gen crud -t user`可快速生成用户模块的`api/user.proto`与`data/user_repo.go`；
-- [go-curd][8]：基于 go-kratos 的`api/service/biz/data`分层，提供 CRUD 业务通用模板，支持单表 / 关联表操作、分页查询、条件过滤，开发者仅需配置数据库表结构与业务规则（如字段校验逻辑），即可生成完整 CRUD 服务，避免重复编写biz层业务逻辑与`data`层数据访问代码。 
+- [go-crud][8]：基于 go-kratos 的`api/service/biz/data`分层，提供 CRUD 业务通用模板，支持单表 / 关联表操作、分页查询、条件过滤，开发者仅需配置数据库表结构与业务规则（如字段校验逻辑），即可生成完整 CRUD 服务，避免重复编写biz层业务逻辑与`data`层数据访问代码。 
 
 ### 3. 应用层：基于核心架构的业务落地模板
 
@@ -60,9 +60,9 @@ go-kratos 生态的 8 个项目并非孤立存在，而是形成 “核心框架
 
 采用 “**无头架构（Headless）**”，后端通过`kratos-transport`的 Kafka 组件实现 “内容发布 - 前台通知” 解耦，通过`kratos-authn`实现作者身份认证；前端分为 Admin 端（内容管理）与展示端（Vue3/Flutter/Qt），均基于 Protobuf 生成 API 工具类，适配内容 “生产 - 展示” 分离场景，体现 go-kratos 标准化架构的跨端适配能力。
 
-#### CRUD 业务：[go-curd][8] 应用模板
+#### CRUD 业务：[go-crud][8] 应用模板
 
-基于`go-curd`工具生成的分层代码，快速落地用户管理、订单查询等高频 CRUD 场景，`biz`层复用`go-curd`的通用业务逻辑（如字段校验、分页处理），`data`层适配 `GORM`/`Ent` 等 ORM，支持数据库无缝切换，验证 go-kratos 架构对 “轻量业务” 的快速支撑能力。
+基于`go-crud`工具生成的分层代码，快速落地用户管理、订单查询等高频 CRUD 场景，`biz`层复用`go-crud`的通用业务逻辑（如字段校验、分页处理），`data`层适配 `GORM`/`Ent` 等 ORM，支持数据库无缝切换，验证 go-kratos 架构对 “轻量业务” 的快速支撑能力。
 
 ## 三、架构视角下选择 go-kratos 的四大核心理由
 
@@ -82,13 +82,13 @@ go-kratos 的 “接口化定义 + 分层规范” 架构，从源头解决微�
 
 - **通信与安全能力复用**：`kratos-transport`的 MQ 服务与kratos-authn的认证中间件可无缝组合（如 Kafka 消息消费前先做身份校验），中间件逻辑在 HTTP、gRPC、MQ 场景中通用，无需重复开发；
 
-- **工具链与业务模板联动**：`kratos-cli`生成的 CRUD 代码可直接在`go-kratos-admin`中复用（如用户管理模块），`go-curd`模板与`kratos-authz`的权限中间件天然兼容（如为 CRUD 接口自动添加权限校验），避免 “工具生成代码与框架架构冲突” 问题。
+- **工具链与业务模板联动**：`kratos-cli`生成的 CRUD 代码可直接在`go-kratos-admin`中复用（如用户管理模块），`go-crud`模板与`kratos-authz`的权限中间件天然兼容（如为 CRUD 接口自动添加权限校验），避免 “工具生成代码与框架架构冲突” 问题。
 
 ### 3. 业务架构：全场景适配，支撑 “从 0 到 1 再到 N”
 
 go-kratos 生态架构覆盖从 “简单 CRUD” 到 “复杂企业系统” 的全场景，适配业务不同发展阶段：
 
-- **初创期**：通过`kratos-cli`与`go-curd`快速生成 CRUD 服务，1 周内完成核心业务落地；
+- **初创期**：通过`kratos-cli`与`go-crud`快速生成 CRUD 服务，1 周内完成核心业务落地；
 
 - **成长期**：集成`kratos-transport`实现 MQ 解耦，接入`kratos-authn/authz`强化安全管控，支撑业务流量增长；
 
@@ -110,7 +110,7 @@ go-kratos 及其生态从架构层面保障服务可靠性：
 |-----|-----|-----|-----|
 |Gin|轻量、高性能 Web 框架|仅支持 HTTP，无安全 / 通信扩展，需手动集成微服务能力|生态覆盖通信 / 安全 / 工具，无需拼凑组件，架构一致性强|
 |Go-Micro|组件丰富，开箱即用|部分组件耦合度高，安全扩展薄弱，生态迭代慢|接口化设计支持组件自由替换，安全扩展（authn/authz）完善，生态迭代快|
-|Kitex|高性能 RPC 框架|生态窄（侧重 RPC），无 Admin/CMS 应用模板，工具链单一|全链路标准化，应用模板覆盖多场景，工具链（kratos-cli/go-curd）降低开发成本|
+|Kitex|高性能 RPC 框架|生态窄（侧重 RPC），无 Admin/CMS 应用模板，工具链单一|全链路标准化，应用模板覆盖多场景，工具链（kratos-cli/go-crud）降低开发成本|
 |go-zero|全栈微服务框架（集成 API 网关 / 监控 / 限流），goctl 工具链强大，文档完善|架构相对厚重，定制化扩展需遵循内置规范（灵活性较低），生态中应用模板少，特殊协议适配成本高|接口化设计更灵活（组件可自由替换），生态应用模板（Admin/CMS/CRUD）丰富，kratos-transport 无缝扩展特殊协议，分层架构降低重构成本|
 
 通过对比可见，go-kratos 生态既规避了 Gin “需手动集成微服务能力”、Go-Micro “组件耦合” 的问题，又弥补了 Kitex “场景覆盖窄”、go-zero “灵活性不足” 的短板，在 “标准化与灵活性”“核心能力与生态扩展” 之间实现了更优平衡，是兼顾 “基础微服务” 与 “复杂业务系统” 的全场景框架。
@@ -122,7 +122,7 @@ go-kratos 及其生态从架构层面保障服务可靠性：
 - **中大型微服务集群**：需多团队协作、组件统一管理、安全管控（认证授权）的项目；
 - **多场景混合需求**：既需 HTTP/gRPC 接口，又需 MQ 消息解耦、WebSocket 实时通信，且需权限管控的项目；
 - **全生命周期迭代项目**：从初创期（CRUD 快速落地）到成熟期（企业级后台 + 内容业务），需长期迭代的项目；
-- **对开发效率与运维成本敏感**：需减少重复开发（go-curd/kratos-cli）、降低运维压力（原生可观测性）的项目。
+- **对开发效率与运维成本敏感**：需减少重复开发（go-crud/kratos-cli）、降低运维压力（原生可观测性）的项目。
 
 ### 2. 谨慎选择的场景
 
@@ -142,4 +142,4 @@ go-kratos 及其生态从架构层面保障服务可靠性：
 [5]: (https://github.com/tx7do/kratos-authz)
 [6]: (https://github.com/tx7do/kratos-authn)
 [7]: (https://github.com/tx7do/kratos-cli)
-[8]: (https://github.com/tx7do/go-curd)
+[8]: (https://github.com/tx7do/go-crud)
