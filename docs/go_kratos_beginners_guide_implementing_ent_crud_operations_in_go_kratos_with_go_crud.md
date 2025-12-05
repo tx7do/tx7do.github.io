@@ -1,4 +1,4 @@
-# 初学者导引：在 Go-Kratos 中用 go-crud 实现 Ent ORM CRUD 操作
+# 初学者友好：Go-Kratos 集成 go-crud，Ent ORM CRUD 无需重复编码，轻松上手
 
 对于刚接触 Go 微服务开发的初学者来说，直接上手 “框架 + ORM” 的组合常显复杂。而 `kratos-ent-example` 项目已为我们搭建好了 `Go-Kratos` 与 `Ent` 的基础集成框架，本文将基于该项目，聚焦如何快速接入 `go-curd` 工具简化 CRUD（增删改查）操作，全程以 step-by-step 的方式讲解，新手也能轻松跟随实操。
 
@@ -343,7 +343,78 @@ service UserService {
   }
 }
 
-// 省略消息定义
+// 用户
+message User {
+  uint32 id = 1;
+
+  optional string user_name = 2 [json_name = "userName", (gnostic.openapi.v3.property) = {description: "账户名"}];// 账户名
+  optional string nick_name = 3 [json_name = "nickName", (gnostic.openapi.v3.property) = {description: "昵称"}];// 昵称
+  optional string password = 4 [json_name = "password", (gnostic.openapi.v3.property) = {description: "密码"}];// 密码
+
+  optional google.protobuf.Timestamp created_at = 200 [json_name = "createdAt", (gnostic.openapi.v3.property) = {description: "创建时间"}];// 创建时间
+  optional google.protobuf.Timestamp updated_at = 201 [json_name = "updatedAt", (gnostic.openapi.v3.property) = {description: "更新时间"}];// 更新时间
+  optional google.protobuf.Timestamp deleted_at = 202 [json_name = "deletedAt", (gnostic.openapi.v3.property) = {description: "删除时间"}];// 删除时间
+}
+
+// 获取用户列表 - 答复
+message ListUserResponse {
+  repeated User items = 1;
+  uint64 total = 2;
+}
+
+// 获取用户数据 - 请求
+message GetUserRequest {
+  oneof query_by {
+    uint32 id = 1 [
+      (gnostic.openapi.v3.property) = {description: "用户ID", read_only: true},
+      json_name = "id"
+    ]; // 用户ID
+
+    string user_name = 2 [
+      (gnostic.openapi.v3.property) = {description: "用户登录名", read_only: true},
+      json_name = "userName"
+    ]; // 用户登录名
+  }
+
+  optional google.protobuf.FieldMask view_mask = 100 [
+    json_name = "viewMask",
+    (gnostic.openapi.v3.property) = {
+      description: "视图字段过滤器，用于控制返回的字段"
+    }
+  ]; // 视图字段过滤器，用于控制返回的字段
+}
+
+// 创建用户 - 请求
+message CreateUserRequest {
+  User data = 1;
+
+  uint32 operator_id = 2 [json_name = "operatorId", (gnostic.openapi.v3.property) = {description: "操作者用户ID"}];// 操作者用户ID
+}
+
+// 更新用户 - 请求
+message UpdateUserRequest {
+  User data = 1;
+
+  google.protobuf.FieldMask update_mask = 2 [
+    json_name = "updateMask",
+    (gnostic.openapi.v3.property) = {
+      description: "要更新的字段列表",
+      example: {yaml : "id,realname,username"}
+    }
+  ]; // 要更新的字段列表
+
+  optional bool allow_missing = 3 [
+    json_name = "allowMissing",
+    (gnostic.openapi.v3.property) = {description: "如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。"}
+  ]; // 如果设置为true的时候，资源不存在则会新增(插入)，并且在这种情况下`updateMask`字段将会被忽略。
+}
+
+// 删除用户 - 请求
+message DeleteUserRequest {
+  uint32 id = 1;
+
+  uint32 operator_id = 2 [json_name = "operatorId", (gnostic.openapi.v3.property) = {description: "操作者用户ID"}];// 操作者用户ID
+}
 ```
 
 执行以下命令生成 Go 代码（项目已预设`make api`命令）：

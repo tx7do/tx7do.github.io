@@ -1,4 +1,4 @@
-# 初学者导引：在 Go-Kratos 中用 go-crud 实现 GORM CRUD 操作
+# 初学者友好：Go-Kratos 集成 go-crud，GORM ORM CRUD 无需重复编码，轻松上手
 
 对于刚接触Go微服务开发的初学者来说，直接上手“框架+ORM”的组合常显复杂。而kratos-gorm-example项目已为我们搭建好了Go-Kratos与GORM的基础集成框架，本文将基于该项目，聚焦如何快速接入go-curd工具简化CRUD（增删改查）操作，全程以step-by-step的方式讲解，新手也能轻松跟随实操。
 
