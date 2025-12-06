@@ -1,4 +1,4 @@
-# 初学者入门：用 go-kratos-admin + protoc-gen-typescript-http 快速搭建企业级 Admin 系统
+# 自动化解放双手：初学者用 go-kratos-admin + protoc-gen-typescript-http 生成前端接口，快速搭建企业级 Admin 系统
 
 作为后端开发者，你是否曾为前后端接口联调头疼？作为前端新手，是否觉得手动封装 Rest 接口繁琐又容易出错？今天就给大家推荐一套 "效率组合拳"——go-kratos-admin（开箱即用的全栈 Admin 框架）+ protoc-gen-typescript-http（Protobuf 驱动的 TS 接口生成器），让你从零到一快速搭建企业级管理系统，还能自动生成类型安全的前端接口，生产力直接翻倍！
 
@@ -347,15 +347,15 @@ onMounted(() => {
 
 解决方案：安装IDE的`Buf`插件即可。
 
-### 2. 前端调用接口提示 401 未授权：
+### 3. 前端调用接口提示 401 未授权：
 
 解决方案：登录后，从 `localStorage` 获取 token，在请求头中携带 `Authorization` 字段
 
-### 3. Protobuf 文件修改后，TS 代码不更新：
+### 4. Protobuf 文件修改后，TS 代码不更新：
 
 解决方案：重新执行 `make ts` 生成命令，覆盖旧的 TS 文件即可
 
-### 4. Docker 启动失败：
+### 5. Docker 启动失败：
 
 解决方案：检查 Docker 是否正在运行（`sudo systemctl start docker`），确保端口 8080、7788、5666 未被占用
 
