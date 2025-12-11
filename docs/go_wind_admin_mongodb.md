@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 支持MongoDB
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 支持MongoDB
 
 MongoDB 是一种开源的`文档型数据库`，属于 NoSQL（非关系型数据库）的范畴，由 MongoDB Inc. 开发并维护。它与传统的关系型数据库（如MySQL、PostgreSQL）在数据存储结构、查询方式等方面有显著差异，更适合处理非结构化或半结构化数据，以及需要灵活扩展的场景。
 
@@ -52,7 +52,7 @@ docker run -itd \
    `‘mkdir: cannot create directory ‘/bitnami/mongodb’: Permission denied’`；
 2. 从MongoDB 5.0开始，有些机器运行会报错：`Illegal instruction`，这是因为机器硬件不支持 **AVX 指令集** 的缘故，没办法，MongoDB降级吧。
 
-## 在 Kratos Admin 中使用 MongoDB
+## 在 Go Wind Admin 中使用 MongoDB
 
 我把MongoDB的SDK封装了起来，并且提供了配置文件的支持，使用起来非常简单。
 
@@ -176,5 +176,5 @@ func (r *CandleRepo) Create(ctx context.Context, req *Candle) error {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

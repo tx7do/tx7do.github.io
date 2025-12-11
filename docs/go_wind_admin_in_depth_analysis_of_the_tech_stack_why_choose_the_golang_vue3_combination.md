@@ -1,10 +1,10 @@
-# go-kratos-admin 技术栈深度解析：为什么选 Golang+Vue3 这套组合？
+# go-wind-admin 技术栈深度解析：为什么选 Golang+Vue3 这套组合？
 
-企业级 Admin 系统的技术选型，既要兼顾**高性能**与**稳定性**，也要平衡**开发效率**与**可扩展性**。go-kratos-admin 作为开箱即用的全栈 Admin 解决方案，最终选定 **Golang 生态（后端）** + **Vue3 生态（前端）** 的技术组合，并非偶然 —— 而是精准匹配企业级管理系统核心需求的必然选择。本文将深度拆解这套技术栈的选型逻辑，以及它如何为项目赋能。
+企业级 Admin 系统的技术选型，既要兼顾**高性能**与**稳定性**，也要平衡**开发效率**与**可扩展性**。go-wind-admin 作为开箱即用的全栈 Admin 解决方案，最终选定 **Golang 生态（后端）** + **Vue3 生态（前端）** 的技术组合，并非偶然 —— 而是精准匹配企业级管理系统核心需求的必然选择。本文将深度拆解这套技术栈的选型逻辑，以及它如何为项目赋能。
 
 ## 一、后端技术栈：Golang 生态的 “精准狙击”
 
-后端是 Admin 系统的 “骨架”，需要支撑权限控制、多租户隔离、高并发请求等核心场景。go-kratos-admin 选择以 Golang 为基础，搭配 go-kratos、ent、gorm、wire、casbin 等组件，正是瞄准了企业级系统的痛点。
+后端是 Admin 系统的 “骨架”，需要支撑权限控制、多租户隔离、高并发请求等核心场景。go-wind-admin 选择以 Golang 为基础，搭配 go-kratos、ent、gorm、wire、casbin 等组件，正是瞄准了企业级系统的痛点。
 
 ### 1. 核心语言：为什么是 Golang 而非 Java/Node.js？
 
@@ -14,11 +14,11 @@
 - **对比 Java**：Golang 代码更简洁（少 “样板代码”），编译速度快，部署无需 JVM，运维更轻量化；
 - **对比 Node.js**：Golang 无 “回调地狱”，同步代码编写更符合后端开发习惯，且在 CPU 密集型场景（如数据计算）中优势显著。
 
-对 go-kratos-admin 而言，Golang 既能支撑单体架构的快速开发，也能平滑扩展到微服务架构 —— 这恰好匹配了项目 “适配不同规模团队” 的定位。
+对 go-wind-admin 而言，Golang 既能支撑单体架构的快速开发，也能平滑扩展到微服务架构 —— 这恰好匹配了项目 “适配不同规模团队” 的定位。
 
 ### 2. 框架选型：go-kratos 为何成为首选？
 
-后端框架是技术栈的 “核心枢纽”，go-kratos-admin 选择哔哩哔哩开源的 go-kratos，而非 Gin/Echo 等轻量框架，核心原因在于：
+后端框架是技术栈的 “核心枢纽”，go-wind-admin 选择哔哩哔哩开源的 go-kratos，而非 Gin/Echo 等轻量框架，核心原因在于：
 
 - **企业级特性内置**：kratos 原生支持服务发现、配置中心、链路追踪、限流熔断等微服务能力，无需开发者重复集成；
 - **标准化设计**：遵循 RESTful + gRPC 双协议规范，前后端交互更清晰，同时支持协议自动转换（比如前端 HTTP 请求转后端 gRPC 调用）；
@@ -38,7 +38,7 @@
 
 ### 4. 工程化：wire 依赖注入的 “解耦价值”
 
-Admin 系统功能越复杂，模块间的依赖关系越容易混乱。go-kratos-admin 引入 wire 实现依赖注入：
+Admin 系统功能越复杂，模块间的依赖关系越容易混乱。go-wind-admin 引入 wire 实现依赖注入：
 
 - **代码解耦**：将 “对象创建” 与 “业务逻辑” 分离，比如权限校验模块无需关心数据库连接的创建方式；
 - **可测试性提升**：单元测试时可快速替换依赖（如用 mock 数据库替代真实数据库）；
@@ -48,7 +48,7 @@ Admin 系统功能越复杂，模块间的依赖关系越容易混乱。go-krato
 
 ## 二、前端技术栈：Vue3 生态的 “高效适配”
 
-前端是 Admin 系统的 “门面”，需要兼顾**交互体验**与**开发效率**。go-kratos-admin 选择 Vue3 + TypeScript + Antdv + Vben Admin 的组合，正是为了匹配企业级管理系统的 UI/UX 需求。
+前端是 Admin 系统的 “门面”，需要兼顾**交互体验**与**开发效率**。go-wind-admin 选择 Vue3 + TypeScript + Antdv + Vben Admin 的组合，正是为了匹配企业级管理系统的 UI/UX 需求。
 
 ### 1. 核心框架：Vue3 为何优于 Vue2/React？
 
@@ -65,7 +65,7 @@ Admin 系统以表单、表格、弹窗等 “组件化场景” 为主，Vue3 �
 Admin 系统需要大量成熟的 UI 组件（如高级表格、权限树、多租户表单），重复造轮子会严重拖慢开发进度：
 
 - **Antdv（Ant Design Vue）**：阿里开源的企业级组件库，覆盖 Admin 系统所需的 90% 组件（如 Table、Form、Modal、Tree），设计风格符合企业审美；
-- **Vben Admin**：基于 Vue3 + Antdv 的开箱即用 Admin 模板，内置了权限路由、主题定制、国际化等功能，go-kratos-admin 直接复用其基础架构，避免从零搭建前端框架。
+- **Vben Admin**：基于 Vue3 + Antdv 的开箱即用 Admin 模板，内置了权限路由、主题定制、国际化等功能，go-wind-admin 直接复用其基础架构，避免从零搭建前端框架。
 
 这种组合让前端开发聚焦于 “业务逻辑” 而非 “基础组件开发”—— 比如实现 “多租户列表的高级搜索 + 批量操作”，只需基于 Vben Admin 的表格组件二次封装即可。
 
@@ -101,16 +101,16 @@ Admin 系统涉及大量权限、数据格式的校验，TypeScript 的引入解
 
 ## 四、总结：技术栈选型的底层逻辑
 
-go-kratos-admin 选择 Golang+Vue3 组合，本质是 **“需求驱动选型”**：
+go-wind-admin 选择 Golang+Vue3 组合，本质是 **“需求驱动选型”**：
 
 - 企业级 Admin 系统需要 “高性能、易扩展、低成本维护”，Golang 生态完美满足后端需求；
 - 前端需要 “高效开发、组件丰富、交互流畅”，Vue3 生态恰好适配这些场景。
 
 这套技术栈既不是 “追新”，也不是 “保守”—— 而是在 “满足需求” 与 “技术成熟度” 之间找到的最佳平衡点。对开发者而言，基于这套技术栈构建 Admin 系统，既能快速落地业务，又能为未来的扩展预留空间；对企业而言，这套组合的运维成本低、稳定性高，是支撑长期发展的可靠选择。
 
-如果你正在搭建企业级 Admin 系统，go-kratos-admin 的技术栈选型思路，或许能为你提供一份有价值的参考。
+如果你正在搭建企业级 Admin 系统，go-wind-admin 的技术栈选型思路，或许能为你提供一份有价值的参考。
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 交互式API文档 Swagger UI
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 交互式API文档 Swagger UI
 
 在我们的开发当中，有几个问题会比较麻烦：
 
@@ -220,8 +220,8 @@ func NewRESTServer() *rest.Server {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料
 

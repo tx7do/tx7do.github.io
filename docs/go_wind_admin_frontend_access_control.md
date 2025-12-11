@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 前端权限控制
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 前端权限控制
 
 前端的权限归属于：功能权限。根据功能控制的细粒度，前端的权限主要分为两个部分：
 
@@ -290,8 +290,8 @@ const { hasAccessByRoles } = useAccess();
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料
 

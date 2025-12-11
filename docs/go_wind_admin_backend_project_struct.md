@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 后端项目结构说明
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 后端项目结构说明
 
 ```text
 ├─.docker
@@ -88,5 +88,5 @@
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

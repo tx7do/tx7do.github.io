@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 支持ClickHouse
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 支持ClickHouse
 
 ClickHouse 是一款由俄罗斯搜索引擎公司 **Yandex** 开发的开源列式存储数据库，专为**海量数据实时分析**设计。它以**极致的查询性能**和**高吞吐写入能力**著称，尤其擅长处理PB 级别的结构化数据，并能在毫秒到秒级内完成复杂的聚合分析（如多维度统计、漏斗计算、用户行为分析等），是大数据分析、数据仓库、实时报表等场景的核心工具。
 
@@ -41,7 +41,7 @@ docker run -itd \
     bitnami/clickhouse:latest
 ```
 
-## 在 Kratos Admin 中使用 ClickHouse
+## 在 Go Wind Admin 中使用 ClickHouse
 
 我把ClickHouse的SDK封装了起来，并且提供了配置文件的支持，使用起来非常简单。
 
@@ -162,5 +162,5 @@ func (r *CandleRepo) Create(ctx context.Context, req *Candle) error {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

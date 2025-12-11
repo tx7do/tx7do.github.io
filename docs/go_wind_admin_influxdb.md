@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 支持InfluxDB
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 支持InfluxDB
 
 InfluxDB 是一款专为`时间序列数据`设计的开源分布式数据库，由 InfluxData公司开发，主要用于存储、查询和分析带有时间戳的数据（如监控指标、传感器数据、日志时间序列等）。它在处理高写入量、高查询性能的时间序列场景中表现突出，是IoT（物联网）、监控告警、实时分析等领域的常用工具。
 
@@ -150,7 +150,7 @@ docker run -itd \
 
 在管理后台的地址里面填写：`http://host.docker.internal:8181`
 
-## 在 Kratos Admin 中使用 InfluxDB
+## 在 Go Wind Admin 中使用 InfluxDB
 
 我把InfluxDB的SDK封装了起来，并且提供了配置文件的支持，使用起来非常简单。
 
@@ -314,5 +314,5 @@ func (r *CandleRepo) Create(ctx context.Context, req *Candle) error {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

@@ -1,6 +1,6 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 代码生成工具集
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 代码生成工具集
 
-我们为[go-kratos-admin](https://github.com/tx7do/go-kratos-admin)这个项目打造了一个代码生成工具集。
+我们为[go-wind-admin](https://github.com/tx7do/go-wind-admin)这个项目打造了一个代码生成工具集。
 
 - cfgexp 用于将服务本地配置导入到远程配置系统，支持：Etd、Consul、Nacos……
 - sql2orm 用于把数据库的表结构导入，并且生成为ORM代码，支持：ENT、GORM……
@@ -55,7 +55,7 @@ Etcd
 cfgexp \
     -t "etcd" \
     -a "localhost:2379" \
-    -p "kratos_admin"
+    -p "go_wind_admin"
 ```
 
 consul
@@ -64,7 +64,7 @@ consul
 cfgexp \
     -t "consul" \
     -a "localhost:8500" \
-    -p "kratos_admin"
+    -p "go_wind_admin"
 ```
 
 Nacos
@@ -73,7 +73,7 @@ Nacos
 cfgexp \
     -t "nacos" \
     -a "localhost:8848" \
-    -p "kratos_admin" \
+    -p "go_wind_admin" \
     -n "public" \
     -e "dev" \
     -g "DEFAULT_GROUP"
@@ -226,7 +226,7 @@ Flags:
   -m, --module string       Target module name for the generated code, e.g., 'admin' (default "admin")
   -r, --orm string          ORM type to use (ent, gorm) (default "ent")
   -o, --output string       output path for protobuf schema files (default "./api/protos/")
-  -p, --project string      Project name for the generated code, e.g., 'kratos-admin' (default "kratos-admin")
+  -p, --project string      Project name for the generated code, e.g., 'go-wind-admin' (default "go-wind-admin")
   -x, --repo                use repository pattern (default true)
   -g, --servers strings     comma-separated list of servers to generate, e.g., "grpc,rest" (default [grpc])
   -c, --service string      Service name for the generated code, e.g., 'user' (default "user")
@@ -240,7 +240,7 @@ gRPC服务代码：
 
 ```bash
 sql2kratos \
-  -p "kratos-admin" \
+  -p "go-wind-admin" \
   -n "postgres://postgres:pass@localhost:5432/test?sslmode=disable" \
   -r "ent" \
   -o "." \
@@ -253,7 +253,7 @@ REST服务代码：
 
 ```bash
 sql2kratos \
-  -p "kratos-admin" \
+  -p "go-wind-admin" \
   -n "postgres://postgres:pass@localhost:5432/test?sslmode=disable" \
   -r "ent" \
   -o "." \
@@ -268,5 +268,5 @@ sql2kratos \
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

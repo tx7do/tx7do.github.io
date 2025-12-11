@@ -1,6 +1,6 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 数据脱敏和隐私保护
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 数据脱敏和隐私保护
 
-Kratos Admin 的数据脱敏能力，是基于 Protobuf 生态下的[arrakis-digital/protoc-gen-redact](https://github.com/arrakis-digital/protoc-gen-redact)插件实现的 —— 通过在 Protobuf 消息定义中为敏感字段（如手机号、身份证号）添加脱敏注解（如(`(redact.custom).string = "r*d@ct*d"`)），由插件自动生成适配业务的脱敏方法（如 Go 语言的Redact()方法），无需侵入业务逻辑即可完成敏感数据的遮挡处理，同时保持与 Protobuf 消息结构的强绑定，避免跨层配置不一致问题。配微服务接口、日志打印、数据存储等场景的隐私保护需求。
+Go Wind Admin 的数据脱敏能力，是基于 Protobuf 生态下的[arrakis-digital/protoc-gen-redact](https://github.com/arrakis-digital/protoc-gen-redact)插件实现的 —— 通过在 Protobuf 消息定义中为敏感字段（如手机号、身份证号）添加脱敏注解（如(`(redact.custom).string = "r*d@ct*d"`)），由插件自动生成适配业务的脱敏方法（如 Go 语言的Redact()方法），无需侵入业务逻辑即可完成敏感数据的遮挡处理，同时保持与 Protobuf 消息结构的强绑定，避免跨层配置不一致问题。配微服务接口、日志打印、数据存储等场景的隐私保护需求。
 
 与其他脱敏工具相比，其核心优势在于：​
 
@@ -112,7 +112,7 @@ protoc \
 - `user.pb.go`：Protobuf 基础代码（消息结构体、序列化 / 反序列化方法）；​
 - `user.redact.pb.go`：脱敏代码（核心是 `User.Redact()`、`GetUserRequest.Redact()` 和 `ListUsersResponse.Redact()` 方法）。​
 
-Kratos Admin使用的是Buf来构建Protobuf代码，所以，protoc命令在实际开发中我们是接触不到的。
+Go Wind Admin使用的是Buf来构建Protobuf代码，所以，protoc命令在实际开发中我们是接触不到的。
 
 redact在buf中的配置主要有两处：
 
@@ -190,6 +190,6 @@ func main() {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 

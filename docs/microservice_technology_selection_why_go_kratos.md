@@ -1,6 +1,6 @@
 # 微服务技术选型：从生态架构视角看go-kratos的不可替代性
 
-在 Go 语言微服务生态中，单一框架的能力边界往往决定项目上限，而 “核心框架 + 生态扩展” 的架构协同性，才是长期支撑业务迭代的关键。面对 Gin、Go-Micro、Kitex 等选项，go-kratos 不仅自身架构卓越，更通过[kratos-transport][2]（通信扩展）、[kratos-authn][6]/[authz][5]（安全扩展）、[kratos-cli][7]（工具扩展）及[go-kratos-admin][3]/[cms][4]/[go-crud][8]（应用模板），构建了 “核心定义标准、扩展补全能力、应用落地业务” 的全链路架构体系。本文从架构视角拆解这一生态，解析技术选型优先选择 [go-kratos][1] 的深层逻辑。
+在 Go 语言微服务生态中，单一框架的能力边界往往决定项目上限，而 “核心框架 + 生态扩展” 的架构协同性，才是长期支撑业务迭代的关键。面对 Gin、Go-Micro、Kitex 等选项，go-kratos 不仅自身架构卓越，更通过[kratos-transport][2]（通信扩展）、[kratos-authn][6]/[authz][5]（安全扩展）、[kratos-cli][7]（工具扩展）及[go-wind-admin][3]/[cms][4]/[go-crud][8]（应用模板），构建了 “核心定义标准、扩展补全能力、应用落地业务” 的全链路架构体系。本文从架构视角拆解这一生态，解析技术选型优先选择 [go-kratos][1] 的深层逻辑。
 
 ## 一、微服务开发的核心痛点：框架选型的底层诉求
 
@@ -52,7 +52,7 @@ go-kratos 生态的 8 个项目并非孤立存在，而是形成 “核心框架
 
 应用层项目是 go-kratos 架构在特定业务场景的 “**开箱即用实践**”，完全复用核心与扩展层能力，验证生态架构的业务适配性：
 
-#### 企业级后台：[go-kratos-admin][3]
+#### 企业级后台：[go-wind-admin][3]
 
 后端严格遵循`api/service/biz/data`分层，集成`kratos-authn/authz`实现 “角色 - 菜单 - 接口” 三层权限控制，`data`层支持多租户数据隔离（通过`metadata`传递租户 ID）；前端基于 Vben Admin，通过 go-kratos 自动生成的 Swagger 接口对接，复用核心框架的配置与日志能力，无需从零开发基础架构。
 
@@ -82,7 +82,7 @@ go-kratos 的 “接口化定义 + 分层规范” 架构，从源头解决微�
 
 - **通信与安全能力复用**：`kratos-transport`的 MQ 服务与kratos-authn的认证中间件可无缝组合（如 Kafka 消息消费前先做身份校验），中间件逻辑在 HTTP、gRPC、MQ 场景中通用，无需重复开发；
 
-- **工具链与业务模板联动**：`kratos-cli`生成的 CRUD 代码可直接在`go-kratos-admin`中复用（如用户管理模块），`go-crud`模板与`kratos-authz`的权限中间件天然兼容（如为 CRUD 接口自动添加权限校验），避免 “工具生成代码与框架架构冲突” 问题。
+- **工具链与业务模板联动**：`kratos-cli`生成的 CRUD 代码可直接在`go-wind-admin`中复用（如用户管理模块），`go-crud`模板与`kratos-authz`的权限中间件天然兼容（如为 CRUD 接口自动添加权限校验），避免 “工具生成代码与框架架构冲突” 问题。
 
 ### 3. 业务架构：全场景适配，支撑 “从 0 到 1 再到 N”
 
@@ -92,7 +92,7 @@ go-kratos 生态架构覆盖从 “简单 CRUD” 到 “复杂企业系统” �
 
 - **成长期**：集成`kratos-transport`实现 MQ 解耦，接入`kratos-authn/authz`强化安全管控，支撑业务流量增长；
 
-- **成熟期**：基于`go-kratos-admin`搭建企业级后台，通过`go-kratos-cms`拓展内容业务，利用 `go-kratos` 的服务治理能力（熔断、限流）保障稳定性，无需更换框架即可支撑业务迭代。
+- **成熟期**：基于`go-wind-admin`搭建企业级后台，通过`go-kratos-cms`拓展内容业务，利用 `go-kratos` 的服务治理能力（熔断、限流）保障稳定性，无需更换框架即可支撑业务迭代。
 
 ### 4. 稳定性与可观测性：生产级设计，降低运维成本
 
@@ -137,7 +137,7 @@ go-kratos 及其生态从架构层面保障服务可靠性：
 
 [1]: (https://github.com/go-kratos/kratos)
 [2]: (https://github.com/tx7do/kratos-transport)
-[3]: (https://github.com/tx7do/go-kratos-admin)
+[3]: (https://github.com/tx7do/go-wind-admin)
 [4]: (https://github.com/tx7do/go-kratos-cms)
 [5]: (https://github.com/tx7do/kratos-authz)
 [6]: (https://github.com/tx7do/kratos-authn)

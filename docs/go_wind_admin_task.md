@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 定时任务
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 定时任务
 
 在后台管理系统中，定时任务是一个很实用的功能，可以帮助我们自动执行一些周期性的任务，比如定期清理数据、发送邮件提醒等。
 
@@ -22,7 +22,7 @@
 
 在Golang语言里面，我们有像[Asynq](https://github.com/hibiken/asynq)和[Machinery](https://github.com/RichardKnop/machinery)等，类似于`Celery`的分布式任务队列。
 
-在我们Kratos Admin里面，我们将使用Asynq来实现定时任务，Machinery比较重，需要依赖第三方MQ，而Asynq只需要依赖Redis，足够轻量，admin的使用场景下，也足够使用了。
+在我们Go Wind Admin里面，我们将使用Asynq来实现定时任务，Machinery比较重，需要依赖第三方MQ，而Asynq只需要依赖Redis，足够轻量，admin的使用场景下，也足够使用了。
 
 ## Asynq概述
 
@@ -131,7 +131,7 @@ docker run -d \
 
 ![AsynqMon Metrics](https://tx7do.github.io/assets/images/task_queue/asynq_web_ui_metrics.png)
 
-## 如何在Kratos Admin中使用定时任务
+## 如何在Go Wind Admin中使用定时任务
 
 在上面提到的Asynq和Machinery，我已经将之以`transport.Server`的形式进行了封装：
 
@@ -280,8 +280,8 @@ func (s *TaskService) StartAllTask(ctx context.Context) (int32, error) {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料
 

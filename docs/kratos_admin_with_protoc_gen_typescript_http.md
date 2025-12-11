@@ -1,12 +1,12 @@
-# 自动化解放双手：初学者用 go-kratos-admin + protoc-gen-typescript-http 生成前端接口，快速搭建企业级 Admin 系统
+# 自动化解放双手：初学者用 go-wind-admin + protoc-gen-typescript-http 生成前端接口，快速搭建企业级 Admin 系统
 
-作为后端开发者，你是否曾为前后端接口联调头疼？作为前端新手，是否觉得手动封装 Rest 接口繁琐又容易出错？今天就给大家推荐一套 "效率组合拳"——go-kratos-admin（开箱即用的全栈 Admin 框架）+ protoc-gen-typescript-http（Protobuf 驱动的 TS 接口生成器），让你从零到一快速搭建企业级管理系统，还能自动生成类型安全的前端接口，生产力直接翻倍！
+作为后端开发者，你是否曾为前后端接口联调头疼？作为前端新手，是否觉得手动封装 Rest 接口繁琐又容易出错？今天就给大家推荐一套 "效率组合拳"——go-wind-admin（开箱即用的全栈 Admin 框架）+ protoc-gen-typescript-http（Protobuf 驱动的 TS 接口生成器），让你从零到一快速搭建企业级管理系统，还能自动生成类型安全的前端接口，生产力直接翻倍！
 
 ## 一、先搞懂：这两个工具到底是什么？
 
 在动手之前，我们先简单理清核心工具的定位，避免盲目上手：
 
-### 1. go-kratos-admin：全栈 Admin 的 "脚手架王者"
+### 1. go-wind-admin：全栈 Admin 的 "脚手架王者"
 
 它是一个基于 Go 微服务框架**go-kratos**和 Vue3 框架**Vben Admin**开发的前后端分离项目，主打 "开箱即用"。后端集成了用户管理、租户管理、权限控制等企业级必备功能，前端自带美观的管理界面和交互逻辑，不用你从零搭建项目结构、设计数据库表、开发基础功能，相当于直接拿到一个 "半成品"Admin 系统，你只需专注业务开发。
 
@@ -24,7 +24,7 @@
 - 类型安全：生成的 TS 类型与后端完全对齐，避免类型不匹配问题
 - 自动封装：直接生成可调用的服务客户端，不用手动写请求函数
 - 协议驱动：基于 Protobuf 定义接口，前后端遵循统一标准，减少分歧
-- 无缝集成：与 go-kratos 天然兼容，完美适配 go-kratos-admin 的后端架构
+- 无缝集成：与 go-kratos 天然兼容，完美适配 go-wind-admin 的后端架构
 
 ## 二、环境准备：一步到位搭好开发环境
 
@@ -45,7 +45,7 @@
 sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 # 安装Golang（可参考官方脚本）
-curl -fsSL https://raw.githubusercontent.com/tx7do/go-kratos-admin/main/backend/script/prepare_ubuntu.sh | bash
+curl -fsSL https://raw.githubusercontent.com/tx7do/go-wind-admin/main/backend/script/prepare_ubuntu.sh | bash
 
 # 安装Node.js和pnpm
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -67,17 +67,17 @@ go install github.com/go-kratos/protoc-gen-typescript-http@latest
 
 接下来我们一步步搭建项目，从拉取代码到启动系统，再到生成第一个 TS 接口：
 
-### 步骤 1：拉取 go-kratos-admin 项目
+### 步骤 1：拉取 go-wind-admin 项目
 
 ```bash
-git clone https://github.com/tx7do/go-kratos-admin.git
-# 如果只能访问内网则拉取：git clone https://gitee.com/tx7do/go-kratos-admin.git
-cd go-kratos-admin
+git clone https://github.com/tx7do/go-wind-admin.git
+# 如果只能访问内网则拉取：git clone https://gitee.com/tx7do/go-wind-admin.git
+cd go-wind-admin
 ```
 
 ### 步骤 2：启动后端服务（含依赖中间件）
 
-go-kratos-admin 提供了 Makefile 脚本，一键启动所有依赖（数据库、Redis 等）和后端服务：
+go-wind-admin 提供了 Makefile 脚本，一键启动所有依赖（数据库、Redis 等）和后端服务：
 
 ```bash
 # 进入后端目录
@@ -112,7 +112,7 @@ pnpm dev
 
 #### 4.1 找到后端 Protobuf 定义
 
-go-kratos-admin 的接口协议都放在backend/api目录下，比如用户管理的 Proto 文件backend/api/admin/v1/i_user.proto，里面定义了查询用户、创建用户等接口，关键部分如下：
+go-wind-admin 的接口协议都放在backend/api目录下，比如用户管理的 Proto 文件backend/api/admin/v1/i_user.proto，里面定义了查询用户、创建用户等接口，关键部分如下：
 
 ```protobuf
 syntax = "proto3";
@@ -206,7 +206,7 @@ export function requestClientRequestHandler({ path, method, body }: Request) {
 }
 ```
 
-然后就可以开始在前端组件中开始调用接口了，在`go-kratos-admin`当中，所有的接口调用都放在了pinia的状态管理当中，我们以用户服务为例：
+然后就可以开始在前端组件中开始调用接口了，在`go-wind-admin`当中，所有的接口调用都放在了pinia的状态管理当中，我们以用户服务为例：
 
 ```typescript
 // frontend/apps/admin/src/stores/user.state.ts
@@ -331,11 +331,11 @@ onMounted(() => {
 
 ## 四、核心优势：为什么推荐初学者用这套组合？
 
-1. **降低入门门槛**：`go-kratos-admin` 提供现成的 Admin 系统骨架，不用从零学微服务、权限设计、前端布局，新手也能快速出活
+1. **降低入门门槛**：`go-wind-admin` 提供现成的 Admin 系统骨架，不用从零学微服务、权限设计、前端布局，新手也能快速出活
 2. **提升开发效率**：`protoc-gen-typescript-http` 自动生成接口代码，前后端只需维护 Protobuf 协议，不用手动写请求、不用反复联调接口参数
 3. **类型安全保障**：TS 类型与后端 Protobuf 完全对齐，避免生产环境因类型不匹配导致的 bug
 4. **可扩展性强**：后续新增接口时，只需修改 Protobuf 文件，重新执行生成命令，前端直接调用新方法，迭代速度极快
-5. **企业级特性内置**：go-kratos-admin 自带多租户、数据权限、任务调度等企业级功能，后续项目升级不用重构架构
+5. **企业级特性内置**：go-wind-admin 自带多租户、数据权限、任务调度等企业级功能，后续项目升级不用重构架构
 
 ## 五、常见问题与避坑指南
 
@@ -361,18 +361,18 @@ onMounted(() => {
 
 ## 六、总结与下一步学习建议
 
-通过 go-kratos-admin + protoc-gen-typescript-http 的组合，我们用最少的代码搭建了一个带有用户管理功能、类型安全的 Admin 系统。对于初学者来说，这套组合的核心价值是 "避开重复劳动，专注核心业务"。
+通过 go-wind-admin + protoc-gen-typescript-http 的组合，我们用最少的代码搭建了一个带有用户管理功能、类型安全的 Admin 系统。对于初学者来说，这套组合的核心价值是 "避开重复劳动，专注核心业务"。
 
 下一步可以尝试：
 
 新增一个 "产品管理" 接口：在 `backend/api/protos` 下创建 proto 文件，定义 CRUD 接口，生成 TS 代码并在前端调用
-自定义租户套餐：利用 `go-kratos-admin` 的租户管理功能，配置不同的权限套餐
+自定义租户套餐：利用 `go-wind-admin` 的租户管理功能，配置不同的权限套餐
 部署到测试环境：通过`make docker`构建镜像，部署到服务器（支持 Docker Compose 一键部署）
 
 如果你在使用过程中遇到问题，可以参考：
 
-- `go-kratos-admin` 官方文档：项目根目录的 `README.md`（支持中、英、日三种语言）
+- `go-wind-admin` 官方文档：项目根目录的 `README.md`（支持中、英、日三种语言）
 - `protoc-gen-typescript-http` 示例：<https://github.com/go-kratos/protoc-gen-typescript-http/tree/main/examples>
-- 社区支持：添加微信`yang_lin_bo`（备注 `go-kratos-admin`），加入交流群
+- 社区支持：添加微信`yang_lin_bo`（备注 `go-wind-admin`），加入交流群
 
 这套组合不仅适合初学者快速上手企业级项目，也是很多中小型公司的生产环境选择。赶紧动手试试，体验 "协议驱动开发" 带来的效率提升吧！

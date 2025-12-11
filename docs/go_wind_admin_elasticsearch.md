@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 支持ElasticSearch
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 支持ElasticSearch
 
 ElasticSearch（简称 ES）是一款开源的`分布式全文搜索引擎`，同时也是一个基于 Lucene 的实时分布式存储、搜索和分析引擎。它由Elastic 公司开发，主要用于解决海量数据的实时检索、分析和存储问题，具有高性能、高可用、易扩展等特点，广泛应用于日志分析、全文检索、业务监控等场景。
 
@@ -37,7 +37,7 @@ docker run -itd \
     bitnami/elasticsearch:latest
 ```
 
-## 在 Kratos Admin 中使用 ElasticSearch
+## 在 Go Wind Admin 中使用 ElasticSearch
 
 我把ElasticSearch的SDK封装了起来，并且提供了配置文件的支持，使用起来非常简单。
 
@@ -178,5 +178,5 @@ func (r *CandleRepo) Create(ctx context.Context, req *Candle) error {
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 从零开始实现一个新的服务
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 从零开始实现一个新的服务
 
 本文旨在指导开发者从零开始，增加一个新的服务。
 
@@ -854,8 +854,8 @@ package service
 import (
 	...
 
-	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
-	userV1 "kratos-admin/api/gen/go/user/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	userV1 "go-wind-admin/api/gen/go/user/service/v1"
 )
 
 type UserService struct {
@@ -1002,7 +1002,7 @@ package server
 import (
 	...
 
-	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 )
 
 // NewRESTServer new an HTTP server.
@@ -1026,7 +1026,7 @@ package server
 import (
 	...
 
-	userV1 "kratos-admin/api/gen/go/user/service/v1"
+	userV1 "go-wind-admin/api/gen/go/user/service/v1"
 )
 
 // NewGRPCServer new a gRPC server.
@@ -1044,7 +1044,7 @@ func NewGRPCServer(
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料

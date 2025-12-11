@@ -1,14 +1,14 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 站内信
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 站内信
 
-在企业级后台管理系统中，站内信是核心沟通组件之一，承担着系统通知、用户互动、业务提醒等关键场景需求。基于 Go 语言微服务框架 [Kratos](https://github.com/go-kratos/kratos) 构建的 [Kratos Admin](https://github.com/tx7do/go-kratos-admin)，将站内信模块封装为「开箱即用」的标准化组件，无需从零开发即可快速集成，大幅降低开发成本。
+在企业级后台管理系统中，站内信是核心沟通组件之一，承担着系统通知、用户互动、业务提醒等关键场景需求。基于 Go 语言微服务框架 [Kratos](https://github.com/go-kratos/kratos) 构建的 [Go Wind Admin](https://github.com/tx7do/go-wind-admin)，将站内信模块封装为「开箱即用」的标准化组件，无需从零开发即可快速集成，大幅降低开发成本。
 
-本文将从功能价值、技术设计、实操使用、扩展场景四个维度，全面解析 Kratos Admin 站内信模块。​
+本文将从功能价值、技术设计、实操使用、扩展场景四个维度，全面解析 Go Wind Admin 站内信模块。​
 
-## 一、Kratos Admin 与站内信的核心价值​
+## 一、Go Wind Admin 与站内信的核心价值​
 
-### 1.1 Kratos Admin 定位​
+### 1.1 Go Wind Admin 定位​
 
-Kratos Admin 是基于B站 Kratos 微服务框架开发的企业级后台管理系统解决方案，内置用户管理、权限控制、日志审计、配置中心等核心模块，支持 Go 生态主流技术栈（GORM、Redis、ProtoBuf 等），主打「低代码集成」与「高扩展性」，适用于中小团队快速搭建后台系统。​
+Go Wind Admin 是基于B站 Kratos 微服务框架开发的企业级后台管理系统解决方案，内置用户管理、权限控制、日志审计、配置中心等核心模块，支持 Go 生态主流技术栈（GORM、Redis、ProtoBuf 等），主打「低代码集成」与「高扩展性」，适用于中小团队快速搭建后台系统。​
 
 ### 1.2 站内信功能的核心场景​
 
@@ -21,7 +21,7 @@ Kratos Admin 是基于B站 Kratos 微服务框架开发的企业级后台管理�
 
 ## 二、站内信核心技术设计​
 
-Kratos Admin 站内信模块遵循「简洁可靠、易于扩展」的设计原则，核心分为数据模型与业务逻辑两层。​
+Go Wind Admin 站内信模块遵循「简洁可靠、易于扩展」的设计原则，核心分为数据模型与业务逻辑两层。​
 
 ### 2.1 数据模型设计（Postgresql）​
 
@@ -81,7 +81,7 @@ CREATE TABLE public.internal_message_categories (
 
 目前，站内信功能只设计了三张表，用于系统通知。
 
-在 Kratos Admin 中，数据模型已通过 Ent的Schema 进行了定义，开发者可直接调用：​
+在 Go Wind Admin 中，数据模型已通过 Ent的Schema 进行了定义，开发者可直接调用：​
 
 ```go
 // app/admin/service/internal/data/ent/schema/internal_message.go
@@ -175,7 +175,7 @@ func (InternalMessage) Mixin() []ent.Mixin {
 
 ### 2.2 核心业务逻辑​
 
-Kratos Admin 已封装站内信全生命周期逻辑，核心流程如下：​
+Go Wind Admin 已封装站内信全生命周期逻辑，核心流程如下：​
 
 1. 参数校验
 2. 数据组装
@@ -277,7 +277,7 @@ func (s *InternalMessageService) sendNotification(ctx context.Context, messageId
 
 ## 三、API 接口设计与使用​
 
-Kratos Admin 站内信模块提供 RESTful 风格 API，基于 ProtoBuf 定义接口规范，支持跨语言调用。​
+Go Wind Admin 站内信模块提供 RESTful 风格 API，基于 ProtoBuf 定义接口规范，支持跨语言调用。​
 
 ### 3.1 核心 API 列表（Proto 定义）​
 
@@ -397,7 +397,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/internal-message/send \​
 
 ## 四、前端对接
 
-在站内信功能中，「实时性」是提升用户体验的关键 —— 用户无需刷新页面，就能即时收到新消息提醒。这段代码基于 SSE（Server-Sent Events，服务器发送事件） 实现前端实时通知接收，适配 Kratos Admin 后端的推送能力。
+在站内信功能中，「实时性」是提升用户体验的关键 —— 用户无需刷新页面，就能即时收到新消息提醒。这段代码基于 SSE（Server-Sent Events，服务器发送事件） 实现前端实时通知接收，适配 Go Wind Admin 后端的推送能力。
 
 ```typescript
 // apps/admin/src/layouts/basic.vue
@@ -427,18 +427,18 @@ function initSseClient() {
 
 ## 五、总结与展望​
 
-Kratos Admin 站内信模块通过「标准化数据模型 + 封装核心逻辑 + 开放 API 接口」，实现了「开箱即用」的特性，开发者无需关注底层存储与流程设计，仅需通过 API 即可快速集成。目前模块已支持消息发送、读取、过期清理等基础功能，未来将进一步优化：​
+Go Wind Admin 站内信模块通过「标准化数据模型 + 封装核心逻辑 + 开放 API 接口」，实现了「开箱即用」的特性，开发者无需关注底层存储与流程设计，仅需通过 API 即可快速集成。目前模块已支持消息发送、读取、过期清理等基础功能，未来将进一步优化：​
 
 - 新增消息撤回功能（支持发送后 N 分钟内撤回）；​
 - 支持消息标签（如「重要」「工作」），提升筛选效率；​
 - 集成消息搜索（基于 Elasticsearch），支持全文检索。​
 
-若你在使用过程中遇到问题，可通过 Kratos Admin 官方 [GitHub](https://github.com/tx7do/go-kratos-admin) 提交 Issue，或参与社区讨论获取支持。
+若你在使用过程中遇到问题，可通过 Go Wind Admin 官方 [GitHub](https://github.com/tx7do/go-wind-admin) 提交 Issue，或参与社区讨论获取支持。
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料
 

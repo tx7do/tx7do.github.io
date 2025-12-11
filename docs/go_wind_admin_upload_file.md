@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 如何上传文件
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 如何上传文件
 
 在一个CMS和Admin系统里面，文件上传是一个极其重要的功能之一。
 
@@ -191,10 +191,10 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/tx7do/go-utils/trans"
 
-	"kratos-admin/app/admin/service/internal/data"
+	"go-wind-admin/app/admin/service/internal/data"
 
-	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
-	fileV1 "kratos-admin/api/gen/go/file/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	fileV1 "go-wind-admin/api/gen/go/file/service/v1"
 )
 
 type FileService struct {
@@ -294,9 +294,9 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 
-	"kratos-admin/app/admin/service/internal/service"
+	"go-wind-admin/app/admin/service/internal/service"
 
-	fileV1 "kratos-admin/api/gen/go/file/service/v1"
+	fileV1 "go-wind-admin/api/gen/go/file/service/v1"
 )
 
 func registerFileUploadHandler(srv *http.Server, svc *service.FileService) {
@@ -486,5 +486,5 @@ func (s *FileService) PutUploadFile(ctx context.Context, req *fileV1.UploadFileR
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

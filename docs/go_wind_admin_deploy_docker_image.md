@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 如何进行Docker部署后端
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 如何进行Docker部署后端
 
 所有的相关操作命令都封装进Makefile里面。
 
@@ -21,7 +21,7 @@ make docker
 构建出来的服务的镜像，我们可以使用`docker run`命令单个部署：
 
 ```bash
-docker run -itd --name admin-server --network=app-tier -p 7788:7788 --link postgres --link redis --link consul kratos-admin/admin-service:latest
+docker run -itd --name admin-server --network=app-tier -p 7788:7788 --link postgres --link redis --link consul go-wind-admin/admin-service:latest
 ```
 
 如果微服务的配置里面，中间件的地址写成了`127.0.0.1`或者`localhost`，这时候微服务的容器是访问不了中间件的，需要相应的修改，直接填写该中间件的镜像名，并且在`docker run`的时候使用`--link`参数将该中间件的容器链接起来，就可以访问了。
@@ -34,7 +34,7 @@ docker run -itd --name admin-server --network=app-tier -p 7788:7788 --link postg
 
 ```yaml
   admin-service:
-    image: kratos-admin/admin-service
+    image: go-wind-admin/admin-service
     restart: always
     networks:
       - app-tier
@@ -57,5 +57,5 @@ docker run -itd --name admin-server --network=app-tier -p 7788:7788 --link postg
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 后端权限控制
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 后端权限控制
 
 后端的权限控制主要分为两种：
 
@@ -148,7 +148,7 @@ p,data2_admin,data2,write  //表示 data2_admin 可以 write data2
 g,alice,data2_admin  //表示 alice 是 data2_admin
 ```
 
-### 在Kratos Admin中是如何应用Casbin的？
+### 在Go Wind Admin中是如何应用Casbin的？
 
 首先，我们需要安装我封装的库：
 
@@ -184,10 +184,10 @@ import (
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	pagination "github.com/tx7do/kratos-bootstrap/api/gen/go/pagination/v1"
 
-	"kratos-admin/app/admin/service/cmd/server/assets"
+	"go-wind-admin/app/admin/service/cmd/server/assets"
 
-	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
-	userV1 "kratos-admin/api/gen/go/user/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	userV1 "go-wind-admin/api/gen/go/user/service/v1"
 )
 
 type Authorizer struct {
@@ -407,7 +407,7 @@ Rego 是 OPA 的专用声明性策略语言。它用于编写易于阅读和编�
 
 目前，Rego有两个版本：v0和v1。两者的语法差异有点大，并且我之前基于v0的语法写了一篇文章《[golang微服务框架Kratos实现鉴权 - OPA（Open Policy Agent）][10]》，所以，在本文我就不再赘述了。
 
-### 在Kratos Admin中是如何应用OPA的？
+### 在Go Wind Admin中是如何应用OPA的？
 
 首先，我们需要安装我封装的库：
 
@@ -443,10 +443,10 @@ import (
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	pagination "github.com/tx7do/kratos-bootstrap/api/gen/go/pagination/v1"
 
-	"kratos-admin/app/admin/service/cmd/server/assets"
+	"go-wind-admin/app/admin/service/cmd/server/assets"
 
-	adminV1 "kratos-admin/api/gen/go/admin/service/v1"
-	userV1 "kratos-admin/api/gen/go/user/service/v1"
+	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
+	userV1 "go-wind-admin/api/gen/go/user/service/v1"
 )
 
 type Authorizer struct {
@@ -617,7 +617,7 @@ func (a *Authorizer) generateOpaPolicies(roles *userV1.ListRoleResponse, apis *a
 1. 如何创建鉴权器；
 2. 如何生成OPA的策略。
 
-我们使用的Rego文件，我放在了Kratos Admin的`app/admin/service/cmd/server/assets/rbac.rego`，以内嵌文件`//go:embed rbac.rego`的形式提供：
+我们使用的Rego文件，我放在了Go Wind Admin的`app/admin/service/cmd/server/assets/rbac.rego`，以内嵌文件`//go:embed rbac.rego`的形式提供：
 
 ```rego
 package authz.introspection
@@ -659,11 +659,11 @@ Rego代码我们可以在 [Rego Playground][9] 里面进行测试。
 
 ## 项目代码
 
-* [kratos-admin Gitee][1]
-* [kratos-admin Github][2]
+* [go-wind-admin Gitee][1]
+* [go-wind-admin Github][2]
 
-[1]: <https://gitee.com/tx7do/go-kratos-admin>
-[2]: <https://github.com/tx7do/go-kratos-admin>
+[1]: <https://gitee.com/tx7do/go-wind-admin>
+[2]: <https://github.com/tx7do/go-wind-admin>
 [3]: <https://casbin.org/>
 [4]: <https://www.openpolicyagent.org/>
 [5]: <https://research.google/pubs/zanzibar-googles-consistent-global-authorization-system/>

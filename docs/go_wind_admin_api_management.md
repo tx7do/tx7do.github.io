@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - API管理
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - API管理
 
 开门见山，[Kratos][6]内置的RPC是[gRPC][4]，而gRPC是基于[Protobuf][1]作为 **接口规范的描述语言（IDL，Interface Description Language）**。
 
@@ -672,8 +672,8 @@ make dart
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)
 
 ## 参考资料
 

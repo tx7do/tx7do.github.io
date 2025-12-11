@@ -1,4 +1,4 @@
-# 开箱即用的GO后台管理系统 Kratos Admin - 介绍
+# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 介绍
 
 开箱即用的Golang全栈Admin。
 
@@ -25,7 +25,7 @@
 ## 快速上手指南
 
 1. 安装完成docker和golang（参考`backend/script/prepare_ubuntu.sh`、`backend/script/prepare_centos.sh`、`backend/script/prepare_rocky.sh`）
-2. 进入backend目录，执行以下命令，完成后端服务kratos-admin编译和docker镜像构建并启动，同时启动依赖的docker镜像服务
+2. 进入backend目录，执行以下命令，完成后端服务go-wind-admin编译和docker镜像构建并启动，同时启动依赖的docker镜像服务
     ```bash
     make init
     make docker
@@ -68,113 +68,113 @@
 
 - 后台用户登录界面
 
-![后台用户登录界面](/assets/images/kratos_admin/admin_login_page.png)
+![后台用户登录界面](/assets/images/go_wind_admin/admin_login_page.png)
 
 - 后台分析界面
 
-![后台分析界面](/assets/images/kratos_admin/admin_dashboard.png)
+![后台分析界面](/assets/images/go_wind_admin/admin_dashboard.png)
 
 - 租户管理界面
 
-![租户管理界面](/assets/images/kratos_admin/admin_tenant_list.png)
+![租户管理界面](/assets/images/go_wind_admin/admin_tenant_list.png)
 
 - 租户创建界面
 
-![租户创建界面](/assets/images/kratos_admin/admin_tenant_create.png)
+![租户创建界面](/assets/images/go_wind_admin/admin_tenant_create.png)
 
 - 用户管理界面
 
-![用户管理界面](/assets/images/kratos_admin/admin_user_list.png)
+![用户管理界面](/assets/images/go_wind_admin/admin_user_list.png)
 
 - 用户创建界面
 
-![用户创建界面](/assets/images/kratos_admin/admin_user_create.png)
+![用户创建界面](/assets/images/go_wind_admin/admin_user_create.png)
 
 - 组织管理界面
 
-![组织管理界面](/assets/images/kratos_admin/admin_organization_list.png)
+![组织管理界面](/assets/images/go_wind_admin/admin_organization_list.png)
 
 - 组织创建界面
 
-![组织创建界面](/assets/images/kratos_admin/admin_organization_create.png)
+![组织创建界面](/assets/images/go_wind_admin/admin_organization_create.png)
 
 - 部门管理界面
 
-![部门管理界面](/assets/images/kratos_admin/admin_department_list.png)
+![部门管理界面](/assets/images/go_wind_admin/admin_department_list.png)
 
 - 部门创建界面
 
-![部门创建界面](/assets/images/kratos_admin/admin_department_create.png)
+![部门创建界面](/assets/images/go_wind_admin/admin_department_create.png)
 
 - 职位管理界面
 
-![职位管理界面](/assets/images/kratos_admin/admin_position_list.png)
+![职位管理界面](/assets/images/go_wind_admin/admin_position_list.png)
 
 - 职位创建界面
 
-![职位创建界面](/assets/images/kratos_admin/admin_position_create.png)
+![职位创建界面](/assets/images/go_wind_admin/admin_position_create.png)
 
 - 角色管理界面
 
-![角色管理界面](/assets/images/kratos_admin/admin_role_list.png)
+![角色管理界面](/assets/images/go_wind_admin/admin_role_list.png)
 
 - 角色创建界面
 
-![角色创建界面](/assets/images/kratos_admin/admin_role_create.png)
+![角色创建界面](/assets/images/go_wind_admin/admin_role_create.png)
 
 - 后台目录管理界面
 
-![后台目录管理界面](/assets/images/kratos_admin/admin_menu_list.png)
+![后台目录管理界面](/assets/images/go_wind_admin/admin_menu_list.png)
 
 - 后台目录创建界面
 
-![后台目录创建界面](/assets/images/kratos_admin/admin_menu_create.png)
+![后台目录创建界面](/assets/images/go_wind_admin/admin_menu_create.png)
 
 - 调度任务管理界面
 
-![调度任务管理界面](/assets/images/kratos_admin/admin_task_list.png)
+![调度任务管理界面](/assets/images/go_wind_admin/admin_task_list.png)
 
 - 调度任务创建界面
 
-![调度任务创建界面](/assets/images/kratos_admin/admin_task_create.png)
+![调度任务创建界面](/assets/images/go_wind_admin/admin_task_create.png)
 
 - 数据字典管理界面
 
-![数据字典管理界面](/assets/images/kratos_admin/admin_dict_list.png)
+![数据字典管理界面](/assets/images/go_wind_admin/admin_dict_list.png)
 
 - 数据字典条目创建界面
 
-![数据字典条目创建界面](/assets/images/kratos_admin/admin_dict_entry_create.png)
+![数据字典条目创建界面](/assets/images/go_wind_admin/admin_dict_entry_create.png)
 
 - API资源管理界面
 
-![API资源管理界面](/assets/images/kratos_admin/admin_api_resource_list.png)
+![API资源管理界面](/assets/images/go_wind_admin/admin_api_resource_list.png)
 
 - 登录限制管理界面
 
-![登录限制管理界面](/assets/images/kratos_admin/admin_login_restriction_list.png)
+![登录限制管理界面](/assets/images/go_wind_admin/admin_login_restriction_list.png)
 
 - 后台登录日志列表界面
 
-![后台登录日志列表界面](/assets/images/kratos_admin/admin_login_log_list.png)
+![后台登录日志列表界面](/assets/images/go_wind_admin/admin_login_log_list.png)
 
 - 后台操作日志列表界面
 
-![后台操作日志列表界面](/assets/images/kratos_admin/admin_operation_log_list.png)
+![后台操作日志列表界面](/assets/images/go_wind_admin/admin_operation_log_list.png)
 
 - 站内信消息管理界面
 
-![站内信消息管理界面](/assets/images/kratos_admin/admin_internal_message_list.png)
+![站内信消息管理界面](/assets/images/go_wind_admin/admin_internal_message_list.png)
 
 - 站内信消息发布界面
 
-![站内信消息发布界面](/assets/images/kratos_admin/admin_internal_message_publish.png)
+![站内信消息发布界面](/assets/images/go_wind_admin/admin_internal_message_publish.png)
 
 - 后端内置Swagger UI界面
 
-![后端内置Swagger UI界面](/assets/images/kratos_admin/api_swagger_ui.png)
+![后端内置Swagger UI界面](/assets/images/go_wind_admin/api_swagger_ui.png)
 
 ## 项目代码
 
-* [kratos-admin Gitee](https://gitee.com/tx7do/go-kratos-admin)
-* [kratos-admin Github](https://github.com/tx7do/go-kratos-admin)
+* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
+* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

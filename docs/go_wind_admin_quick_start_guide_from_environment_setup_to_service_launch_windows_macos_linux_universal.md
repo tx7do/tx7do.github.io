@@ -1,6 +1,6 @@
-# go-kratos-admin 快速上手指南：从环境搭建到启动服务（Windows/macOS/Linux 通用）
+# go-wind-admin 快速上手指南：从环境搭建到启动服务（Windows/macOS/Linux 通用）
 
-go-kratos-admin 作为开箱即用的企业级 Admin 全栈解决方案，核心优势之一是通过 `backend/script` 目录的 **自动化脚本** 降低跨系统部署门槛。本文以 “脚本驱动 + 实操验证” 为核心，优化步骤连贯性与细节提示，补充用户高频踩坑点，帮你更顺畅地完成从环境到服务的全流程搭建。
+go-wind-admin 作为开箱即用的企业级 Admin 全栈解决方案，核心优势之一是通过 `backend/script` 目录的 **自动化脚本** 降低跨系统部署门槛。本文以 “脚本驱动 + 实操验证” 为核心，优化步骤连贯性与细节提示，补充用户高频踩坑点，帮你更顺畅地完成从环境到服务的全流程搭建。
 
 **前置检查清单（启动前必看）**
 
@@ -23,7 +23,7 @@ go-kratos-admin 作为开箱即用的企业级 Admin 全栈解决方案，核心
 |`prepare_windows.ps1`	|Windows|通过 Scoop 包管理器安装 Git/make/Golang/Docker，配置 Docker 自启动|
 |`docker_compose_install.sh`	|全系统（需 Docker）	|一键启动 **中间件（PostgreSQL/Redis/Consul）+ 后端服务** 容器，零手动配置|
 |`docker_compose_install_depends.sh`	|全系统	|仅启动中间件容器（适合 “中间件 Docker + 服务本地运行” 的混合部署场景）|
-|`build_install.sh`	|全系统（需 Golang）	|编译后端微服务，部署到 `/root/app/kratos_admin`（Linux/macOS）或对应路径|
+|`build_install.sh`	|全系统（需 Golang）	|编译后端微服务，部署到 `/root/app/go_wind_admin`（Linux/macOS）或对应路径|
 |`install_golang.sh`	|Linux/macOS	|单独安装指定版本 Golang（若脚本自动安装的版本不满足需求时用）|
 
 ## 二、环境搭建：用脚本一键搞定依赖（分系统操作）
@@ -34,10 +34,10 @@ go-kratos-admin 作为开箱即用的企业级 Admin 全栈解决方案，核心
 
 ```bash
 # 克隆项目（HTTPS 方式，无需 SSH 密钥）
-git clone https://github.com/tx7do/go-kratos-admin.git
+git clone https://github.com/tx7do/go-wind-admin.git
 
 # 进入项目根目录
-cd go-kratos-admin
+cd go-wind-admin
 ```
 
 ### 2.2 Windows 系统：用 PowerShell 脚本自动装依赖
@@ -49,7 +49,7 @@ cd go-kratos-admin
 ```powershell
 # 1. 以管理员身份打开 PowerShell（右键开始菜单 → 选择“Windows PowerShell (管理员)”）
 # 2. 进入 backend 目录（注意路径分隔符用 \ 或 /，示例：若项目在 D 盘）
-cd D:/go-kratos-admin/backend
+cd D:/go-wind-admin/backend
 
 # 3. 允许执行本地脚本（仅首次执行，后续无需重复）
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -89,7 +89,7 @@ pnpm --version    # 预期：pnpm 8.0.0+
 
 ```bash
 # 进入 backend 目录
-cd go-kratos-admin/backend
+cd go-wind-admin/backend
 
 # 给所有脚本添加执行权限（避免“Permission denied”）
 chmod +x ./script/*.sh
@@ -166,7 +166,7 @@ docker pull hello-world && docker run hello-world  # 预期输出“Hello from D
 
 ```bash
 # 确保在 backend 目录下
-cd go-kratos-admin/backend
+cd go-wind-admin/backend
 
 # 一键启动所有服务（首次运行需拉取镜像，耐心等待 3-5 分钟）
 ./script/docker_compose_install.sh
@@ -174,7 +174,7 @@ cd go-kratos-admin/backend
 
 **验证启动结果：**
 
-- 执行 `docker ps`，若看到 `go-kratos-admin-backend`、`postgres`、`redis`、`consul` 等容器状态为 `Up`，则部署成功；
+- 执行 `docker ps`，若看到 `go-wind-admin-backend`、`postgres`、`redis`、`consul` 等容器状态为 `Up`，则部署成功；
 - 后端服务默认端口：7788（API 服务）、7789（SSE 服务）。
 
 ### 3.2 模式 2：混合部署（中间件 Docker + 服务本地运行）
@@ -184,14 +184,14 @@ cd go-kratos-admin/backend
 #### 1. 仅启动中间件容器（用专用脚本）：
 
 ```bash
-cd go-kratos-admin/backend
+cd go-wind-admin/backend
 ./script/docker_compose_install_depends.sh
 ```
 
 #### 2. 编译并部署本地服务（用 `build_install.sh` 脚本）：
 
 ```bash
-# 编译后端代码并部署到默认路径（Linux/macOS 为 /root/app/kratos_admin）
+# 编译后端代码并部署到默认路径（Linux/macOS 为 /root/app/go_wind_admin）
 ./script/build_install.sh
 ```
 
@@ -214,15 +214,15 @@ cd go-kratos-admin/backend
 
 ```bash
 # 进入部署目录（Linux/macOS 示例路径）
-cd /root/app/kratos_admin
+cd /root/app/go_wind_admin
 
 # 用 PM2 启动服务（脚本已自动安装 PM2）
-pm2 start ./server --name kratos_admin
+pm2 start ./server --name go_wind_admin
 ```
 
 #### 验证本地服务：
 
-- 执行 `pm2 status`，若 `kratos_admin` 状态为 `online`，则启动成功；
+- 执行 `pm2 status`，若 `go_wind_admin` 状态为 `online`，则启动成功；
 - 访问 <http://localhost:7788/docs/>，返回 Swagger UI的网页界面 即正常。
 
 ## 四、前端服务启动：快速跑通页面（全系统通用）
@@ -232,7 +232,7 @@ pm2 start ./server --name kratos_admin
 ### 1. 进入前端目录：
 
 ```bash
-cd go-kratos-admin/frontend
+cd go-wind-admin/frontend
 ```
 
 ### 2. 安装前端依赖（若速度慢，可切换镜像）：
@@ -298,8 +298,8 @@ pnpm dev
 
 ### 3. 寻求支持：
 
-- 官方微信：`yang_lin_bo`（备注 “`go-kratos-admin`”）；
-- GitHub Issue：<https://github.com/tx7do/go-kratos-admin/issues>（提交问题时附日志截图，便于定位）。
+- 官方微信：`yang_lin_bo`（备注 “`go-wind-admin`”）；
+- GitHub Issue：<https://github.com/tx7do/go-wind-admin/issues>（提交问题时附日志截图，便于定位）。
 
 ## 总结
 
