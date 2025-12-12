@@ -1,4 +1,4 @@
-# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 站内信
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：站内信
 
 在企业级后台管理系统中，站内信是核心沟通组件之一，承担着系统通知、用户互动、业务提醒等关键场景需求。基于 Go 语言微服务框架 [Kratos](https://github.com/go-kratos/kratos) 构建的 [Go Wind Admin](https://github.com/tx7do/go-wind-admin)，将站内信模块封装为「开箱即用」的标准化组件，无需从零开发即可快速集成，大幅降低开发成本。
 

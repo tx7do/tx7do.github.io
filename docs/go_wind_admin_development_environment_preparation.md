@@ -1,60 +1,84 @@
-# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 如何搭建开发环境
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：如何搭建开发环境
 
-## 如何搭建前端开发环境
+开发环境的稳定与规范是高效开发的基础。风行·GoWind Admin 作为前后端一体的企业级中后台框架，需搭建适配的前端、后端开发环境以保障开发流程顺畅。本文将详细拆解前端、后端开发环境的搭建步骤，涵盖工具安装、插件配置、网络代理设置等核心内容，适配 Windows/macOS 主流系统，助力开发者快速完成环境初始化。
 
-### 安装开发工具
+## 一、前端开发环境搭建
 
-需要安装的软件有：
+前端基于 Vue + TypeScript 技术栈，需安装代码管理、开发IDE、运行环境及依赖管理工具，同时配置 Protobuf 相关插件以支持接口定义解析。
 
-- [Git](https://git-scm.com/)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [WebStorm](https://www.jetbrains.com/webstorm/)
-- [Node.js](https://nodejs.org/)
-- [npm](https://www.npmjs.com/)
-- [pnpm](https://pnpm.io/)
+### 1. 必备开发工具清单
 
-#### Windows
+以下工具为前端开发核心依赖，确保代码拉取、项目编译、依赖管理等流程正常运行：
 
-Windows下安装软件的方法有很多种，这里推荐使用软件包管理工具：[scoop](https://scoop.sh/)。
+- **Git**：代码版本控制工具，用于拉取项目源码
+- **Visual Studio Code / WebStorm**：前端开发IDE，推荐 WebStorm（对 Vue/TypeScript 支持更友好）
+- **Node.js**：前端运行环境，推荐 LTS 稳定版本（16.x+ 或 18.x+）
+- **npm/pnpm**：依赖管理工具，pnpm 为项目推荐优先使用（速度更快、占用空间更小）
 
-```shell
+### 2. 分系统工具安装指南
+
+推荐使用系统专用包管理工具安装，可自动解决依赖关联，简化安装流程。
+
+#### 2.1 Windows 系统（推荐 Scoop）
+
+Scoop 是 Windows 下轻量型命令行包管理工具，支持一键安装多款开发软件：
+
+##### 1. 先安装 Scoop（需以管理员身份运行 PowerShell）：
+
+```bash
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+```
+
+##### 2. 添加软件仓库并安装所需工具：
+
+```bash
 scoop bucket add extras
 scoop install git vscode webstorm nodejs pnpm
 ```
 
-#### MacOS
+#### 2.2 macOS 系统（推荐 Homebrew）
 
-MacOS下安装软件的方法有很多种，这里推荐使用软件包管理工具：[Homebrew](https://brew.sh/)。
+Homebrew 是 macOS 官方推荐的包管理工具，覆盖大部分开发软件：
 
-```shell
+##### 1. 先安装 Homebrew（终端执行）：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+##### 2. 安装所需工具（开发IDE需通过 `--cask` 参数安装）：
+
+```bash
 brew install git node pnpm
 brew install --cask visual-studio-code webstorm
 ```
 
-### 安装插件
+### 3. 核心插件安装（Protobuf 相关）
 
-前端需要的插件主要是Protobuf的插件：
+项目通过 Protobuf 定义接口规范，需安装对应插件实现 Protobuf 到 TypeScript/Dart 代码的生成：
 
-- [ts-proto](https://github.com/stephenh/ts-proto)
-- [Dart plugin for protobuf compiler](https://pub.dev/packages/protoc_plugin)
+#### 3.1 Dart 插件（protoc_plugin）
 
-安装方法：
-
-#### Dart
-
-```shell
+```bash
 flutter pub global activate protoc_plugin
 ```
 
-#### TypeScript
+#### 3.2 TypeScript 插件
 
-```shell
+```bash
+# ts-proto
 npm install -g ts-proto
+
+# protoc-gen-typescript-http
+go install github.com/go-kratos/protoc-gen-typescript-http@latest
 ```
 
-### npm/pnpm/yarn切换源
+#### 4. 依赖源配置（国内网络必备）
 
-* 国内镜像
+国内网络直接访问 npm 官方源速度较慢，建议切换为国内镜像源，提升依赖安装效率。以下为 npm/pnpm/yarn 三种工具的源配置方法：
+
+##### 4.1 国内常用镜像源列表
 
 | 提供商  | 搜索地址                   | registry地址                                         |
 |------|------------------------|----------------------------------------------------|
@@ -64,183 +88,137 @@ npm install -g ts-proto
 | 浙江大学 |                        | http://mirrors.zju.edu.cn/npm/                     |
 | 南京邮电 |                        | https://mirrors.njupt.edu.cn/nexus/repository/npm/ |
 
-#### npm
+##### 4.2 npm 源配置
 
-```shell
-# 查看源
+```bash
+# 查看当前源
 npm get registry
-npm config get registry
-
-# 临时修改
+# 临时修改（仅当前安装命令生效）
 npm --registry https://registry.npmmirror.com install any-touch
-
-# 永久修改
+# 永久修改（推荐）
 npm config set registry https://registry.npmmirror.com
-
-# 还原
+# 还原官方源
 npm config set registry https://registry.npmjs.org
 ```
 
-#### nrm
+##### 4.3 pnpm 源配置
 
-```shell
-# 安装 nrm
-npm install -g nrm
-
-# 列出当前可用的所有镜像源
-nrm ls
-
-# 使用淘宝镜像源
-nrm use taobao
-
-# 测试访问速度
-nrm test taobao
-```
-
-#### pnpm
-
-```shell
-# 查看源
+```bash
+# 查看当前源
 pnpm get registry
-pnpm config get registry
-
 # 临时修改
 pnpm --registry https://registry.npmmirror.com install any-touch
-
-# 永久修改
+# 永久修改（推荐）
 pnpm config set registry https://registry.npmmirror.com
-
-# 还原
+# 还原官方源
 pnpm config set registry https://registry.npmjs.org
 ```
 
-#### yarn
+##### 4.4 源管理工具（nrm/yrm，可选）
 
-```shell
-# 查看源
-yarn config get registry
+若需频繁切换源，可安装专用管理工具，简化操作：
 
-# 临时修改
-yarn add any-touch@latest --registry=https://registry.npmjs.org/
+###### nrm（适配 npm/yarn）：
 
-# 永久修改
-yarn config set registry https://registry.npmmirror.com/
-
-# 还原
-yarn config set registry https://registry.yarnpkg.com
+```bash
+npm install -g nrm
+nrm ls  # 列出所有可用源
+nrm use taobao  # 切换到淘宝源
+nrm test taobao  # 测试源访问速度
 ```
 
-#### yrm
+###### yrm（适配 yarn）：
 
-```shell
-# 安装 yrm
+```bash
 npm install -g yrm
-
-# 列出当前可用的所有镜像源
-yrm ls
-
-# 使用淘宝镜像源
-yrm use taobao
-
-# 测试访问速度
-yrm test taobao
+yrm ls  # 列出所有可用源
+yrm use taobao  # 切换到淘宝源
+yrm test taobao  # 测试源访问速度
 ```
 
-## 如何搭建后端开发环境
+## 二、后端开发环境搭建
 
-### 安装开发工具
+后端基于 Golang + Kratos 微服务框架，需安装 Go 环境、容器化工具、Protobuf 编译工具及 IDE 等，同时配置 Go 代理以解决国内网络包拉取问题。
 
-需要安装的软件有：
+### 1. 必备开发工具清单
 
-- [Git](https://git-scm.com/)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Goland](https://www.jetbrains.com/go/)
-- [Docker](https://www.docker.com/)
-- [Go](https://go.dev/)
-- [protobuf-compiler](https://grpc.io/docs/protoc-installation/)
-- [Make](https://www.make.com/en)
-- [Buf](https://buf.build/)
-- [gawk](https://www.gnu.org/software/gawk/)
-- [grep](https://www.gnu.org/software/grep/)
-- [sed](https://www.gnu.org/software/sed/)
+- **Git**：代码版本控制工具
+- **Visual Studio Code / GoLand**：后端开发IDE，推荐 GoLand（对 Go 语法、微服务框架支持更友好）
+- **Docker**：容器化工具，用于运行依赖中间件（postgres、redis 等）
+- **Go**：后端开发语言环境，推荐 1.20+ 版本
+- **Protobuf 相关工具**：protoc-compiler（Protobuf 编译器）、各类 Go 语言 Protobuf 插件
+- **Make/Buf/gawk/grep/sed**：构建工具与文本处理工具，用于项目编译、插件安装
 
-#### Windows
+### 2. 分系统工具安装指南
 
-Windows下安装软件的方法有很多种，这里推荐使用软件包管理工具：[scoop](https://scoop.sh/)。
+#### 2.1 Windows 系统（推荐 Scoop）
 
-一键安装所有的开发软件：
-
-```shell
+```bash
+# 若未安装 Scoop，先执行前文 Windows 系统 Scoop 安装步骤
 scoop bucket add extras
 scoop install git vscode goland docker go protobuf make buf gawk grep sed
 ```
 
-#### MacOS
+#### 2.2 macOS 系统（推荐 Homebrew）
 
-MacOS下安装软件的方法有很多种，这里推荐使用软件包管理工具：[Homebrew](https://brew.sh/)。
-
-```shell
+```bash
+# 若未安装 Homebrew，先执行前文 macOS 系统 Homebrew 安装步骤
 brew install git docker go protobuf make buf gawk grep gnu-sed
 brew install --cask visual-studio-code goland
 ```
 
-### 安装插件
+说明：macOS 自带的 sed 为 BSD 版本，部分命令不兼容，故安装 gnu-sed（GNU 版本 sed）。
 
-后端需要的插件主要是Protobuf的插件：
+### 3. 核心插件安装（Protobuf 相关）
 
-- [protoc-gen-go](https://google.golang.org/protobuf/cmd/protoc-gen-go)
-- [protoc-gen-go-grpc](https://google.golang.org/grpc/cmd/protoc-gen-go-grpc)
-- [protoc-gen-go-http](https://github.com/go-kratos/kratos/cmd/protoc-gen-go-http)
-- [protoc-gen-go-errors](https://github.com/go-kratos/kratos/cmd/protoc-gen-go-errors)
-- [protoc-gen-openapi](https://github.com/google/gnostic/cmd/protoc-gen-openapi)
-- [protoc-gen-validate](https://github.com/envoyproxy/protoc-gen-validate)
+后端通过 Protobuf 定义接口与数据结构，需安装对应 Go 插件生成 Go 代码、GRPC 服务代码等。提供两种安装方式，按需选择：
 
-安装方法：
+#### 3.1 手动安装（精准控制版本）
 
-```shell
+```bash
+# Protobuf 核心插件
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+# GRPC 服务生成插件
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+# Kratos HTTP 服务生成插件
 go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
+# Kratos 错误码生成插件
 go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
+# OpenAPI 文档生成插件
 go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
+# 数据校验插件
 go install github.com/envoyproxy/protoc-gen-validate@latest
 ```
 
-或者你可以在项目的根目录下执行make，该命令会把前后端的插件都装好的：
+#### 3.2 一键安装（项目内置脚本，推荐）
 
-```shell
+项目根目录提供 `make plugin` 命令，可自动安装前后端所有所需 Protobuf 插件，无需手动逐个执行：
+
+```bash
+# 进入项目根目录
+cd go-wind-admin
+# 一键安装所有插件
 make plugin
 ```
 
-### Golang设置网络代理
+### 4. Golang 网络代理配置（国内网络必备）
 
-#### 打开模块支持
+Go 模块默认从 GitHub 等境外仓库拉取，国内网络直接访问易失败，需配置代理加速。以下为完整配置步骤：
 
-```shell
+#### 4.1 基础配置（开启模块支持、关闭校验等）
+
+```bash
+# 开启 Go 模块支持（Go 1.11+ 必需）
 go env -w GO111MODULE=on
-```
-
-#### 取消代理
-
-```shell
+# 取消代理（重置时使用）
 go env -w GOPROXY=direct
-```
-
-#### 取消校验
-
-```shell
+# 关闭校验（避免因网络问题导致校验失败）
 go env -w GOSUMDB=off
-```
-
-#### 设置不走 proxy 的私有仓库或组，多个用逗号相隔（可选）
-
-```shell
+# 设置私有仓库不走代理（可选，替换为自己的私有仓库地址）
 go env -w GOPRIVATE=git.mycompany.com,github.com/my/private
 ```
 
-#### 设置代理
-
-##### 国内常用代理列表
+#### 4.2 国内常用代理列表
 
 | 提供者      | 地址                                  |
 |----------|-------------------------------------|
@@ -250,76 +228,49 @@ go env -w GOPRIVATE=git.mycompany.com,github.com/my/private
 | GoCenter | https://gocenter.io                 |
 | 百度       | https://goproxy.bj.bcebos.com/      |
 
-**“direct”** 为特殊指示符，用于指示 Go 回源到模块版本的源地址去抓取(比如 GitHub 等)，当值列表中上一个 Go module proxy 返回
-404 或 410 错误时，Go 自动尝试列表中的下一个，遇见 **“direct”** 时回源，遇见 EOF 时终止并抛出类似 “invalid version: unknown
-revision...” 的错误。
+说明：`direct` 为特殊指示符，代表当代理不可用时直接回源到仓库地址（如 GitHub）拉取，提升可靠性。
 
-##### 官方全球代理
+#### 4.3 代理配置命令（推荐七牛云）
 
-```shell
-go env -w GOPROXY=https://proxy.golang.com.cn,direct
-go env -w GOSUMDB=sum.golang.google.cn
-```
-
-或者
-
-```shell
-go env -w GOPROXY=https://goproxy.io,direct
-go env -w GOSUMDB=gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6
-```
-
-##### 七牛云
-
-```shell
+```bash
 go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GOSUMDB=goproxy.cn/sumdb/sum.golang.org
 ```
 
-##### 阿里云
+#### 4.4 常见问题解决：代理配置不生效
 
-```shell
-go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
-# GOSUMDB 不支持
-```
+若执行 `go env -w GOPROXY=...` 后提示 `warning: go env -w GOPROXY=... does not override conflicting OS environment variable`，原因是之前通过系统环境变量设置过 GOPROXY，`-w` 参数无法覆盖系统级环境变量。
 
-##### GoCenter
+解决方案：
 
-```shell
-go env -w GOPROXY=https://gocenter.io,direct
-# 不支持 GOSUMDB
-```
+- Windows 系统（PowerShell）：`Clear-Variable GOPROXY -Scope Process`
+- macOS/Linux 系统（终端）：`unset GOPROXY`
 
-##### 百度
+执行后重新执行代理配置命令即可生效。
 
-```shell
-go env -w GOPROXY=https://goproxy.bj.bcebos.com/,direct
-# 不支持 GOSUMDB
-```
+## 三、IDE 补充插件安装（BUF 插件）
 
-#### warning: go env -w GOPROXY=... does not override conflicting OS environment variable
+项目使用 Buf 管理 Protobuf 依赖，若 IDE 未安装 Buf 插件，会导致通过 Buf 引用的第三方 Protobuf 文件无法解析，影响开发体验。需安装对应 IDE 的 Buf 插件：
 
-**原因：**
+### Visual Studio Code（VSC）：
 
-之前安装go的时候，用环境变量的方式设置过代理地址，go13提供了-w参数来设置GOPROXY变量，但无法覆盖OS级别的环境变量
+插件名称：`Buf for Protocol Buffers`，安装地址：<https://marketplace.visualstudio.com/items?itemName=bufbuild>.vscode-buf
 
-**解决方法：**
+### GoLand：
+
+插件名称：`Buf for Protocol Buffers`，安装地址：<https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers>
+
+安装完成后重启 IDE，即可正常解析 Buf 管理的 Protobuf 依赖。
+
+## 四、项目源码获取
+
+环境搭建完成后，拉取 GoWind Admin 项目源码开始开发：
+
+- Gitee（国内访问速度快）：<https://gitee.com/tx7do/go-wind-admin>
+- GitHub：<https://github.com/tx7do/go-wind-admin>
 
 ```bash
-unset GOPROXY
-
-# or 
-
-Clear-Variable GOPROXY
+# 拉取源码示例（Gitee）
+git clone https://gitee.com/tx7do/go-wind-admin.git
+cd go-wind-admin
 ```
-
-## IDE 插件安装
-
-后端开发需要安装BUF的插件，否则，通过Buf引用的第三方proto，IDE会无法解析。
-
-- [VSC](https://marketplace.visualstudio.com/items?itemName=bufbuild.vscode-buf)
-- [Goland](https://plugins.jetbrains.com/plugin/19147-buf-for-protocol-buffers)
-
-## 项目代码
-
-* [go-wind-admin Gitee](https://gitee.com/tx7do/go-wind-admin)
-* [go-wind-admin Github](https://github.com/tx7do/go-wind-admin)

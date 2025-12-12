@@ -1,4 +1,4 @@
-# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 后端权限控制
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：后端权限控制
 
 后端的权限控制主要分为两种：
 
@@ -33,7 +33,7 @@ Casbin最初是一个用Go语言打造的开源轻量级的统一访问控制框
 
 以上三个核心概念，在官方提供的[编辑器][8]里边具有直观的体现，它实质上是一个交互式解释器，你也可以在其中测试模型和策略。
 
-![Casbin Editor](/assets/images/authz/casbin_editor.png)
+![Casbin Editor](https://tx7do.github.io/assets/images/authz/casbin_editor.png)
 
 我们举个简单的例子来描述：用户bob发起了一个HTTP的GET **请求** `/users`；**模型** 提供了判定的规则，比如我们经常使用的RBAC模型，我们定义一个角色：超级用户，它可以访问一切资源；**策略**，提供了用户账户与角色、资源、行为等的映射关系，通过这个映射关系，系统得知bob是超级用户角色。综上，系统得出结论：bob是超级用户，可以访问一切资源。
 
@@ -391,7 +391,7 @@ OPA 首次进入 CNCF 并成为 sandbox 级别的项目是在 2018 年，在 202
 
 以上四个核心概念，在官方提供的[试炼场][9]里边具有直观的体现，你可以在当中对模型和数据进行测试。
 
-![OPA Rego Playground](/assets/images/authz/opa_rego_playground.png)
+![OPA Rego Playground](https://tx7do.github.io/assets/images/authz/opa_rego_playground.png)
 
 从微观上，一个请求输入由以下一个三元组组成：
 

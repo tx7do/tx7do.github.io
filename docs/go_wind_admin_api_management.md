@@ -1,4 +1,4 @@
-# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - API管理
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：API管理
 
 开门见山，[Kratos][6]内置的RPC是[gRPC][4]，而gRPC是基于[Protobuf][1]作为 **接口规范的描述语言（IDL，Interface Description Language）**。
 

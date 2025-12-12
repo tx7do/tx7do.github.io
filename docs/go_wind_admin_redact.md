@@ -1,4 +1,4 @@
-# Go Wind Admin（风行）：开箱即用的 GO 全栈后台管理系统 - 数据脱敏和隐私保护
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：数据脱敏和隐私保护
 
 Go Wind Admin 的数据脱敏能力，是基于 Protobuf 生态下的[arrakis-digital/protoc-gen-redact](https://github.com/arrakis-digital/protoc-gen-redact)插件实现的 —— 通过在 Protobuf 消息定义中为敏感字段（如手机号、身份证号）添加脱敏注解（如(`(redact.custom).string = "r*d@ct*d"`)），由插件自动生成适配业务的脱敏方法（如 Go 语言的Redact()方法），无需侵入业务逻辑即可完成敏感数据的遮挡处理，同时保持与 Protobuf 消息结构的强绑定，避免跨层配置不一致问题。配微服务接口、日志打印、数据存储等场景的隐私保护需求。
 

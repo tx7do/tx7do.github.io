@@ -1,34 +1,36 @@
-# 自动化解放双手：初学者用 go-wind-admin + protoc-gen-typescript-http 生成前端接口，快速搭建企业级 Admin 系统
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：自动化解放双手，初学者快速搭建系统并自动生成前端接口
 
-作为后端开发者，你是否曾为前后端接口联调头疼？作为前端新手，是否觉得手动封装 Rest 接口繁琐又容易出错？今天就给大家推荐一套 "效率组合拳"——go-wind-admin（开箱即用的全栈 Admin 框架）+ protoc-gen-typescript-http（Protobuf 驱动的 TS 接口生成器），让你从零到一快速搭建企业级管理系统，还能自动生成类型安全的前端接口，生产力直接翻倍！
+作为后端开发者，你是否曾为前后端接口联调反复沟通？作为前端新手，是否觉得手动封装 Rest 接口繁琐又易出错？今天就为大家推荐一套高效组合拳——GoWind Admin（开箱即用的全栈中后台框架）+ protoc-gen-typescript-http（Protobuf 驱动的 TS 接口生成器），让你从零到一快速搭建企业级管理系统，还能自动生成类型安全的前端接口，生产力直接翻倍！
 
 ## 一、先搞懂：这两个工具到底是什么？
 
-在动手之前，我们先简单理清核心工具的定位，避免盲目上手：
+动手实操前，我们先理清核心工具的定位，避免盲目上手：
 
-### 1. go-wind-admin：全栈 Admin 的 "脚手架王者"
+### 1. GoWind Admin：企业级中后台的「脚手架王者」
 
-它是一个基于 Go 微服务框架**go-kratos**和 Vue3 框架**Vben Admin**开发的前后端分离项目，主打 "开箱即用"。后端集成了用户管理、租户管理、权限控制等企业级必备功能，前端自带美观的管理界面和交互逻辑，不用你从零搭建项目结构、设计数据库表、开发基础功能，相当于直接拿到一个 "半成品"Admin 系统，你只需专注业务开发。
-
-核心优势：
-- 后端：`Golang` + `go-kratos` + `ent/gorm`，支持多租户、数据权限、动态 API 等企业级特性
-- 前端：`Vue3` + `TypeScript` + `Antdv` + `Vben Admin`，界面美观、组件丰富
-- 部署灵活：支持单体架构开发 / 部署，新手也不用纠结微服务复杂度
-- 功能齐全：内置用户、角色、组织、任务调度、文件管理等 17 + 核心模块
-
-### 2. protoc-gen-typescript-http：接口生成的 "效率神器"
-
-这是 go-kratos 生态下的 TypeScript 代码生成器，核心作用是**根据 Protobuf 文件自动生成前端 Rest 接口客户端和类型定义**。简单说，后端只要定义好 Protobuf 接口协议，前端就能直接拿到可调用的 TS 代码，不用手动写 axios 请求、不用反复核对接口参数、不用维护类型定义，彻底解决前后端接口联调的 "沟通成本" 和 "手写错误"。
+它是基于 Go 微服务框架 **go-kratos** 与 Vue3 生态框架 **Vben Admin** 开发的前后端分离项目，主打「开箱即用」。后端已集成用户管理、租户管理、权限控制等企业级必备功能，前端自带高颜值管理界面与完善交互逻辑，无需从零搭建项目结构、设计数据库表、开发基础功能——相当于直接拿到一个「半成品」中后台系统，你只需专注核心业务开发。
 
 核心优势：
-- 类型安全：生成的 TS 类型与后端完全对齐，避免类型不匹配问题
-- 自动封装：直接生成可调用的服务客户端，不用手动写请求函数
-- 协议驱动：基于 Protobuf 定义接口，前后端遵循统一标准，减少分歧
-- 无缝集成：与 go-kratos 天然兼容，完美适配 go-wind-admin 的后端架构
+
+- 后端技术栈：`Golang` + `go-kratos` + `ent/gorm`，原生支持多租户、数据权限、动态 API 等企业级特性
+- 前端技术栈：`Vue3` + `TypeScript` + `Antdv` + `Vben Admin`，界面美观、组件丰富、交互流畅
+- 部署灵活：支持单体架构开发/部署，新手无需纠结微服务复杂度
+- 功能齐全：内置用户、角色、组织、任务调度、文件管理等 17+ 核心模块
+
+### protoc-gen-typescript-http：接口生成的「效率神器」
+
+这是 go-kratos 生态下的 TypeScript 代码生成器，核心作用是 **根据 Protobuf 文件自动生成前端 Rest 接口客户端与类型定义**。简单说，后端只需定义好 Protobuf 接口协议，前端就能直接拿到可调用的 TS 代码——无需手动编写 axios 请求、反复核对接口参数、维护类型定义，彻底解决前后端接口联调的「沟通成本」与「手写错误」。
+
+核心优势：
+
+- 类型安全：生成的 TS 类型与后端完全对齐，从根源避免类型不匹配问题
+- 自动封装：直接生成可调用的服务客户端，无需手动编写请求函数
+- 协议驱动：基于 Protobuf 定义接口，前后端遵循统一标准，减少协作分歧
+- 无缝集成：与 go-kratos 天然兼容，完美适配 GoWind Admin 的后端架构
 
 ## 二、环境准备：一步到位搭好开发环境
 
-工欲善其事，必先利其器。我们先把基础环境配齐，这里以 Ubuntu 系统为例（Windows/Mac 步骤类似，可参考官方文档）：
+工欲善其事，必先利其器。我们先配齐基础环境，以下以 Ubuntu 系统为例（Windows/Mac 步骤类似，可参考官方文档）：
 
 ### 1. 必备基础软件
 
@@ -63,11 +65,11 @@ sudo apt-get install -y protobuf-compiler
 go install github.com/go-kratos/protoc-gen-typescript-http@latest
 ```
 
-## 三、快速上手：30 分钟搭建可运行的 Admin 系统
+## 三、快速上手：30 分钟搭建可运行的中后台系统
 
-接下来我们一步步搭建项目，从拉取代码到启动系统，再到生成第一个 TS 接口：
+接下来一步步完成项目搭建，从拉取代码到启动系统，再到生成第一个 TS 接口，全程无复杂操作：
 
-### 步骤 1：拉取 go-wind-admin 项目
+### 步骤 1：拉取 GoWind Admin 项目代码
 
 ```bash
 git clone https://github.com/tx7do/go-wind-admin.git
@@ -108,11 +110,11 @@ pnpm dev
 
 ### 步骤 4：用 protoc-gen-typescript-http 生成 TS 接口
 
-这一步是核心！我们以 "用户管理接口" 为例，演示如何自动生成 TS 客户端：
+这是提升效率的核心步骤！我们以「用户管理接口」为例，演示如何自动生成类型安全的 TS 客户端：
 
 #### 4.1 找到后端 Protobuf 定义
 
-go-wind-admin 的接口协议都放在backend/api目录下，比如用户管理的 Proto 文件backend/api/admin/v1/i_user.proto，里面定义了查询用户、创建用户等接口，关键部分如下：
+GoWind Admin 的接口协议都放在`backend/api`目录下，比如用户管理的 Proto 文件`backend/api/admin/v1/i_user.proto`，里面定义了查询用户、创建用户等接口，关键部分如下：
 
 ```protobuf
 syntax = "proto3";
@@ -173,7 +175,7 @@ service UserService {
 
 #### 4.2 生成 TS 接口代码
 
-在后端服务的目录下`backend\app\admin\service`下执行Make命令：
+进入后端服务目录`backend\app\admin\service`，执行以下 Make 命令：
 
 ```bash
 make ts
@@ -361,18 +363,18 @@ onMounted(() => {
 
 ## 六、总结与下一步学习建议
 
-通过 go-wind-admin + protoc-gen-typescript-http 的组合，我们用最少的代码搭建了一个带有用户管理功能、类型安全的 Admin 系统。对于初学者来说，这套组合的核心价值是 "避开重复劳动，专注核心业务"。
+通过 GoWind Admin + protoc-gen-typescript-http 的组合，我们用最少的代码搭建了一个具备用户管理功能、类型安全的企业级中后台系统。对于初学者而言，这套组合的核心价值是「避开重复劳动，专注核心业务」，让你在有限时间内掌握企业级项目的开发逻辑。
 
 下一步可以尝试：
 
 新增一个 "产品管理" 接口：在 `backend/api/protos` 下创建 proto 文件，定义 CRUD 接口，生成 TS 代码并在前端调用
-自定义租户套餐：利用 `go-wind-admin` 的租户管理功能，配置不同的权限套餐
+自定义租户套餐：利用 GoWind Admin 的租户管理功能，配置不同的权限套餐
 部署到测试环境：通过`make docker`构建镜像，部署到服务器（支持 Docker Compose 一键部署）
 
 如果你在使用过程中遇到问题，可以参考：
 
-- `go-wind-admin` 官方文档：项目根目录的 `README.md`（支持中、英、日三种语言）
+- GoWind Admin 官方文档：项目根目录的 `README.md`（支持中、英、日三种语言）
 - `protoc-gen-typescript-http` 示例：<https://github.com/go-kratos/protoc-gen-typescript-http/tree/main/examples>
 - 社区支持：添加微信`yang_lin_bo`（备注 `go-wind-admin`），加入交流群
 
-这套组合不仅适合初学者快速上手企业级项目，也是很多中小型公司的生产环境选择。赶紧动手试试，体验 "协议驱动开发" 带来的效率提升吧！
+这套组合不仅适合初学者快速上手企业级项目，也是很多中小型公司的生产环境首选方案。赶紧动手实操，体验「协议驱动开发」带来的效率飞跃吧！
