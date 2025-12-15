@@ -1,55 +1,52 @@
-# JavaScript/TypeScript前端实现文件上传到MinIO
+# JavaScript/TypeScript 前端实现文件上传到 MinIO 完整指南
 
-在以前，前端要上传文件到服务端，比较的麻烦，要么通过HTTP服务上传，要么通过FTP上传。这两者的可靠性都极低。
+以往前端实现文件上传到服务端，常用方案为 HTTP 上传或 FTP 上传，但这两种方式均存在明显短板：HTTP 上传易受网络波动影响，可靠性较差；FTP 配置复杂且安全性不足。随着对象存储服务（Object Storage Service, OSS）的普及，这一问题得到了有效解决。
+对象存储（基于对象的存储）是一种专为海量非结构化数据设计的存储架构。与传统存储不同，它将数据封装为独立对象，捆绑元数据和唯一标识符，便于快速查找与访问。OSS 提供与平台无关的 RESTful API 接口，支持在任意应用、任意时间、任意地点存储和访问各类数据。
 
-但是，后来，有了`对象存储服务（Object Storage Service）`，对象存储也称为基于对象的存储，是一种计算机数据存储架构，旨在处理大量非结构化数据。与其他架构不同，它将数据指定为不同的单元，并捆绑元数据和唯一标识符，用于查找和访问每个数据单元。
+目前主流的开源 OSS 方案包括 [MinIO][1]和[Ceph][2]。其中 MinIO 凭借轻量、易用、兼容 S3 接口等优势，使用率持续攀升，成为开源对象存储的首选方案之一。本文将详细介绍如何基于 JavaScript/TypeScript 前端实现文件上传到 MinIO。
 
-OSS具有与平台无关的RESTful API接口，您可以在任何应用、任何时间、任何地点存储和访问任意类型的数据。
+## 一、什么是 MinIO？
 
-网上比较著名的开源OSS有：[MinIO](https://min.io/)和[Ceph](https://ceph.io/en/)。其中MinIO的使用率是越来越高，可以说是很普及了。因此，我首选使用它来做文件上传和管理的系统。
+官方定义：[MinIO][1] 是基于 Apache License v2.0 开源协议，采用 Golang 开发的对象存储服务。
 
-## 什么是MinIO?
+它完全兼容亚马逊 S3 云存储服务接口，特别适合存储图片、视频、日志文件、备份数据、容器/虚拟机镜像等大容量非结构化数据，支持单个对象文件从几 KB 到 5T 的大小范围。
 
-官方解释：[MinIO](http://www.minio.org.cn/overview.shtml) 是一个用 Golang 开发的基于 Apache License v2.0 开源协议的对象存储服务。
+MinIO 具备轻量特性，可轻松与 NodeJS、Redis、MySQL 等应用集成。同时，它通过纠删码（erasure code）和校验和（checksum）保障数据安全——即使丢失一半数量（N/2）的硬盘，仍可完整恢复数据。
 
-它兼容亚马逊S3云存储服务接口，非常适合于存储大容量非结构化的数据，例如图片、视频、日志文件、备份数据和容器/虚拟机镜像等，而一个对象文件可以是任意大小，从几kb到最大5T不等。
+## 二、本地 Docker 部署 MinIO 测试服务
 
-MinIO是一个非常轻量的服务，可以很简单的和其他应用的结合，类似 NodeJS, Redis 或者 MySQL。
+通过 Docker 可快速部署 MinIO 测试环境，步骤如下：
 
-Minio使用纠删码erasure code和校验和checksum来保护数据免受硬件故障和数据损坏。
-因此，即便您丢失一半数量（N/2）的硬盘，您仍然可以恢复数据。
-
-## 本地Docker部署测试服务器
-
-```bash
+```shell
+# 拉取最新版 MinIO 镜像
 docker pull bitnami/minio:latest
 
-# MINIO_ROOT_USER最少3个字符
-# MINIO_ROOT_PASSWORD最少8个字符
-# 第一次运行的时候,服务会自动关闭,手动再次启动就可以正常运行了.
+# 启动 MinIO 容器
+# 注意：MINIO_ROOT_USER 至少 3 个字符，MINIO_ROOT_PASSWORD 至少 8 个字符
+# 首次运行后服务可能自动关闭，手动重启容器即可正常使用
 docker run -itd \
     --name minio-server \
-    -p 9000:9000 \
-    -p 9001:9001 \
+    -p 9000:9000 \  # API 端口
+    -p 9001:9001 \  # 控制台端口
     --env MINIO_SERVER_URL="http://127.0.0.1:9000" \
     --env MINIO_BROWSER_REDIRECT_URL="http://127.0.0.1:9001" \    
     --env MINIO_ROOT_USER="root" \
     --env MINIO_ROOT_PASSWORD="123456789" \
-    --env MINIO_DEFAULT_BUCKETS='images' \
+    --env MINIO_DEFAULT_BUCKETS='images' \  # 自动创建名为 images 的存储桶
     --env MINIO_FORCE_NEW_KEYS="yes" \
     --env BITNAMI_DEBUG=true \
     bitnami/minio:latest
 ```
 
-## TypeScript实现文件上传
+## 三、TypeScript 实现文件上传的核心方案
 
-在TypeScript下，我们可用的文件上传方法有三种，可用于实现文件的上传：
+前端基于 TypeScript 上传文件到 MinIO，核心有三种 HTTP 请求方案可选，分别适配不同开发场景：
 
-1. [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
-2. [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
-3. [Axios](https://github.com/axios/axios)
+1. [XMLHttpRequest][3]：传统方案，兼容性好，支持进度监听等细粒度控制
+2. [Fetch API][4]：现代浏览器原生支持，基于 Promise，语法更简洁
+3. [Axios][5]：第三方 HTTP 库，支持拦截器、取消请求等增强功能，生态完善
 
-### 1. XMLHttpRequest
+### 3.1 XMLHttpRequest 实现
 
 ```typescript
 function xhrUploadFile(file: File, url: string) {
@@ -67,7 +64,7 @@ function xhrUploadFile(file: File, url: string) {
 }
 ```
 
-### 2. Fetch API
+### 3.2 Fetch API 实现
 
 ```typescript
 function fetchUploadFile(file: File, url: string) {
@@ -84,7 +81,7 @@ function fetchUploadFile(file: File, url: string) {
 }
 ```
 
-### 3. Axios
+### 3.3 Axios 实现
 
 ```typescript
 function axiosUploadFile(file: File, url: string) {
@@ -92,7 +89,7 @@ function axiosUploadFile(file: File, url: string) {
   instance
     .put(url, file, {
       headers: {
-        'Content-Type': file.type,
+        'Content-Type': file.type, // 需指定文件真实 Content-Type
       },
     })
     .then(function (response) {
@@ -104,26 +101,30 @@ function axiosUploadFile(file: File, url: string) {
 }
 ```
 
-## MinIO上传API
+## 四、MinIO 上传 API 选型：安全优先
 
-它有4个API可供调用：
+MinIO 提供 4 种核心上传 API，需根据安全性和使用场景选择：
 
-1. [putObject](https://docs.min.io/docs/javascript-client-api-reference.html#putObject) 从流上传
-2. [fPutObject](https://docs.min.io/docs/javascript-client-api-reference.html#fPutObject) 从文件上传
-3. [PresignedPutObject](https://min.io/docs/minio/linux/developers/go/API.html#PresignedPutObject) 提供一个临时的HTTP PUT 操作预签名上传链接以供上传
-4. [PresignedPostPolicy](https://min.io/docs/minio/linux/developers/go/API.html#PresignedPostPolicy) 提供一个临时的HTTP POST 操作预签名上传链接以供上传
+1. [putObject][7]：从流上传
+2. [fPutObject][8]：从文件上传
+3. [PresignedPutObject][9]：生成临时 PUT 预签名 URL，用于前端上传
+4. [PresignedPostPolicy][10]：生成临时 POST 预签名 URL，用于前端上传
 
-使用方法1和2的话，必须要在前端暴露用于连接MinIO的访问密钥。这样很不安全，并且官方的Js客户端也压根就没想过开放给浏览器。
+关键选型说明：
 
-而使用方法3和4的话，我们可以由服务端来生成一个临时的上传链接，提供给前端上传之用，无需暴露访问MinIO的密钥给前端，这样非常的安全，**因此我采用的是第3、4种方式**。
+使用 putObject 和 fPutObject 时，需在前端暴露 MinIO 的访问密钥（Access Key/Secret Key），存在严重安全隐患；且 MinIO 官方 JavaScript 客户端未针对浏览器环境适配，因此不推荐前端直接使用这两种方案。
 
-在下面，我们主要讨论的也是这两种方法，前两种不实用，故而不做任何讨论。
+PresignedPutObject 和 PresignedPostPolicy 方案通过服务端生成临时预签名 URL，前端仅需使用该临时 URL 上传文件，无需暴露核心密钥，安全性极高，因此本文重点讲解这两种方案。
 
-> 第三种方式，官方有一篇文章: [Upload Files Using Pre-signed URLs](https://min.io/docs/minio/linux/integrations/presigned-put-upload-via-browser.html)
+> MinIO 官方关于预签名 URL 上传的详细说明：[Upload Files Using Pre-signed URLs][6]
 
-### 实现go后端
+## 五、前后端完整实现
 
-首先对MinIO的SDK做一个简单的封装：
+整体架构：前端通过调用后端接口获取 MinIO 预签名 URL，再通过该 URL 直接将文件上传到 MinIO。其中后端采用 Go + Gin 框架实现，负责 MinIO 客户端封装和预签名 URL 生成。
+
+### 5.1 Go 后端实现
+
+首先封装 MinIO 客户端，统一管理连接和预签名 URL 生成逻辑：
 
 ```go
 package minio
@@ -195,7 +196,7 @@ func (c *Client) PutPresignedUrl(ctx context.Context, bucketName, objectName str
 }
 ```
 
-然后我们需要提供两个接口用于提供给前端获取MinIO的预签名链接：
+然后实现 HTTP 接口，对外提供预签名 URL 获取服务：
 
 ```go
 package http
@@ -295,9 +296,9 @@ func (s *Server) Run() {
 }
 ```
 
-这样我们就有了一个提供MinIO预签名的REST服务了。
+### 5.2 前端 PUT 方式上传实现
 
-### 前端实现PUT方法上传文件
+封装三种 PUT 上传方案（XMLHttpRequest/Fetch/Axios），并通过后端接口获取预签名 URL：
 
 ```typescript
 import axios from 'axios';
@@ -385,7 +386,9 @@ export function axiosPutFile(file?: File) {
 }
 ```
 
-### 前端实现POST方法上传文件
+### 5.3 前端 POST 方式上传实现
+
+POST 方式需携带后端返回的表单数据，封装三种上传方案：
 
 ```typescript
 import axios from 'axios';
@@ -493,99 +496,65 @@ export function axiosPostFile(file?: File) {
 }
 ```
 
-## 踩过的坑
+## 六、实战踩坑指南
 
-### 1. `presignedPutObject`方式上传提交的方法必须得是`PUT`
+在实现过程中，容易遇到以下问题，整理解决方案如下：
 
-我试过了用`POST`去上传文件，但是结果显然是：我失败了，**必须得用`PUT`去上传**，正如其方法名中带有`Put`。
+### 6.1 PresignedPutObject 必须用 PUT 方法
 
-### 2. 直接发送`File`即可
+PresignedPutObject 生成的预签名 URL 仅支持 PUT 方法，若使用 POST 方法上传会直接失败。需严格匹配 API 定义的请求方法。
 
-看了不少文章都是这么干的: 构造一个`FormData`，然后把文件打进去，如果用`putObject`和`fPutObject`这两个方法上传，这是没问题的：
+### 6.2 PUT 上传无需构造 FormData
 
-```typescript
-fileUpload(file) {
-    const url = 'http://example.com/file-upload';
-    const formData = new FormData();
-    formData.append('file', file)
-    const config = {
-        headers: {
-            'content-type': 'multipart/form-data'
-        }
-    }
-    return post(url, formData, config)
-}
-```
+部分开发者会习惯性构造 FormData 上传文件，但 PresignedPutObject 方案不支持这种方式——FormData 会导致请求体包含额外的协议数据（如 `------WebKitFormBoundary` 分隔符），MinIO 无法正确解析文件内容。
 
-如果使用以上的方式上传，文件头会被插入一段数据，看起来像是这样子的:
+正确做法：直接将 File 对象作为请求体发送，无需封装 FormData。
 
-```text
-------WebKitFormBoundaryaym16ehT29q60rUx
-Content-Disposition: form-data; name="file"; filename="webfonts.zip"
-Content-Type: application/zip
-```
+### 6.3 Axios 上传需手动指定 Content-Type
 
-它是遵照了 [rfc1867](https://www.ietf.org/rfc/rfc1867.txt) 定义的协议，插入的协议数据。
+XMLHttpRequest 和 Fetch API 会自动根据文件类型设置正确的 Content-Type，但 Axios 不会。若未手动指定 `Content-Type: file.type`，MinIO 会将文件 Content-Type 设为 Axios 默认的 `application/x-www-form-urlencoded`，导致文件无法正常预览。
 
-但是如果是使用`presignedPutObject`的方式则是不行的，接收到的文件里面将会有上面的协议数据，不需要构造`FormData`，直接发送`File`就可以了。
+### 6.4 POST 上传时 file 表单域必须在最后
 
-### 3. 使用`Axios`上传的时候,需要自己把`Content-Type`填写成为`file.type`
+使用 PresignedPostPolicy 方案时，FormData 中的 file 字段必须放在所有表单数据的最后一位。否则会报以下错误：
 
-直接使用`XMLHttpRequest`和`Fetch API`都会自动填写成为文件真实的`Content-Type`。而`Axios`则不会，需要自己填写进去，或许是我不会使用`Axios`，但是这是一个需要注意的地方，否则在MinIO里边的`Content-Type`会被填写成为`Axios`默认的`Content-Type`。
-
-### 4. 使用`POST`方法提交`FormData`的时候，`file`表单域必须在最后一位
-
-这个是在：<https://help.aliyun.com/zh/oss/how-to-handle-common-errors-when-the-postobject-operation-is-called#title-ye0-74w-7h8> 里面发现的解决方法。
-
-我一开始把`file`表单域放在的第一位，然后，报错了：
-
-```xml
+```shell
 The body of your POST request is not well-formed multipart/form-data
-```
-
-或者
-
-```xml
+# 或
 The name of the uploaded key is missing
 ```
 
-完全摸不着头脑，其实，就是因为这个`file`表单域的次序问题。
+原因：MinIO 对 POST 表单数据的解析顺序有严格要求，file 字段需作为最后一个参数提交。
 
-### 5. 403错误码的问题
+### 6.5 403 错误：主机名不匹配
 
-用Put方法上传文件，碰到了403的报错，死活传不上去文件，本质上，是因为验证不通过。验证不通过的原因有很多，比如：时间不对，链接还没开始就过期了、主机不匹配……
+PUT 上传时出现 403 错误，大概率是预签名 URL 中的主机名与 MinIO 服务的主机名不匹配。核心原因：
 
-我碰到的403问题是主机不匹配导致的——当然，这是事后才知道的——MinIO的服务器连接地址用外网地址也好，127.0.0.1也好，都报错。只有`localhost`才能够成功上传。一开始，我真是百思不得其解。
+MinIO 预签名 URL 会将主机名（host）纳入签名验证范围（对应 `X-Amz-SignedHeaders: host`）。若后端连接 MinIO 使用的 endpoint（如 `localhost:9000`）与前端实际访问的 MinIO 地址（如 `192.168.1.100:9000`）不一致，会导致签名验证失败。
 
-我们来看Put提交的表单项里面有一条：
+解决方案：
 
-```xml
-X-Amz-SignedHeaders: host
-```
+1. 后端连接 MinIO 时，使用前端可访问的地址（如外网 IP 或域名）作为 endpoint；
+2. 通过环境变量 `MINIO_SERVER_URL` 和 `MINIO_BROWSER_REDIRECT_URL` 绑定 MinIO 服务的域名/IP：`MINIO_SERVER_URL`：指定 API 服务地址（默认 `9000` 端口）；
+3. `MINIO_BROWSER_REDIRECT_URL`：指定控制台地址（默认 `9001` 端口）；
+4. 注意：必须添加 `http://` 或 `https://` 前缀，例如 `http://minio.example.com:9000`。
 
-根据亚马逊的文档：[Authenticating Requests: Using Query Parameters (AWS Signature Version 4)](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html) 里面的描述，这一条的意思是，签名里面加了服务器的主机名，作为验证的条件之一。
+Docker 部署时，可通过 `--env` 参数注入这两个环境变量（参考本文第二部分的 Docker 启动命令）。
 
-当你打开管理后台，通过：Administrator -> Monitoring -> Metrics的访问路径到达汇总页面，你会发现在`Servers`下面，本机地址是`localhost:9001`。
+## 七、示例代码仓库
 
-那么，原因就在这里了，主机名不一致，自然是通过不了签名验证的。那么，我们可以怎么去解决这个问题呢？
+本文完整示例代码已上传至 Github 和 Gitee，包含后端 Go + Gin 实现，以及前端 React、Vue 两种框架的上传示例（支持进度条、多文件上传等扩展功能）：
 
-我经过了尝试，发现预签名产生的预签名链接地址居然是MinIO客户端连接MinIO所使用的endpoint，我之前以为我反正go服务和MinIO服务在一台机器上，那么我自然是通过`localhost`来连接会更好一些，不想会有这样的副作用——一切，都是我想当然的结果——总之，连接MinIO的时候，填写外网IP就搞定了。
+- Github：<https://github.com/tx7do/minio-typescript-example>
+- Gitee：<https://gitee.com/tx7do/minio-typescript-example>
 
-现在，这个问题是解决了，但是我又出来了另外一个问题：如果我想用域名访问呢？那该怎么办？能不能够有像Nignx那样绑定虚拟主机的方法来绑定域名？后来查资料，还真可以：
-
-我们可以修改环境变量`MINIO_SERVER_URL`和`MINIO_BROWSER_REDIRECT_URL`来达成，它们可以用来进行域名的绑定：
-
-- MINIO_SERVER_URL，它指向的是API的端口，默认为9000端口；
-- MINIO_BROWSER_REDIRECT_URL，它指向的是控制台的端口，默认为9001端口。
-
-我们如果使用Docker进行部署，可以在创建的时候注入环境变量，如果不使用Docker部署则可以用`export`的方式注入。
-
-它可以是域名（比如：`http://minio.xxxx.com`），也可以直接ip+端口（比如：`http://1.1.1.1:9000`）。 **但，需要注意的是，一定要加`http://`或者`https://`主机头，不然无法访问。**
-
-## 示例代码
-
-Github: <https://github.com/tx7do/minio-typescript-example>  
-Gitee: <https://gitee.com/tx7do/minio-typescript-example>
-
-- 后端采用go+gin实现；
-- 前端有React和Vue的实现，要实现进度条和多文件上传也是容易的。
+[1]:(https://min.io/)
+[2]:(https://ceph.io/en/)
+[3]:(https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
+[4]:(https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+[5]:(https://github.com/axios/axios)
+[6]:(https://min.io/docs/minio/linux/integrations/presigned-put-upload-via-browser.html)
+[7]:(https://docs.min.io/docs/javascript-client-api-reference.html#putObject)
+[8]:(https://docs.min.io/docs/javascript-client-api-reference.html#fPutObject)
+[9]:(https://min.io/docs/minio/linux/developers/go/API.html#PresignedPutObject)
+[10]:(https://min.io/docs/minio/linux/developers/go/API.html#PresignedPostPolicy)
