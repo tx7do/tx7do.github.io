@@ -1,4 +1,4 @@
-# # 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：OPA 集成指南：从原理到实践
+# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：OPA 集成指南：从原理到实践
 
 Open Policy Agent（简称 OPA）是一款开源的通用策略引擎，核心价值在于实现“策略即代码”（Policy as Code），将分散在各系统中的权限控制、资源访问规则等策略逻辑抽离出来，进行统一管理、版本控制与执行。如今，OPA 已成为云原生生态中策略管控的事实标准，被 Netflix、Cloudflare、Pinterest、Chef 等巨头广泛应用——从内部 API 权限管控、Kubernetes 集群资源调度，到终端产品的 IAM 功能实现，均能看到其身影。
 
