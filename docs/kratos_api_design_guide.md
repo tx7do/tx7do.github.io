@@ -1385,7 +1385,7 @@ lint:
 
 #### 使用Buf生成代码
 
-我有开源了一个Kratos的CMS项目[kratos-blog](https://github.com/tx7do/kratos-blog)，它是一个MonoRepo结构的项目，我们以它的项目结构来做讲解。
+我有开源了一个Kratos的CMS项目[kratos-blog](https://github.com/tx7do/go-wind-cms)，它是一个MonoRepo结构的项目，我们以它的项目结构来做讲解。
 
 下面的目录树，是我化简后的目录树。
 

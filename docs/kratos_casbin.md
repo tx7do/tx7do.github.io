@@ -453,8 +453,8 @@ func Server(authorizer engine.Authorizer, opts ...Option) middleware.Middleware 
 
 应用方面的代码，我开源了一个简单的CMS，完整的应用可在当中找到：
 
-- <https://github.com/tx7do/kratos-blog>
-- <https://gitee.com/tx7do/kratos-blog>
+- <https://github.com/tx7do/go-wind-cms>
+- <https://gitee.com/tx7do/go-wind-cms>
 
 ## 参考资料
 

@@ -31,7 +31,7 @@ Bazel是谷歌开发的一个云构建系统，对于谷歌为什么要重新发
 
 - [一个Bazel构建Golang应用程序的最简示例](https://github.com/tx7do/bazel-golang-minimal-example)
 - [一个Bazel构建Golang应用程序并打包Docker镜像的示例](https://github.com/tx7do/bazel-containers-hasher-example)
-- [一个Kratos微服务的CMS实战项目](https://github.com/tx7do/kratos-blog)
+- [一个Kratos微服务的CMS实战项目](https://github.com/tx7do/go-wind-cms)
 
 > 以上代码在Gitee上也同步有，只需要把`github`修改为`gitee`即可访问。
 
@@ -772,7 +772,7 @@ container_pull(
 
 ## Kratos微服务项目的构建
 
-我开源了一个基于Kratos开发的CMS项目：[Kratos-Blog](https://github.com/tx7do/kratos-blog)。它是一个Monorepo代码库的项目。
+我开源了一个基于Kratos开发的CMS项目：[Kratos-Blog](https://github.com/tx7do/go-wind-cms)。它是一个Monorepo代码库的项目。
 
 我们基于这个项目来讲解Kratos微服务项目的Bazel构建。
 
@@ -1124,7 +1124,7 @@ bazel run //:file-service-image-push
 bazel run //:user-service-image-push
 ```
 
-完整代码请见：<https://github.com/tx7do/kratos-blog>
+完整代码请见：<https://github.com/tx7do/go-wind-cms>
 
 ## 关于Protobuf的构建
 
