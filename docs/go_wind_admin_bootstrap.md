@@ -13,7 +13,7 @@ kratos-bootstrap 是 GoWind Admin 底层核心的应用引导框架，承担着�
 |组件集成|预定义中间件、数据库、注册中心的集成接口|Spring Boot Starters（如 spring-boot-starter-web）|一键集成第三方组件，减少依赖配置|
 |环境适配|命令行参数 + 环境变量动态调整配置|Spring Profiles + 外部化配置|灵活适配开发 / 测试 / 生产环境|
 
-在 GoWind Admin 中，kratos-bootstrap 是整个应用的「发动机」：main 函数通过调用其核心方法启动应用，所有基础设施（如数据库连接、服务注册、日志组件）均通过它加载，形成「配置驱动、组件可插拔」的架构。
+在 GoWind Admin 中，kratos-bootstrap 是整个应用的「发动机」：`main` 函数通过调用其核心方法启动应用，所有基础设施（如数据库连接、服务注册、日志组件）均通过它加载，形成「配置驱动、组件可插拔」的架构。
 
 ## 二、快速上手：初始化与启动流程（类比 Spring 容器启动）
 
@@ -143,7 +143,7 @@ message Bootstrap {
 }
 ```
 
-在 GoWind Admin 中，配置文件默认放在 `configs/` 目录，按环境拆分（如 `configs/dev/``、configs/prod/`），格式与 Protobuf 结构一一对应（支持 YAML/JSON/XML 等）。例如 `configs/dev/config.yaml` 片段：
+在 GoWind Admin 中，配置文件默认放在 `configs/` 目录，按环境拆分（如 `configs/dev/`、`configs/prod/`），格式与 Protobuf 结构一一对应（支持 YAML/JSON/XML 等）。例如 `configs/dev/config.yaml` 片段：
 
 ```yaml
 server:
