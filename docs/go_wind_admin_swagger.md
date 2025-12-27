@@ -4,7 +4,7 @@
 
 笔者在使用 Python 生态的 FastAPI 框架时，发现其内置的 Swagger UI 体验极佳——开发者可直接通过 <http://127.0.0.1:8000/docs> 访问交互式 API 文档，实现接口可视化调试与测试，无需额外部署工具。受此启发，我们将这一方案借鉴到 GoWind Admin（基于 Kratos 框架的企业级前后端一体中后台框架）中，实现了 API 文档的自动化生成与嵌入式访问。
 
-![Fast API Swagger UI](/assets/images/swagger/fastapi-swagger-ui-simple.png)
+![Fast API Swagger UI](https://tx7do.github.io/assets/images/swagger/fastapi-swagger-ui-simple.png)
 
 ## 一、核心概念：OpenAPI 与 Swagger 的关系
 
