@@ -1,4 +1,4 @@
-# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：代码生成工具集
+# GoWind Admin｜风行 — 开箱即用的企业级全栈中后台框架：代码生成工具集
 
 我们为[go-wind-admin](https://github.com/tx7do/go-wind-admin)这个项目打造了一个代码生成工具集。
 

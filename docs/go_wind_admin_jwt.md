@@ -1,4 +1,4 @@
-# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：JWT 集成指南
+# GoWind Admin｜风行 — 开箱即用的企业级全栈中后台框架：JWT 集成指南
 
 在企业级中后台系统开发中，身份认证与授权是核心安全能力。JWT（JSON Web Token）凭借其无状态、轻量化、跨平台的特性，成为分布式系统中身份校验的优选方案。GoWind Admin 作为企业级前后端一体中后台框架，已将 JWT 核心逻辑封装至 [github.com/tx7do/kratos-authn](https://github.com/tx7do/kratos-authn) 组件中，彻底简化了底层引擎初始化、策略加载、签名验证等重复开发工作。开发者只需遵循以下标准化步骤，即可快速完成 JWT 集成，无缝对接框架的 OPA 权限管控体系，构建安全可靠的身份认证链路。
 

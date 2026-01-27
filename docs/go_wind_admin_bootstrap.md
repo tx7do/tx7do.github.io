@@ -1,4 +1,4 @@
-# 开箱即用的 GoWind Admin｜风行，企业级前后端一体中后台框架：kratos-bootstrap 入门教程（类比 Spring Boot）
+# GoWind Admin｜风行 — 开箱即用的企业级全栈中后台框架：kratos-bootstrap 入门教程（类比 Spring Boot）
 
 kratos-bootstrap 是 GoWind Admin 底层核心的应用引导框架，承担着类似 Java 生态中 Spring Boot 的角色 —— 通过标准化初始化流程、统一配置管理、简化组件集成，为开发者屏蔽基础设施搭建的复杂性。借助它，开发者无需重复编写微服务启动、配置加载、中间件注册等样板代码，可直接聚焦业务逻辑开发。本文将详细讲解如何在 GoWind Admin 中通过 kratos-bootstrap 完成应用初始化、配置管理、组件集成等关键操作，并对比 Spring 等主流框架的设计理念，帮助开发者快速上手。
 
