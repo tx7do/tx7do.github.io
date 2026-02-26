@@ -576,6 +576,24 @@ docker run -itd \
     -e ALLOW_NONE_AUTHENTICATION=yes \
     -e ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379 \
     bitnami/etcd:latest
+
+docker quay.io/coreos/etcd:v3.6.8
+
+docker run -itd \
+    --name etcd-server \
+    --restart always \
+    -p 2379:2379 \
+    -p 2380:2380 \
+    -e ETCDCTL_API=3 \
+    -e ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379 \
+    -e ETCD_ADVERTISE_CLIENT_URLS=http://127.0.0.1:2379 \
+    -e ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380 \
+    -e ETCD_INITIAL_ADVERTISE_PEER_URLS=http://127.0.0.1:2380 \
+    -e ETCD_INITIAL_CLUSTER=default=http://127.0.0.1:2380 \
+    -e ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster-token \
+    -e ETCD_INITIAL_CLUSTER_STATE=new \
+    -e ETCD_NAME=default \
+    quay.io/coreos/etcd:v3.6.8
 ```
 
 管理工具
