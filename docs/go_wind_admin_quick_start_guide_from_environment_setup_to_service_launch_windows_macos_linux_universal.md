@@ -318,7 +318,7 @@ pnpm dev
 
 ### 2. 生产部署：
 
-- 后端：用 `./script/build_install.sh` 编译二进制文件，配合 Systemd 配置开机自启；
+- 后端：用 `./script/build_install.sh` 编译二进制文件，配合 `PM2` 配置开机自启；
 - 前端：执行 `pnpm build` 生成静态文件，用 Nginx 部署（配置反向代理到后端接口）。
 
 ### 3. 寻求支持：
