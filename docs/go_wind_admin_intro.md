@@ -10,9 +10,9 @@
 
 ## 演示地址
 
-> 前端地址：<http://124.221.26.30:8080/>
+> 前端地址：<https://demo.admin.gowind.cloud>
 > 
-> 后端Swagger地址：<http://124.221.26.30:7788/docs/>
+> 后端Swagger地址：<https://api.demo.admin.gowind.cloud/docs/>
 > 
 > 默认账号密码: `admin` / `admin`
 
