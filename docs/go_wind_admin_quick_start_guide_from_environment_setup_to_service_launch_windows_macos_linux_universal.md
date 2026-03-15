@@ -40,7 +40,7 @@ git clone https://github.com/tx7do/go-wind-admin.git
 cd go-wind-admin
 ```
 
-### 2.2 Windows 系统：用 PowerShell 脚本自动装依赖
+### 2.2 Windows 系统：用 PowerShell 脚本自动安装依赖
 
 **必须以「管理员身份」打开 PowerShell**（否则脚本无权限修改系统配置），执行以下步骤：
 
@@ -184,18 +184,11 @@ cd go-wind-admin/backend
 #### 1. 仅启动中间件容器（用专用脚本）：
 
 ```bash
-cd go-wind-admin/backend
-./script/docker_compose_install_depends.sh
+cd go-wind-admin/backend/script
+./docker_compose_install_depends.sh
 ```
 
-#### 2. 编译并部署本地服务（用 `build_install.sh` 脚本）：
-
-```bash
-# 编译后端代码并部署到默认路径（Linux/macOS 为 /root/app/go_wind_admin）
-./script/build_install.sh
-```
-
-#### 3. 配置 hosts 文件（关键！让本地服务能访问 Docker 中间件）：
+#### 2. 配置 hosts 文件（关键！让本地服务能访问 Docker 中间件）：
 
 - Linux/macOS：`/etc/hosts` 或 `/private/etc/hosts`
 - Windows：`C:\Windows\System32\drivers\etc\hosts`
@@ -206,24 +199,56 @@ cd go-wind-admin/backend
 127.0.0.1 postgres
 127.0.0.1 redis
 127.0.0.1 minio
-127.0.0.1 consul
 127.0.0.1 jaeger
 ```
 
-#### 4. 启动本地服务：
+#### 2. 编译部署外网服务（用 `build_install.sh` 脚本）：
 
 ```bash
-# 进入部署目录（Linux/macOS 示例路径）
-cd /root/app/go_wind_admin
+cd go-wind-admin/backend/script
+./build_install.sh
+```
 
+这个脚本只适用于Linux、MacOS、Unix等系统，它的作用是：编译后端代码并部署到：`~/app/gwa`，加入PM2管理服务。
+
+部署在正式环境下，因为我们是使用PM2管理服务进程的，所以只需要使用PM2来启停服务：
+
+```bash
 # 用 PM2 启动服务（脚本已自动安装 PM2）
-pm2 start ./server --name go_wind_admin
+pm2 start admin
+# 如果已经启动了则可以用重启命令：
+pm2 restart admin
+```
+
+#### 开发时启动本地服务：
+
+开发时，我们提供了两种方式来方便的启动服务：
+
+##### make run
+
+```bash
+cd go-wind-admin/backend/app/admin/service
+make run
+```
+
+##### gow run
+
+gow是我们所提供的cli，它有两种用法：
+
+```bash
+cd o-wind-admin/backend/app/admin/service
+gow run
+```
+
+或者在后端项目的任何路径下执行：
+
+```bash
+gow run admin
 ```
 
 #### 验证本地服务：
 
-- 执行 `pm2 status`，若 `go_wind_admin` 状态为 `online`，则启动成功；
-- 访问 <http://localhost:7788/docs/>，返回 Swagger UI的网页界面 即正常。
+访问 <http://localhost:7788/docs/>，返回 Swagger UI的网页界面 即正常。
 
 ## 四、前端服务启动：快速跑通页面（全系统通用）
 
@@ -293,7 +318,7 @@ pnpm dev
 
 ### 2. 生产部署：
 
-- 后端：用 `./script/build_install.sh` 编译二进制文件，配合 Systemd 配置开机自启；
+- 后端：用 `./script/build_install.sh` 编译二进制文件，配合 `PM2` 配置开机自启；
 - 前端：执行 `pnpm build` 生成静态文件，用 Nginx 部署（配置反向代理到后端接口）。
 
 ### 3. 寻求支持：
