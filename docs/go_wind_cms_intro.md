@@ -133,6 +133,11 @@
 - **集团型企业**：通过多租户架构实现多子公司、多品牌的内容隔离与统一管理；
 - **小程序 / 多端应用**：基于 Headless API 快速对接小程序、APP 等终端，实现内容一次生产、多端复用。
 
+## 风行(Go Wind Content Hub)·项目代码
+
+* [go-wind-cms Gitee](https://gitee.com/tx7do/go-wind-cms)
+* [go-wind-cms Github](https://github.com/tx7do/go-wind-cms)
+
 ## 联系我们
 
 如需了解更多产品细节、定制化方案或合作事宜，欢迎联系：
