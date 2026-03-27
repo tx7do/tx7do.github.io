@@ -809,6 +809,7 @@ sudo chown -R 1001:1001 /root/app/kafka/
 
 docker run -itd \
     --name kafka-standalone \
+    --hostname kafka \
     --user root \
     -p 9092:9092 \
     -p 9093:9093 \
@@ -820,7 +821,7 @@ docker run -itd \
     -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093 \
     -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
     -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
-    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 \
     -e ALLOW_PLAINTEXT_LISTENER=yes \
     bitnami/kafka:latest
 ```
