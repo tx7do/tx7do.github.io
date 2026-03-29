@@ -9,6 +9,8 @@ export default defineUserConfig({
   title: '喵个咪的博客',
   description: '喵个咪',
 
+  base: "/",
+
   theme: defaultTheme({
     logo: '/logo.png',
 
