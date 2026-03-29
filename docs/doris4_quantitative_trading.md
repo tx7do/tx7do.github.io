@@ -163,7 +163,7 @@ SELECT
     MIN(low) AS min_price,
     MAX(close) AS close_price,
     MIN(open) AS open_price,
-    ROUND((MAX(close)-MIN(open))/MIN(open)*100, 2) AS change_ratio
+    ROUND((MAX(close)-MIN(open))/NULLIF(MIN(open),0)*100, 2) AS change_ratio
 FROM finances.candles
 GROUP BY symbol, trade_date, trade_hour;
 
@@ -239,14 +239,23 @@ AS
 SELECT
     trade_date,
     COUNT(DISTINCT symbol) AS total_symbols,
-    COUNT(CASE WHEN change_ratio > 0 THEN 1 END) AS up_count,
-    COUNT(CASE WHEN change_ratio < 0 THEN 1 END) AS down_count,
-    COUNT(CASE WHEN change_ratio = 0 THEN 1 END) AS flat_count,
+
+    SUM(CASE WHEN change_ratio > 0 THEN 1 ELSE 0 END) AS up_count,
+    SUM(CASE WHEN change_ratio < 0 THEN 1 ELSE 0 END) AS down_count,
+    SUM(CASE WHEN change_ratio = 0 THEN 1 ELSE 0 END) AS flat_count,
+
     SUM(total_volume) AS market_total_volume,
     SUM(close_price * total_volume) AS market_total_amount,
+
     AVG(change_ratio) AS avg_change_ratio,
     MAX(change_ratio) AS max_gain,
-    MIN(change_ratio) AS max_loss
+    MIN(change_ratio) AS max_loss,
+
+    ROUND(
+        COUNT(CASE WHEN change_ratio > 0 THEN 1 END) * 100.0 /
+        NULLIF(COUNT(DISTINCT symbol), 0),
+        2
+    ) AS up_ratio_pct
 FROM finances.mv_symbol_daily_summary
 GROUP BY trade_date;
 
@@ -362,6 +371,23 @@ SELECT
 FROM finances.mv_symbol_daily_summary
 WHERE total_volume > 0;
 
+-- =============================================
+-- 10. 【数据质量检查视图】（每日每股实际记录数、预期记录数、完整率）
+-- =============================================
+CREATE OR REPLACE VIEW finances.v_data_quality_check AS
+SELECT
+    symbol,
+    trade_date,
+    COUNT(*) AS actual_rows,
+    240 AS expected_rows,  -- A股：4小时×60分钟=240根/天
+    ROUND(COUNT(*) * 100.0 / 240, 2) AS completeness_pct,
+    CASE 
+        WHEN COUNT(*) < 240 * 0.95 THEN '⚠️ 缺失'
+        ELSE '✅ 正常'
+    END AS quality_status
+FROM finances.candles
+GROUP BY symbol, trade_date
+HAVING actual_rows < 240 * 0.95;  -- 仅返回异常记录
 ```
 
 ## 初始化AI资源
@@ -663,26 +689,17 @@ LIMIT 100;
 #### 放量突破策略（每5分钟执行一次）
 
 ```sql
-SELECT 
-    symbol,
-    close_price,
-    change_ratio,
-    volume_ratio,
-    CONCAT('放量', volume_ratio, 'x | 涨幅', change_ratio, '%') AS signal_desc
+SELECT symbol, close_price, change_ratio, volume_ratio
 FROM (
-    SELECT 
-        a.symbol, a.close_price, a.change_ratio,
-        ROUND(a.total_volume / NULLIF(b.avg_volume_20d, 0), 2) AS volume_ratio
+    SELECT a.symbol, a.close_price, a.change_ratio,
+           ROUND(a.total_volume / NULLIF(b.avg_volume_20d, 0), 2) AS volume_ratio
     FROM finances.mv_symbol_daily_summary a
     JOIN finances.v_volume_baseline_20d b 
-        ON a.symbol = b.symbol 
-        AND a.trade_date = DATE_ADD(b.calc_date, INTERVAL 1 DAY)
+        ON a.symbol = b.symbol AND a.trade_date = DATE_ADD(b.calc_date, INTERVAL 1 DAY)
     WHERE a.trade_date = CURDATE()
 ) t
-WHERE change_ratio BETWEEN 2 AND 8
-  AND volume_ratio > 1.5
-ORDER BY volume_ratio DESC
-LIMIT 20;
+WHERE change_ratio > 2 AND volume_ratio > 1.5
+ORDER BY volume_ratio DESC LIMIT 10;
 ```
 
 #### 人工复核：查看候选股的技术指标
