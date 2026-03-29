@@ -19,7 +19,6 @@ coverage
 dev-dist
 .stylelintcache
 yarn.lock
-package-lock.json
 .VSCodeCounter
 **/backend-mock/data
 
