@@ -1,0 +1,85 @@
+<template><div><h1 id="关于c-嵌入python引用protobuf引起的一个sigsegv错误的解决过程" tabindex="-1"><a class="header-anchor" href="#关于c-嵌入python引用protobuf引起的一个sigsegv错误的解决过程"><span>关于C++嵌入Python引用protobuf引起的一个SIGSEGV错误的解决过程</span></a></h1>
+<p>首先，我的应用场景是这样的，我是一个C++为宿主的程序，内嵌了Python，我C++里边有引用C++版的protobuf动态链接库。Python里边也有用到Python版的Protobuf。两者都用了同一版本的protobuf: 3.13.0。</p>
+<p>因为我是插件式的系统，我单独测试Python脚本系统插件的时候，一切都是完美的。然后，我将插件集成到主程序里边去，就完犊子了。只要我在Python中import到protobuf的协议，主程序就会以SIGSEGV信号崩掉。</p>
+<p>最终堆栈挂在了<code v-pre>_message.cpython-35m-x86_64-linux-gnu.so</code>的<code v-pre>google::protobuf::DescriptorPool::FindFileByName()</code>这里：</p>
+<div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text"><pre v-pre><code><span class="line">I0731 15:34:01.122179 19043 layer_factory.hpp:77] Creating layer loss</span>
+<span class="line">*** Aborted at 1501508041 (unix time) try "date -d @1501508041" if you are using GNU date ***</span>
+<span class="line">PC: @ 0x7f0b345a4b73 std::_Hashtable&lt;>::clear()</span>
+<span class="line">*** SIGSEGV (@0x9) received by PID 19043 (TID 0x7f0b6b021ac0) from PID 9; stack trace: ***</span>
+<span class="line">@ 0x7f0b682674b0 (unknown)</span>
+<span class="line">@ 0x7f0b345a4b73 std::_Hashtable&lt;>::clear()</span>
+<span class="line">@ 0x7f0b34595ca6 google::protobuf::DescriptorPool::FindFileByName()</span>
+<span class="line">@ 0x7f0b34572dc8 google::protobuf::python::cdescriptor_pool::AddSerializedFile()</span>
+<span class="line">@ 0x7f0b688d17d0 PyEval_EvalFrameEx</span>
+<span class="line">@ 0x7f0b689fa01c PyEval_EvalCodeEx</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>我是百思不得其解，我一开始只怀疑是我自己的问题，一直找啊，找啊……都没有找到原因。后来，又看了看堆栈，觉得可能问题不在我这边。仔细想了下：会不会是C++里边的protobuf同python的protobuf产生冲突了？</p>
+<p>这个错误有两个关键点：</p>
+<ol>
+<li>Python当中import了protobuf的协议；</li>
+<li>C++当中引用了C++版protobuf的动态链接库。</li>
+</ol>
+<p>我后来把python当中的protobuf升级到了最新的版本4.21.11：</p>
+<div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text"><pre v-pre><code><span class="line">Name: protobuf</span>
+<span class="line">Version: 4.21.11</span>
+<span class="line">Summary:</span>
+<span class="line">Home-page: https://developers.google.com/protocol-buffers/</span>
+<span class="line">Author: protobuf@googlegroups.com</span>
+<span class="line">Author-email: protobuf@googlegroups.com</span>
+<span class="line">License: 3-Clause BSD License</span>
+<span class="line">Location: /usr/local/lib/python3.8/dist-packages</span>
+<span class="line">Requires:</span>
+<span class="line">Required-by:</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>然后，下载了相对应版本的protoc v3.21.11（需要注意的是：在python中的protobuf包从protobuf v21开始都标识为v4.x.x了），重新生成了Python的protobuf协议，再重新运行程序，得！好了。这似乎证明了我的猜想是正确的。</p>
+<p>但是，我不确定究竟是怎样解决的：</p>
+<ol>
+<li>C++和Python的protobuf版本不一致可以解决（那么就有可能是寻址冲突了）；</li>
+<li>C++和Python的protobuf都升级到最新的版本可以解决（那么就可能是旧版本的bug）。</li>
+</ol>
+<p>我后面看了下python生成的protobuf协议的import段，差异反正是挺大的：</p>
+<p>libprotoc 3.13.0：</p>
+<div class="language-python line-numbers-mode" data-highlighter="prismjs" data-ext="py"><pre v-pre><code><span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf<span class="token punctuation">.</span>internal <span class="token keyword">import</span> enum_type_wrapper</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> descriptor <span class="token keyword">as</span> _descriptor</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> message <span class="token keyword">as</span> _message</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> reflection <span class="token keyword">as</span> _reflection</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> symbol_database <span class="token keyword">as</span> _symbol_database</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>libprotoc 3.21.11：</p>
+<div class="language-python line-numbers-mode" data-highlighter="prismjs" data-ext="py"><pre v-pre><code><span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf<span class="token punctuation">.</span>internal <span class="token keyword">import</span> builder <span class="token keyword">as</span> _builder</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> descriptor <span class="token keyword">as</span> _descriptor</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> descriptor_pool <span class="token keyword">as</span> _descriptor_pool</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> symbol_database <span class="token keyword">as</span> _symbol_database</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>一眼望过去，相比较3.13.0的差异是挺大的。</p>
+<p>然后，我又去下载了v3的最后一个版本：v3.20.3。生成的协议的import是这样的，也就是说它已经跟后面v4，也就是v21.x的一致了：</p>
+<div class="language-python line-numbers-mode" data-highlighter="prismjs" data-ext="py"><pre v-pre><code><span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf<span class="token punctuation">.</span>internal <span class="token keyword">import</span> builder <span class="token keyword">as</span> _builder</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> descriptor <span class="token keyword">as</span> _descriptor</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> descriptor_pool <span class="token keyword">as</span> _descriptor_pool</span>
+<span class="line"><span class="token keyword">from</span> google<span class="token punctuation">.</span>protobuf <span class="token keyword">import</span> symbol_database <span class="token keyword">as</span> _symbol_database</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>但是，运行了程序之后，跟3.13.0的结果却是一致的：崩了。堆栈虽然有些不一样：</p>
+<div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text"><pre v-pre><code><span class="line">[_message.cpython-38-x86_64-linux-gnu.so] google::protobuf::python::InitDescriptor() 0x00007fffe4d3b1bc</span>
+<span class="line">[_message.cpython-38-x86_64-linux-gnu.so] google::protobuf::python::InitProto2MessageModule(_object*) 0x00007fffe4d4f500</span>
+<span class="line">[_message.cpython-38-x86_64-linux-gnu.so] PyInit__message 0x00007fffe4d55282</span>
+<span class="line">[libpython3.8.so.1.0] _PyImport_LoadDynamicModuleWithSpec 0x00007ffff5e67006</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>接着我又试了v4的第一个正式版：v4.21.0，其结果跟v4.21.11是一致的：运行没有问题。</p>
+<p>因为我不好升级C++版本的protobuf，所以我并没有办法去测试这一块。但是就目前来看（武断的认为），似乎问题还是在python的protobuf的版本上，升级后应该就没问题了。</p>
+<p>我又看了下<code v-pre>/usr/local/lib/python3.8/dist-packages/google/protobuf/pyext</code>路径下的文件，v3.x.x下面有以下一组文件：</p>
+<div class="language-bash line-numbers-mode" data-highlighter="prismjs" data-ext="sh"><pre v-pre><code><span class="line">__init__.py  __pycache__  _message.cpython-38-x86_64-linux-gnu.so  cpp_message.py</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p>而引起错误的正是因为这下面的：<code v-pre>_message.cpython-38-x86_64-linux-gnu.so</code>文件。</p>
+<p>而后的v4.x.x版本就已经没有这个文件了：</p>
+<div class="language-bash line-numbers-mode" data-highlighter="prismjs" data-ext="sh"><pre v-pre><code><span class="line">__init__.py  __pycache__  cpp_message.py</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p>所以这个bug也就不复存在了。</p>
+<p>另外附上我查找到的一些相关的问题资料：</p>
+<ul>
+<li><a href="https://github.com/protocolbuffers/protobuf/issues/5979" target="_blank" rel="noopener noreferrer">python: SIGSEGV when use PyImport_Import import symbol_database #5979</a></li>
+<li><a href="https://github.com/BVLC/caffe/issues/5711" target="_blank" rel="noopener noreferrer">This program requires version 3.3.0 of the Protocol Buffer runtime library #5711</a></li>
+<li><a href="https://www.xiewo.net/blog/show/457/" target="_blank" rel="noopener noreferrer">Python 是如何寻找包的路径 import 包和系统冲突 同名 PYTHONPATH</a></li>
+</ul>
+</div></template>
+
+

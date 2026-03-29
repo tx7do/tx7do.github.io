@@ -1,0 +1,16 @@
+import comp from "C:/Users/yangl/Desktop/tx7do.github.io/docs/.vuepress/.temp/pages/posts/kratos_server_run_as_daemon.html.vue"
+const data = JSON.parse("{\"path\":\"/posts/kratos_server_run_as_daemon.html\",\"title\":\"将Kratos微服务程序运行为Linux守护进程\",\"lang\":\"zh-CN\",\"frontmatter\":{\"date\":\"2020-01-01T00:00:00.000Z\",\"category\":[\"Go编程\"],\"tag\":[\"Golang\",\"Go-Kratos\"],\"sticky\":10},\"headers\":[{\"level\":2,\"title\":\"supervisor\",\"slug\":\"supervisor\",\"link\":\"#supervisor\",\"children\":[{\"level\":3,\"title\":\"安装supervisor\",\"slug\":\"安装supervisor\",\"link\":\"#安装supervisor\",\"children\":[]},{\"level\":3,\"title\":\"启动守护进程\",\"slug\":\"启动守护进程\",\"link\":\"#启动守护进程\",\"children\":[]}]},{\"level\":2,\"title\":\"pm2\",\"slug\":\"pm2\",\"link\":\"#pm2\",\"children\":[{\"level\":3,\"title\":\"安装pm2\",\"slug\":\"安装pm2\",\"link\":\"#安装pm2\",\"children\":[]},{\"level\":3,\"title\":\"启动守护进程\",\"slug\":\"启动守护进程-1\",\"link\":\"#启动守护进程-1\",\"children\":[]}]},{\"level\":2,\"title\":\"screen\",\"slug\":\"screen\",\"link\":\"#screen\",\"children\":[]}],\"git\":{},\"filePathRelative\":\"posts/kratos_server_run_as_daemon.md\",\"excerpt\":\"\\n<h2>supervisor</h2>\\n<h3>安装supervisor</h3>\\n<p>Centos：</p>\\n<div class=\\\"language-bash line-numbers-mode\\\" data-highlighter=\\\"prismjs\\\" data-ext=\\\"sh\\\"><pre><code><span class=\\\"line\\\"><span class=\\\"token comment\\\"># 先安装 EPEL</span></span>\\n<span class=\\\"line\\\">yum <span class=\\\"token function\\\">install</span> <span class=\\\"token parameter variable\\\">-y</span> epel-release</span>\\n<span class=\\\"line\\\"></span>\\n<span class=\\\"line\\\"><span class=\\\"token comment\\\"># 安装supervisor</span></span>\\n<span class=\\\"line\\\"><span class=\\\"token function\\\">sudo</span> yum <span class=\\\"token parameter variable\\\">-y</span> <span class=\\\"token function\\\">install</span> supervisor</span>\\n<span class=\\\"line\\\"></span>\\n<span class=\\\"line\\\"><span class=\\\"token comment\\\"># 设置为开机启动</span></span>\\n<span class=\\\"line\\\"><span class=\\\"token function\\\">sudo</span> systemctl <span class=\\\"token builtin class-name\\\">enable</span> supervisord</span>\\n<span class=\\\"line\\\"></span>\\n<span class=\\\"line\\\"><span class=\\\"token comment\\\"># 启动进程</span></span>\\n<span class=\\\"line\\\"><span class=\\\"token function\\\">sudo</span> systemctl start supervisord</span>\\n<span class=\\\"line\\\"></span></code></pre>\\n<div class=\\\"line-numbers\\\" aria-hidden=\\\"true\\\" style=\\\"counter-reset:line-number 0\\\"><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div><div class=\\\"line-number\\\"></div></div></div>\"}")
+export { comp, data }
+
+if (import.meta.webpackHot) {
+  import.meta.webpackHot.accept()
+  if (__VUE_HMR_RUNTIME__.updatePageData) {
+    __VUE_HMR_RUNTIME__.updatePageData(data)
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept(({ data }) => {
+    __VUE_HMR_RUNTIME__.updatePageData(data)
+  })
+}
