@@ -1,14 +1,32 @@
-# Doris4.x 在量化交易中的应用
+# Apache Doris 4.x 在量化交易中的完整应用实践
 
-## 创建数据结构
+## 前言
+
+在量化交易场景中，**实时行情接入、多维度 K 线聚合、技术指标计算、策略回测与绩效监控**是核心能力诉求。Apache Doris 4.x 凭借高性能 OLAP 引擎、实时物化视图、标准 SQL 兼容、Kafka 实时接入等特性，成为量化投研与实盘交易的理想存储计算引擎。
+
+本文基于 Doris 4.x 构建**一站式量化交易数据平台**，覆盖分钟级行情存储、实时聚合、技术指标、策略选股、AI 辅助决策、回测复盘全流程，可直接用于生产环境部署。
+
+
+## 一、整体架构设计
+
+本方案采用分层量化数仓架构，兼顾实时性、查询性能与投研易用性：
+
+- **ODS 层**：原始分钟级 K 线数据（Kafka 实时接入 + Doris 持久化）
+- **DWD 层**：明细数据清洗、去重、索引优化
+- **DWS 层**：物化视图预聚合（日 K / 小时 K / 周 K / 月 K / 大盘汇总）
+- **ADS 层**：技术指标、策略视图、监控看板、AI 查询
+- **应用层**：盘中选股、盘后复盘、策略迭代、AI 决策
+
+## 二、创建数据结构（生产级 SQL）
 
 ```sql
 CREATE DATABASE IF NOT EXISTS finances;
-
 USE finances;
 
+-- 停止旧的Kafka实时任务
 STOP ROUTINE LOAD FOR finances.job_sync_candles;
 
+-- 清理历史对象
 DROP MATERIALIZED VIEW IF EXISTS finances.mv_symbol_daily_summary;
 DROP MATERIALIZED VIEW IF EXISTS finances.mv_symbol_hour_summary;
 DROP MATERIALIZED VIEW IF EXISTS finances.mv_symbol_total_summary;
@@ -18,12 +36,19 @@ DROP MATERIALIZED VIEW IF EXISTS finances.mv_market_overview;
 
 DROP VIEW IF EXISTS finances.v_technical_indicators;
 DROP VIEW IF EXISTS finances.v_strategy_monitor;
+DROP VIEW IF EXISTS finances.v_volume_baseline_20d;
+DROP VIEW IF EXISTS finances.v_data_quality_check;
 
 DROP TABLE IF EXISTS finances.backtest_results;
 DROP TABLE IF EXISTS finances.candles;
+```
 
+### 2.1 原始分钟 K 线表（核心基础表）
 
--- 蜡烛图主表
+存储股票 / 合约**每分钟行情数据**，支持实时写入、动态分区、索引加速：
+
+```sql
+-- 分钟级K线原始数据表，存储每分钟的开盘价、最高价、最低价、收盘价和成交量等信息。
 CREATE TABLE IF NOT EXISTS finances.candles (
     timestamp DATETIME NOT NULL COMMENT '数据时间戳（精确到秒）',
     symbol VARCHAR(20) NOT NULL COMMENT '股票代码',
@@ -40,7 +65,7 @@ CREATE TABLE IF NOT EXISTS finances.candles (
 )
 ENGINE = OLAP
 UNIQUE KEY(timestamp, symbol)
-COMMENT "股票市场蜡烛图数据表，存储每分钟的开盘价、最高价、最低价、收盘价和成交量等信息。"
+COMMENT "分钟级K线原始数据表"
 PARTITION BY RANGE(timestamp) ()
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES (
@@ -52,9 +77,14 @@ PROPERTIES (
     "dynamic_partition.prefix" = "p",
     "enable_unique_key_merge_on_write" = "true"
 );
+```
 
+### 2.2 策略回测结果表
 
--- 创建回测结果表
+记录所有策略的交易信号、盈亏、回撤，用于**复盘与策略迭代**：
+
+```sql
+-- 量化策略回测与实盘交易记录表，记录每个策略在每只股票上的交易信号、入场/出场价格和理由、盈亏情况等信息。
 CREATE TABLE IF NOT EXISTS finances.backtest_results (
     strategy_name VARCHAR(50) COMMENT '策略名称',
     symbol VARCHAR(20) COMMENT '股票代码',
@@ -79,7 +109,7 @@ CREATE TABLE IF NOT EXISTS finances.backtest_results (
 )
 ENGINE = OLAP
 UNIQUE KEY(strategy_name, symbol, signal_date)
-COMMENT "回测结果表，记录每个策略在每只股票上的交易信号、入场/出场价格和理由、盈亏情况等信息。"
+COMMENT "量化策略回测与实盘交易记录表"
 PARTITION BY RANGE(signal_date) ()
 DISTRIBUTED BY HASH(strategy_name) BUCKETS 8
 PROPERTIES (
@@ -90,8 +120,13 @@ PROPERTIES (
     "dynamic_partition.prefix" = "p",
     "dynamic_partition.buckets" = "8"
 );
+```
 
+### 2.3 Kafka 实时接入（分钟行情自动同步）
 
+支持从 Kafka 消费 JSON 格式行情数据，**秒级实时入仓**：
+
+```sql
 -- Kafka 实时同步
 CREATE ROUTINE LOAD finances.job_sync_candles ON candles
 COLUMNS(
@@ -116,11 +151,15 @@ FROM KAFKA (
     "property.group.id" = "doris_candles_consumer",
     "property.kafka_default_offsets" = "OFFSET_BEGINNING"
 );
+```
 
+## 三、实时物化视图（预聚合，毫秒级查询）
 
--- =============================================
--- 1. 【个股每日汇总】（包含：振幅、换手率、成交额、涨跌幅）
--- =============================================
+Doris 物化视图**自动同步更新**，无需手动刷新，直接支撑高并发查询。
+
+### 3.1 日 K 线汇总（核心）
+
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_symbol_daily_summary
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES (
@@ -143,11 +182,11 @@ SELECT
 
 FROM finances.candles
 GROUP BY symbol, trade_date;
+```
 
+### 3.2 小时 K 线汇总
 
--- =============================================
--- 2. 【个股小时级汇总】
--- =============================================
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_symbol_hour_summary
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES (
@@ -166,11 +205,11 @@ SELECT
     ROUND((MAX(close)-MIN(open))/NULLIF(MIN(open),0)*100, 2) AS change_ratio
 FROM finances.candles
 GROUP BY symbol, trade_date, trade_hour;
+```
 
+### 3.3 单股票全周期汇总（每只股票总指标）
 
--- =============================================
--- 3. 【个股全周期指标】
--- =============================================
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_symbol_total_summary
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES (
@@ -185,11 +224,11 @@ SELECT
     MAX(close) AS latest_close
 FROM finances.candles
 GROUP BY symbol;
+```
 
+### 3.4 周 K 线
 
--- =============================================
--- 4. 【周 K 线】
--- =============================================
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_symbol_weekly_summary
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES ("replication_num" = "1")
@@ -206,11 +245,11 @@ SELECT
     MIN(open)                  AS open_price
 FROM finances.candles
 GROUP BY symbol, trade_year, trade_week;
+```
 
+### 3.5 月 K 线
 
--- =============================================
--- 5. 【月 K 线】
--- =============================================
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_symbol_monthly_summary
 DISTRIBUTED BY HASH(symbol) BUCKETS 4
 PROPERTIES ("replication_num" = "1")
@@ -227,11 +266,13 @@ SELECT
     MIN(open)                  AS open_price
 FROM finances.candles
 GROUP BY symbol, trade_year, trade_month;
+```
 
+### 3.6 全市场大盘概览（看板核心）
 
--- =============================================
--- 6. 【市场概览视图】（包含：总成交量、总成交额、平均涨跌幅、上涨/下跌/平盘数量）
--- =============================================
+支持上涨家数、上涨率、成交额统计：
+
+```sql
 CREATE MATERIALIZED VIEW IF NOT EXISTS finances.mv_market_overview
 DISTRIBUTED BY HASH(trade_date) BUCKETS 4
 PROPERTIES ("replication_num" = "1")
@@ -258,11 +299,13 @@ SELECT
     ) AS up_ratio_pct
 FROM finances.mv_symbol_daily_summary
 GROUP BY trade_date;
+```
 
+## 四、业务视图（技术指标 + 策略 + 监控）
 
--- =============================================
--- 7. 【技术指标计算】（移动平均、波动率、量价背离）
--- =============================================
+### 4.1 技术指标视图（MA20/MA60 / 波动率 / 量价背离）
+
+```sql
 CREATE OR REPLACE VIEW finances.v_technical_indicators AS
 SELECT
     symbol,
@@ -303,11 +346,40 @@ SELECT
     END AS price_volume_signal
 
 FROM finances.mv_symbol_daily_summary;
+```
 
+### 4.2 20 日量能基线（放量策略专用）
 
--- =============================================
--- 8. 【策略监控视图】（信号数量、平均盈亏比、胜率）
--- =============================================
+```sql
+CREATE OR REPLACE VIEW finances.v_volume_baseline_20d AS
+SELECT
+    symbol,
+    trade_date AS calc_date,
+    -- 20日滚动均量（不含当日）
+    AVG(total_volume) OVER (
+        PARTITION BY symbol
+        ORDER BY trade_date
+        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
+    ) AS avg_volume_20d,
+    -- 20日量能标准差
+    STDDEV(total_volume) OVER (
+        PARTITION BY symbol
+        ORDER BY trade_date
+        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
+    ) AS std_volume_20d,
+    -- 有效统计天数
+    COUNT(total_volume) OVER (
+        PARTITION BY symbol
+        ORDER BY trade_date
+        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
+    ) AS valid_days
+FROM finances.mv_symbol_daily_summary
+WHERE total_volume > 0;
+```
+
+### 4.3 策略绩效监控视图（胜率 / 收益曲线）
+
+```sql
 CREATE OR REPLACE VIEW finances.v_strategy_monitor AS
 SELECT
     strategy_name,
@@ -341,39 +413,11 @@ FROM (
     FROM finances.backtest_results
     GROUP BY strategy_name, DATE(signal_date)
 ) AS t;
+```
 
+### 4.4 数据质量检查视图（实盘必备）
 
--- =============================================
--- 9. 【量能基线视图】（20日均量、20日量能标准差、有效统计天数）
--- =============================================
-CREATE OR REPLACE VIEW finances.v_volume_baseline_20d AS
-SELECT
-    symbol,
-    trade_date AS calc_date,
-    -- 20日滚动均量（不含当日）
-    AVG(total_volume) OVER (
-        PARTITION BY symbol
-        ORDER BY trade_date
-        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
-    ) AS avg_volume_20d,
-    -- 20日量能标准差
-    STDDEV(total_volume) OVER (
-        PARTITION BY symbol
-        ORDER BY trade_date
-        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
-    ) AS std_volume_20d,
-    -- 有效统计天数
-    COUNT(total_volume) OVER (
-        PARTITION BY symbol
-        ORDER BY trade_date
-        ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
-    ) AS valid_days
-FROM finances.mv_symbol_daily_summary
-WHERE total_volume > 0;
-
--- =============================================
--- 10. 【数据质量检查视图】（每日每股实际记录数、预期记录数、完整率）
--- =============================================
+```sql
 CREATE OR REPLACE VIEW finances.v_data_quality_check AS
 SELECT
     symbol,
@@ -390,13 +434,15 @@ GROUP BY symbol, trade_date
 HAVING actual_rows < 240 * 0.95;  -- 仅返回异常记录
 ```
 
-## 初始化AI资源
+## 五、AI 资源初始化（大模型辅助量化）
+
+对接 **DeepSeek** / **通义千问**，实现大盘分析、选股点评、复盘报告：
 
 ```sql
 DROP RESOURCE IF EXISTS ai_deepseek;
 DROP RESOURCE IF EXISTS ai_qwen;
 
--- 创建DeepSeek资源
+-- DeepSeek
 CREATE RESOURCE IF NOT EXISTS ai_deepseek
 PROPERTIES (
     "type" = "ai",
@@ -406,7 +452,7 @@ PROPERTIES (
     "ai.api_key" = "sk-xxx"
 );
 
--- 创建千问资源
+-- 通义千问
 CREATE RESOURCE IF NOT EXISTS ai_qwen
 PROPERTIES (
     "type" = "ai",
@@ -416,13 +462,12 @@ PROPERTIES (
     "ai.api_key" = "sk-xxx"
 );
 
--- 查看现有的资源
-SHOW RESOURCES
+SHOW RESOURCES;
 ```
 
-## 无AI量化查询
+## 六、核心量化查询（日常投研直接使用）
 
-### 1. 基础行情查询
+### 6.1 基础行情查询
 
 ```sql
 -- 单股票历史日K
@@ -441,7 +486,7 @@ WHERE trade_date = CURDATE()
 ORDER BY change_ratio DESC LIMIT 20;
 ```
 
-### 2. 放量上涨选股（最常用量化策略）
+### 6.2 放量突破策略（实盘最常用）
 
 ```sql
 WITH volume_baseline AS (
@@ -479,7 +524,7 @@ ORDER BY volume_ratio DESC, a.change_ratio DESC
 LIMIT 100;
 ```
 
-### 3. 强势股筛选（连续上涨）
+### 6.3 强势股筛选（连续上涨）
 
 ```sql
 SELECT symbol FROM mv_symbol_daily_summary a
@@ -489,7 +534,7 @@ GROUP BY symbol
 HAVING COUNT(*) = 3;
 ```
 
-### 4. 振幅排行（波动率策略）
+### 6.4 振幅排行（波动率策略）
 
 ```sql
 SELECT symbol, amplitude_ratio, change_ratio, total_volume
@@ -498,14 +543,14 @@ WHERE trade_date = CURDATE()
 ORDER BY amplitude_ratio DESC LIMIT 20;
 ```
 
-### 5. 大盘整体情况
+### 6.5 大盘整体情况
 
 ```sql
 SELECT * FROM mv_market_overview
 WHERE trade_date = CURDATE();
 ```
 
-### 6. 周 K / 月 K 查询
+### 6.6 周 K / 月 K 查询
 
 ```sql
 -- 周K
@@ -517,23 +562,23 @@ SELECT * FROM mv_symbol_monthly_summary
 WHERE symbol = 'AAPL' ORDER BY trade_year, trade_month;
 ```
 
-### 7. 个股历史极值
+### 6.7 个股历史极值
 
 ```sql
 SELECT * FROM mv_symbol_total_summary
 WHERE symbol = 'AAPL';
 ```
 
-### 8. 小时级别分时策略
+### 6.8 小时级别分时策略
 
 ```sql
 SELECT * FROM mv_symbol_hour_summary
 WHERE symbol = 'AAPL' AND trade_date = CURDATE();
 ```
 
-## AI 量化查询
+## 七、AI 量化决策（大模型赋能投研）
 
-### 1. AI 大盘情绪分析
+### 7.1 大盘情绪分析
 
 ```sql
 SELECT
@@ -546,7 +591,7 @@ FROM mv_market_overview
 WHERE trade_date = CURDATE();
 ```
 
-### 2. AI 个股涨跌情绪打分
+### 7.2 AI 个股涨跌情绪打分
 
 ```sql
 SELECT
@@ -559,7 +604,7 @@ WHERE trade_date = CURDATE()
 LIMIT 10;
 ```
 
-### 3. AI 智能选股点评
+### 7.3 AI 智能选股点评
 
 ```sql
 SELECT
@@ -574,7 +619,7 @@ WHERE trade_date = CURDATE()
 LIMIT 5;
 ```
 
-### 4. AI 预测明日走势
+### 7.4 AI 预测明日走势
 
 ```sql
 SELECT
@@ -588,7 +633,7 @@ WHERE trade_date = CURDATE()
 LIMIT 5;
 ```
 
-### 5. AI 全市场机会总结
+### 7.5 AI 全市场机会总结
 
 ```sql
 SELECT
@@ -600,9 +645,9 @@ FROM mv_market_overview
 WHERE trade_date = CURDATE();
 ```
 
-## 策略
+## 八、量化策略（实盘可直接运行）
 
-### 策略 1：放量突破（无 AI）
+### 8.1 策略 1：放量突破（无 AI）
 
 ```sql
 SELECT 
@@ -627,7 +672,7 @@ ORDER BY volume_ratio DESC
 LIMIT 100;
 ```
 
-### 策略 2：AI 强势股精选
+### 8.2 策略 2：AI 强势股精选
 
 ```sql
 SELECT
@@ -639,7 +684,7 @@ FROM mv_symbol_daily_summary
 WHERE trade_date = CURDATE() AND change_ratio > 3;
 ```
 
-### 策略 3：大盘 AI 策略建议
+### 8.3 策略 3：大盘 AI 策略建议
 
 ```sql
 SELECT
@@ -655,9 +700,9 @@ FROM (
 ) tmp;
 ```
 
-## 日常使用
+## 九、日常使用流程（盘前 → 盘中 → 盘后 → 迭代）
 
-### 盘前准备（9:00）
+### 9.1 盘前准备（9:00）
 
 #### 1. 检查数据质量（确保昨日数据完整）
 
@@ -684,9 +729,9 @@ WHERE trade_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
 LIMIT 100;
 ```
 
-### 盘中监控（9:30-15:00）
+### 9.2 盘中监控（9:30-15:00）
 
-#### 放量突破策略（每5分钟执行一次）
+#### 1. 放量突破策略（每 5 分钟执行一次）
 
 ```sql
 SELECT symbol, close_price, change_ratio, volume_ratio
@@ -702,7 +747,7 @@ WHERE change_ratio > 2 AND volume_ratio > 1.5
 ORDER BY volume_ratio DESC LIMIT 10;
 ```
 
-#### 人工复核：查看候选股的技术指标
+#### 2. 人工复核：查看候选股的技术指标
 
 ```sql
 SELECT symbol, ma20, ma60, volatility_20d, price_volume_signal
@@ -711,7 +756,7 @@ WHERE symbol IN ('AAPL', 'TSLA', 'NVDA')  -- 替换为实际候选股
   AND trade_date = CURDATE();
 ```
 
-#### AI辅助决策（限5只，控制成本）
+#### 3. AI 辅助决策（限 5 只，控制成本）
 
 ```sql
 SELECT symbol, close_price, change_ratio, volume_ratio,
@@ -734,9 +779,9 @@ FROM (
 LIMIT 5;
 ```
 
-### 盘后复盘（15:30）
+### 9.3 盘后复盘（15:30）
 
-#### 记录今日策略信号到回测表（自动化脚本调用）
+#### 1. 记录今日策略信号到回测表（自动化脚本调用）
 
 ```sql
 INSERT INTO finances.backtest_results (
@@ -769,14 +814,14 @@ CROSS JOIN finances.mv_market_overview m
 WHERE m.trade_date = CURDATE();
 ```
 
-#### 查看今日策略绩效
+#### 2. 查看今日策略绩效
 
 ```sql
 SELECT * FROM finances.v_strategy_monitor
 WHERE trade_day = CURDATE();
 ```
 
-#### 查看策略历史绩效曲线（30日）
+#### 3. 查看策略历史绩效曲线（30 日）
 
 ```sql
 SELECT trade_day, cumulative_total_pnl, win_rate
@@ -785,7 +830,7 @@ WHERE strategy_name = 'volume_breakout_v1'
 ORDER BY trade_day DESC LIMIT 30;
 ```
 
-#### AI生成复盘报告
+#### 4. AI 生成复盘报告
 
 ```sql
 SELECT AI_GENERATE(CONCAT(
@@ -797,9 +842,9 @@ SELECT AI_GENERATE(CONCAT(
 )) AS daily_review;
 ```
 
-### 策略迭代（每周）
+### 9.4 策略迭代（每周）
 
-#### 1. 回测分析：过去30天策略表现
+#### 1. 回测分析：过去 30 天策略表现
 
 ```sql
 SELECT 
@@ -840,3 +885,18 @@ FROM (
 ) t
 GROUP BY volume_bucket;
 ```
+
+## 十、方案亮点与生产价值
+
+1. **全实时**：Kafka 秒级入仓 + 物化视图自动更新
+2. **高性能**：毫秒级返回日 K / 大盘 / 技术指标
+3. **全闭环**：从数据 → 指标 → 策略 → 交易 → 复盘 → 迭代
+4. **AI 赋能**：原生支持大模型决策，降低投研门槛
+5. **易维护**：标准 SQL，无复杂开发，DBA 可直接运维
+6. **可扩展**：支持期货、期权、数字货币等全品类标的
+
+## 十、总结
+
+基于 Apache Doris 4.x 构建的量化交易系统，完美解决了传统量化架构中**实时性差**、**查询慢**、**维护复杂**等痛点。
+
+整套方案**生产可用**、**开箱即用**，既满足个人量化投研，也支持机构级实盘交易，是现代量化基础设施的最优选择之一。
