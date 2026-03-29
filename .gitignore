@@ -48,3 +48,7 @@ vite.config.ts.*
 *.sln
 *.sw?
 .history
+
+/docs/.vuepress/.temp
+/docs/.vuepress/.cache
+/docs/.vuepress/dist

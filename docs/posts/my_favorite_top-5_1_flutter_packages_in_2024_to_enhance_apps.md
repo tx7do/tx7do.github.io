@@ -45,7 +45,7 @@ SvgPicture.asset(Svgs.menuIcon, width: 35,),
 
 ## 5. easy_localisation
 
-![](/assets/images/flutter/easy_localisation.jpg)
+![](/assets/images/flutter/easy_localization.jpg)
 
 在日益全球化的世界中，提供多语言支持对于接触不同的受众至关重要。 `easy_localization` 简化了 Flutter 应用程序国际化的过程，使开发人员能够轻松添加对多种语言的支持。我已经使用它有一段时间了，因为它具有直观的语法和许多强大的功能，例如区域设置管理、字符串翻译和 RTL（从右到左）。通过使本地化变得易于访问和简单，我能够毫不费力地在全球范围内分发应用程序。
 

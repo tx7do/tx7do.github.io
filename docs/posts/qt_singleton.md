@@ -29,7 +29,7 @@ sticky: 10
 
 整体架构分为两层：
 
-1. **Singleton<T> 模板类：** 负责单例的实例创建、线程安全保护、初始化 / 销毁逻辑，通过模板实现通用性；
+1. **Singleton&lt;T&gt; 模板类：** 负责单例的实例创建、线程安全保护、初始化 / 销毁逻辑，通过模板实现通用性；
 2. **SingletonManager 单例管理器：** 负责注册所有单例的清理回调，程序退出时统一执行销毁，避免内存泄漏。
 
 核心设计思路：
@@ -351,7 +351,7 @@ private:
 **注意事项：**
 
 - 单例类若继承 `QObject`，建议将父对象设为 `nullptr`，避免 Qt 父子对象生命周期管理与单例冲突；
-- 构造函数需为 `public` 或 `protected`（若为 `protected`，需将 `Singleton<T>` 设为友元）；
+- 构造函数需为 `public` 或 `protected`（若为 `protected`，需将 `Singleton&lt;T&gt;` 设为友元）；
 - 避免在构造函数中执行耗时操作（如网络连接），可提供 `initService()` 等方法延迟初始化。
 
 ### 完整使用示例（main 函数）
@@ -449,7 +449,7 @@ int main(int argc, char *argv[]) {
 ### 4.3 禁止拷贝移动
 
 - 单例类必须禁用拷贝构造、赋值运算符（通过 `Q_DISABLE_COPY_MOVE` 或手动删除），否则可能通过拷贝创建多个实例；
-- `Singleton<T>` 模板已禁用拷贝移动，目标单例类需自行禁用（如示例 `MyService` 虽未显式禁用，但继承 `QObject` 后自动禁用）。
+- `Singleton&lt;T&gt;` 模板已禁用拷贝移动，目标单例类需自行禁用（如示例 `MyService` 虽未显式禁用，但继承 `QObject` 后自动禁用）。
 
 ### 4.4 内存泄漏防护
 

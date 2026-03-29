@@ -16,7 +16,7 @@ sticky: 10
 
 ## 什么是 CQRS
 
-这个概念出自于 **命令与查询分离（CQS, Command Query Separation）**，出自于1987 年 Bertrand Meyer 的 <Object-Oriented Software Construction>《面向对象软件构造》一书，其原始概念是我们可以把对象操作分为：命令（Command）和 查询（Query）两种形式。
+这个概念出自于 **命令与查询分离（CQS, Command Query Separation）**，出自于1987 年 Bertrand Meyer 的 《面向对象软件构造》(Object-Oriented Software Construction)一书，其原始概念是我们可以把对象操作分为：命令（Command）和 查询（Query）两种形式。
 
 * 命令（Command）：在执行之后，会改变对象的状态。
 * 查询（Query）：仅仅是查看对象的数据，而不会对对象产生改变。
