@@ -11,10 +11,10 @@
 
 本方案采用分层量化数仓架构，兼顾实时性、查询性能与投研易用性：
 
-- **ODS 层**：原始分钟级 K 线数据（Kafka 实时接入 + Doris 持久化）
-- **DWD 层**：明细数据清洗、去重、索引优化
-- **DWS 层**：物化视图预聚合（日 K / 小时 K / 周 K / 月 K / 大盘汇总）
-- **ADS 层**：技术指标、策略视图、监控看板、AI 查询
+- **ODS 层 (Operational Data Store)**：原始分钟级 K 线数据（Kafka 实时接入 + Doris 持久化）
+- **DWD 层 (Data Warehouse Detail)**：明细数据清洗、去重、索引优化
+- **DWS 层 (Data Warehouse Service)**：物化视图预聚合（日 K / 小时 K / 周 K / 月 K / 大盘汇总）
+- **ADS 层 (Application Data Service)**：技术指标、策略视图、监控看板、AI 查询
 - **应用层**：盘中选股、盘后复盘、策略迭代、AI 决策
 
 ## 二、创建数据结构（生产级 SQL）
