@@ -450,6 +450,8 @@ docker run -itd \
     apache/doris:be-4.0.4
 ```
 
+Web界面：<http://localhost:8030/>
+
 ## NoSQL数据库
 
 -----
