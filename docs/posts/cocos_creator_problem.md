@@ -47,6 +47,7 @@ Min: cc.Node;
 ```typescript
 @property(cc.Node)
 Min: cc.Node = null;
+```
 
 ## 参考资料
 
