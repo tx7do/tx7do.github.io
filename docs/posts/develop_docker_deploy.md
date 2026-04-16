@@ -59,11 +59,15 @@ docker pull bitnami/mariadb:latest
 docker run -itd \
     --name mariadb-test \
     --network=app-tier \
+    --restart always \
     -p 3306:3306 \
     -e TZ=Asia/Shanghai \
     -e ALLOW_EMPTY_PASSWORD=yes \
     -e MARIADB_ROOT_PASSWORD=123456 \
-    bitnami/mariadb:latest
+    bitnami/mariadb:latest \
+    --max_connections=2000 \
+    --wait_timeout=600 \
+    --interactive_timeout=600
 ```
 
 ### PostgreSQL
@@ -375,7 +379,6 @@ docker run -itd \
 ### Clickhouse
 
 ```bash
-docker pull yandex/clickhouse-server:latest
 docker pull clickhouse/clickhouse-server:latest
 
 # 8123为http接口 9000为tcp接口 9004为mysql接口
@@ -395,8 +398,6 @@ docker run -itd \
 - 密码：无
 
 ```bash
-docker pull bitnami/clickhouse:latest
-
 docker run -itd \
     --name clickhouse-server \
     --network=app-tier \
@@ -404,9 +405,9 @@ docker run -itd \
     -p 9000:9000 \
     -p 9004:9004 \
     -e ALLOW_EMPTY_PASSWORD=no \
-    -e CLICKHOUSE_ADMIN_USER=default \
-    -e CLICKHOUSE_ADMIN_PASSWORD=123456 \
-    bitnami/clickhouse:latest
+    -e CLICKHOUSE_USER=default \
+    -e CLICKHOUSE_PASSWORD=123456 \
+    clickhouse/clickhouse-server:latest
 ```
 
 ### Doris
