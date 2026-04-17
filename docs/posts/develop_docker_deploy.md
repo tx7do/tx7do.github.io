@@ -376,6 +376,49 @@ docker run -itd \
     bitnami/elasticsearch:latest
 ```
 
+or official image:
+
+```bash
+# LTS
+docker pull elasticsearch:8.19.14
+docker pull elasticsearch:9.3.3
+
+docker run -itd \
+    --name elasticsearch-node \
+    --network=app-tier \
+    -p 9200:9200 \
+    -p 9300:9300 \
+    -e "discovery.type=single-node" \
+    -e "DISABLE_SECURITY_PLUGIN=true" \
+    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=*Abcd123456 \
+    elasticsearch:8.19.14
+```
+
+### OpenSearch
+
+
+```bash
+docker pull opensearchproject/opensearch:latest
+docker pull opensearchproject/opensearch-dashboards:latest
+
+docker run -itd \
+    --name opensearch-node \
+    --network=app-tier \
+    -p 9200:9200 \
+    -p 9600:9600 \
+    -e "discovery.type=single-node" \
+    -e "DISABLE_SECURITY_PLUGIN=true" \
+    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=*Abcd123456 \
+    opensearchproject/opensearch:latest
+
+docker run -itd \
+  --name opensearch-dashboards \
+  --network app-tier \
+  -p 5601:5601 \
+  -e "OPENSEARCH_HOSTS=[\"http://opensearch-node:9200\"]" \
+  opensearchproject/opensearch-dashboards:latest
+```
+
 ### Clickhouse
 
 ```bash
