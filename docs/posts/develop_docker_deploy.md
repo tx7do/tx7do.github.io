@@ -390,7 +390,7 @@ docker run -itd \
     -p 9300:9300 \
     -e "discovery.type=single-node" \
     -e "DISABLE_SECURITY_PLUGIN=true" \
-    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=*Abcd123456 \
+    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=@Abcd#123456 \
     elasticsearch:8.19.14
 ```
 
@@ -407,17 +407,22 @@ docker run -itd \
     -p 9200:9200 \
     -p 9600:9600 \
     -e "discovery.type=single-node" \
-    -e "DISABLE_SECURITY_PLUGIN=true" \
-    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=*Abcd123456 \
+    -e plugins.security.disabled=false \
+    -e plugins.security.ssl.http.enabled=false \
+    -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=@Abcd#123456 \
     opensearchproject/opensearch:latest
 
 docker run -itd \
   --name opensearch-dashboards \
   --network app-tier \
+  --link opensearch-node \
   -p 5601:5601 \
-  -e "OPENSEARCH_HOSTS=[\"http://opensearch-node:9200\"]" \
+  -e OPENSEARCH_HOSTS=http://opensearch-node:9200 \
   opensearchproject/opensearch-dashboards:latest
 ```
+
+Dashboard：<http://localhost:5601/>  
+账号密码： `admin` / `@Abcd#123456`
 
 ### Clickhouse
 
