@@ -235,6 +235,6 @@ GoWind Admin 的开发初衷并非打造全能型重型框架，而是解决全�
 
 **在线演示**：
 
-- React版：https://react.admin.gowind.cloud
-- Vben版：https://vben.admin.gowind.cloud
-- Element版：https://ele.admin.gowind.cloud
+- React版：<https://react.admin.gowind.cloud>
+- Vben版：<https://vben.admin.gowind.cloud>
+- Element版：<https://ele.admin.gowind.cloud>
