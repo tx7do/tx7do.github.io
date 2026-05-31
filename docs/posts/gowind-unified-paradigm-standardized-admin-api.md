@@ -284,4 +284,4 @@ await mutateAsync({
 - **GitHub 仓库**：[https://github.com/tx7do/go-wind-admin](https://github.com/tx7do/go-wind-admin)
 - **Gitee 仓库**：[https://gitee.com/tx7do/go-wind-admin](https://gitee.com/tx7do/go-wind-admin)
 - **在线演示地址**：[https://demo.admin.gowind.cloud](https://demo.admin.gowind.cloud)
-- **默认登录账号密码**：admin / admin
+- **默认登录账号**：`admin` / **密码**：`admin`

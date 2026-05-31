@@ -430,4 +430,4 @@ function onToolbarClick(name: string) {}
 - Github地址：<https://github.com/tx7do/go-wind-admin>
 - Gitee地址：<https://gitee.com/tx7do/go-wind-admin>
 - 在线演示地址：<https://demo.admin.gowind.cloud>
-- 默认账号密码：admin / admin
+- 默认账号密码：`admin` / `admin`

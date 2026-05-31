@@ -203,7 +203,7 @@ pnpm dev:antd
 
 ### 6.5 访问地址汇总
 
-- **默认账号密码**：admin / admin
+- **默认账号密码**：`admin` / `admin`
 
 - **后端接口文档**：[https://api.demo.admin.gowind.cloud/docs/](https://api.demo.admin.gowind.cloud/docs/)
 
