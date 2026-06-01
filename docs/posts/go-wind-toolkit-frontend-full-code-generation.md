@@ -65,7 +65,7 @@ sticky: 10
 
 打开客户端，左侧侧边栏点击【前端代码生成】，进入对应的操作面板。
 
-![](/assets/images/go_wind_toolkit/create_backend_prfrontend_code_generator_init.png)
+![](/assets/images/go_wind_toolkit/frontend_code_generator_init.png)
 
 ### 4.2 载入OpenAPI数据源
 
