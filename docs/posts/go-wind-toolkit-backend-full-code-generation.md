@@ -69,7 +69,6 @@ go-wind-demo/
 ├── api/        # Proto协议、gRPC接口、请求响应结构体
 ├── cmd/        # 所有服务启动入口
 ├── internal/   # 核心私有业务代码
-│   ├── biz/    # 业务逻辑层
 │   ├── data/   # 数据库数据访问层
 │   ├── server/ # 路由、中间件、服务注册
 │   └── service/ # 接口实现层
