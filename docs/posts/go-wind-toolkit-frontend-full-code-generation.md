@@ -115,12 +115,20 @@ sticky: 10
 进入生成的前端项目根目录，执行两行简单命令即可运行：
 
 ```bash
-# 安装全部项目依赖
-npm install
+# 安装依赖
+pnpm install
 
-# 启动开发环境
-npm run dev
+# React版本
+cd frontend/admin/react
+pnpm dev
 
+# Vue3 Element版本
+cd frontend/admin/vue-element
+pnpm dev
+
+# Vue3 Vben版本
+cd frontend/admin/vue-vben
+pnpm dev:antd
 ```
 
 ### 5.2 功能验证
