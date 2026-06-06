@@ -32,14 +32,15 @@ sticky: 10
 GoWind Admin 单体项目标准目录结构（轻量化 DDD 简化分层，开发逻辑贴近 MVC，非标准 Web MVC）：
 
 ```Plain Text
-├─api # Buf管理的Protobuf协议定义
+├─api
+│ ├─protos # Buf管理的Protobuf协议定义
+│ └─gen # 工具自动生成代码
 ├─app/admin/service/cmd # 项目启动入口
-├─app/admin/service/internal
-│ ├─data # 数据访问层（DAO，对应MVC Model）
-│ ├─service # 业务逻辑层（对应MVC Service）
-│ └─server # 接口传输层（对应MVC Controller）
-├─gen/api # 工具自动生成代码
-└─config # 组件自动装配配置文件
+├─app/admin/service/config # 组件自动装配配置文件
+└─app/admin/service/internal
+  ├─data # 数据访问层（DAO，对应MVC Model）
+  ├─service # 业务逻辑层（对应MVC Service）
+  └─server # 接口传输层（对应MVC Controller）
 ```
 
 该三层架构职责边界清晰、分层逻辑统一，开发思维贴合传统单体 MVC 项目，大幅降低原生 Kratos 的学习与适配成本。需要明确区分：传统 Web MVC 包含 View 视图层，适配页面渲染场景；GoWind 三层架构为纯后端 API 分层，无视图层，本质是面向接口服务的轻量化 DDD 分层规范。统一的工程目录与分层规范，也从根源解决了传统 Gin/Echo 单体项目分层混乱、代码耦合、无统一规范、难以迭代维护的问题。
