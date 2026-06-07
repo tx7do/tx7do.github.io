@@ -890,3 +890,7 @@ final tagName = getTagName(tag);
 ---
 
 > **快速开始**：`flutter pub get && flutter pub run intl_utils:generate && flutter run -d chrome`，打开 `http://localhost:xxxx` 即可运行。
+
+- **Github 开源仓库**：[https://github.com/tx7do/go-wind-cms](https://github.com/tx7do/go-wind-cms)
+- **Gitee 开源仓库**：[https://gitee.com/tx7do/go-wind-cms](https://gitee.com/tx7do/go-wind-cms)
+- **在线演示地址**：[https://flutter.cms.gowind.cloud](https://flutter.cms.gowind.cloud)
