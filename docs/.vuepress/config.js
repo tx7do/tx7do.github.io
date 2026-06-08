@@ -1,5 +1,6 @@
 import { blogPlugin } from '@vuepress/plugin-blog'
 import { defaultTheme } from '@vuepress/theme-default'
+import { markdownChartPlugin } from '@vuepress/plugin-markdown-chart'
 import { defineUserConfig } from 'vuepress'
 import { viteBundler } from '@vuepress/bundler-vite'
 
@@ -136,6 +137,9 @@ export default defineUserConfig({
         },
       ],
       hotReload: true,
+    }),
+    markdownChartPlugin({
+      mermaid: true,
     }),
   ],
 
