@@ -1,46 +1,58 @@
-# Get Started
+# 新手导览
 
-This is a normal page, which contains VuePress basics.
+欢迎来到 TX7DO。  
+如果你是第一次访问，这一页会帮助你在 3 分钟内找到最适合自己的阅读路径。
 
-## Pages
+## 这是什么站点
 
-You can add markdown files in your vuepress directory, every markdown file will be converted to a page in your site.
+这里是一份持续更新的工程实践笔记，重点记录：
 
-See [routing][] for more details.
+- 后端与系统架构中的真实设计取舍
+- 云原生、部署与运维中的可复用经验
+- AI 工程化与开发效率提升的方法
+- 从问题到方案再到复盘的完整过程
 
-## Content
+内容目标不是“信息搬运”，而是提供能直接落地的思路和模板。
 
-Every markdown file [will be rendered to HTML, then converted to a Vue SFC][content].
+## 推荐阅读路径
 
-VuePress support basic markdown syntax and [some extensions][synatex-extensions], you can also [use Vue features][vue-feature] in it.
+根据你的目标，建议从这些入口开始：
 
-## Configuration
+1. 我想快速了解全貌：先看 [全部文章](/article/)
+2. 我想按主题系统学习：从 [分类页](/category/) 进入
+3. 我在解决某个具体问题：直接用 [标签页](/tag/) 检索
+4. 我想按时间追踪演进：查看 [时间线](/timeline/)
 
-VuePress use a `.vuepress/config.js`(or .ts) file as [site configuration][config], you can use it to config your site.
+## 常见内容类型
 
-For [client side configuration][client-config], you can create `.vuepress/client.js`(or .ts).
+你会在文章中看到以下结构：
 
-Meanwhile, you can also add configuration per page with [frontmatter][].
+- 问题背景与约束：为什么这是个难题
+- 方案对比与权衡：为什么最终选这个方案
+- 可执行步骤：命令、配置与关键代码片段
+- 踩坑与复盘：哪些方式不工作、为什么不工作
 
-## Layouts and customization
+如果你偏好“先结果后细节”，可优先看每篇文章开头的结论与摘要段落。
 
-Here are common configuration controlling layout of `@vuepress/theme-default`:
+## 站内导航说明
 
-- [navbar][]
-- [sidebar][]
+- 首页：了解站点定位与近期内容
+- 文章页：按发布时间顺序浏览
+- 分类页：按技术方向阅读系列主题
+- 标签页：跨分类聚合相似问题
+- 时间线：查看能力地图和内容演进轨迹
 
-Check [default theme docs][default-theme] for full reference.
+## 给新读者的建议
 
-You can [add extra style][style] with `.vuepress/styles/index.scss` file.
+1. 不需要从第一篇开始按顺序读
+2. 先从你当前正在解决的问题切入
+3. 读完后把“可复用步骤”沉淀进自己的模板库
+4. 对比文中约束与自己的业务场景，再决定是否采用
 
-[routing]: https://vuejs.press/guide/page.html#routing
-[content]: https://vuejs.press/guide/page.html#content
-[synatex-extensions]: https://vuejs.press/guide/markdown.html#syntax-extensions
-[vue-feature]: https://vuejs.press/guide/markdown.html#using-vue-in-markdown
-[config]: https://vuejs.press/guide/configuration.html#client-config-file
-[client-config]: https://vuejs.press/guide/configuration.html#client-config-file
-[frontmatter]: https://vuejs.press/guide/page.html#frontmatter
-[navbar]: https://vuejs.press/reference/default-theme/config.html#navbar
-[sidebar]: https://vuejs.press/reference/default-theme/config.html#sidebar
-[default-theme]: https://vuejs.press/reference/default-theme/
-[style]: https://vuejs.press/reference/default-theme/styles.html#style-file
+## 参与与反馈
+
+如果某篇文章帮你节省了时间，或你在实践中遇到了不同约束，欢迎交流：
+
+- GitHub: [https://github.com/tx7do](https://github.com/tx7do)
+
+你也可以把希望看到的主题反馈过来，后续会优先补充高频问题的实战内容。
