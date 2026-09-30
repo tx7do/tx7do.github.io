@@ -52,7 +52,7 @@ Collector 的代码量很小，因为它恪守"接收 + 转发"的边界。入�
 
 几个值得注意的设计：
 
-**鉴权在请求体，不在 Header。** `appId` / `appSecret` 放在 JSON body 里。这看起来"不标准"，但它有一个关键收益：**让 `sendBeacon` 成为可能**——浏览器关闭页面时，`navigator.sendBeacon` 无法设置自定义 Header，只能发 body。把凭证放进 body，SDK 在页面卸载时也能可靠地把残留事件冲刷出去（详见 [第 3 篇](./03-sdk-and-collector.md)）。
+**鉴权在请求体，不在 Header。** `appId` / `appSecret` 放在 JSON body 里。这看起来"不标准"，但它有一个关键收益：**让 `sendBeacon` 成为可能**——浏览器关闭页面时，`navigator.sendBeacon` 无法设置自定义 Header，只能发 body。把凭证放进 body，SDK 在页面卸载时也能可靠地把残留事件冲刷出去（详见 第 3 篇）。
 
 **鉴权器是加固过的。** `AppAuthenticator`（`app_auth.go`）有几个细节值得抠：
 
@@ -70,7 +70,7 @@ for _, event := range validEvents {
 }
 ```
 
-客户端上报的 `tenantId` 一律作废，服务端按 `appId` 反查出"这个应用属于哪个租户"并强制覆盖。这是整个平台防跨租户越权的**第一道闸**（OLAP 层还有第二道，见 [第 4 篇](./04-multi-tenant-security.md)）。
+客户端上报的 `tenantId` 一律作废，服务端按 `appId` 反查出"这个应用属于哪个租户"并强制覆盖。这是整个平台防跨租户越权的**第一道闸**（OLAP 层还有第二道，见 第 4 篇）。
 
 **响应永远不撒谎。** 即便 HTTP 200，`failedCount` 也可能 > 0——批量上报里部分事件校验失败时，会把失败明细按事件类型分组放进 `errorsByType` 返回。SDK 拿到后记 warn，而不是误以为全成功。
 
@@ -90,9 +90,9 @@ Core 是承载所有"重"逻辑的服务。它的对外协议是 **gRPC**（不�
 - **写业务 CRUD** → ent + `go-crud` 泛型 Repository，自动处理分页 / 过滤 / FieldMask；
 - **写分析聚合** → 原生 SQL，Doris 用 `db.SelectContext`，ClickHouse 用 `db.Select`，SQL 函数按方言切换。
 
-Core 最有意思的部分是 **双引擎**：同一份业务模型，ClickHouse 和 Doris 各实现一份 repo，运行时二选一。这是整个平台最硬核的设计之一，我会用整个 [第 2 篇](./02-olap-sql-deep-dive.md) 来讲。
+Core 最有意思的部分是 **双引擎**：同一份业务模型，ClickHouse 和 Doris 各实现一份 repo，运行时二选一。这是整个平台最硬核的设计之一，我会用整个 第 2 篇 来讲。
 
-> ⚠️ **一个诚实的现状**：截至当前版本，`uba_events_raw` / `uba_risk_events` 的 **Kafka 消费入库逻辑在 Core 内尚未实现**。Collector 已经正确 Publish，Core 也提供了 `BehaviorEventService.BatchCreate` 入库入口，但**连接两者的 subscriber 缺失**。这意味着上报数据目前会停留在 Kafka，不会自动落库。生产化前需要补一个消费者（在 Core 内订阅 topic 调 `BatchCreate`，或引入独立 worker）。详见 [架构文档](../architecture.md#-kafka-消费端现状重要) 的诚实披露。这种"能力具备但管线未接通"的状态，在真实项目里很常见，文档主动写出来比藏着好。
+> ⚠️ **一个诚实的现状**：截至当前版本，`uba_events_raw` / `uba_risk_events` 的 **Kafka 消费入库逻辑在 Core 内尚未实现**。Collector 已经正确 Publish，Core 也提供了 `BehaviorEventService.BatchCreate` 入库入口，但**连接两者的 subscriber 缺失**。这意味着上报数据目前会停留在 Kafka，不会自动落库。生产化前需要补一个消费者（在 Core 内订阅 topic 调 `BatchCreate`，或引入独立 worker）。这种"能力具备但管线未接通"的状态，在真实项目里很常见，文档主动写出来比藏着好。
 
 ---
 

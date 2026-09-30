@@ -275,7 +275,7 @@ lock (_lock) {
 
 ## 四、Collector：把采集数据接住
 
-Collector 在 [第 1 篇](./01-architecture-overview.md) 已概览过，这里聚焦采集链路特有的细节。
+Collector 在 第 1 篇 已概览过，这里聚焦采集链路特有的细节。
 
 ### 4.1 鉴权：加固实现
 
@@ -328,7 +328,7 @@ UbaEventRisk = "uba_risk_events"   // 风险事件
 
 行为事件和风险事件分 topic，便于下游独立消费 / 独立扩容。文件里还定义了 `uba_events_enriched` / `uba_path_events` / sync / alert / audit / DLQ topic 和消费组名——这些属于下游消费者，不在 collector 的发布路径。
 
-> 如 [第 1 篇](./01-architecture-overview.md) 所述，**Core 内消费这两个 topic 入库的 subscriber 尚未实现**。Collector 这端是通的，Core 也具备 `BatchCreate` 入库能力，连接它们的管线是生产化前要补的一环。
+> 如 第 1 篇 所述，**Core 内消费这两个 topic 入库的 subscriber 尚未实现**。Collector 这端是通的，Core 也具备 `BatchCreate` 入库能力，连接它们的管线是生产化前要补的一环。
 
 ## 五、跨端契约的一致性
 

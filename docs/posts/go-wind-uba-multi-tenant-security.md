@@ -218,7 +218,7 @@ tenant_id UInt32 COMMENT '租户 ID（SaaS 多租户隔离，所有查询必须�
 
 ## 四、采集层：appId 权威覆盖
 
-除了上面两层，**采集端还有第三道闸**（[第 3 篇](./03-sdk-and-collector.md) 详述）。这是租户安全的第一道、也是最关键的一道：
+除了上面两层，**采集端还有第三道闸**（第 3 篇 详述）。这是租户安全的第一道、也是最关键的一道：
 
 ```go
 // backend/app/collector/service/.../report_service.go
@@ -263,7 +263,7 @@ Casbin 的 RBAC with domains 模型天然适配多租户：`(sub, dom, obj, act)
 
 ### 5.3 Collector 鉴权的加固细节
 
-[第 3 篇](./03-sdk-and-collector.md) 讲过的几个点在这里汇总，它们都属于"安全加固"：
+第 3 篇 讲过的几个点在这里汇总，它们都属于"安全加固"：
 
 - **Redis 只存 secret 哈希**——脱库不泄密。
 - **constant-time 比较**——防时序攻击。
@@ -287,7 +287,7 @@ Casbin 的 RBAC with domains 模型天然适配多租户：`(sub, dom, obj, act)
 
 - **OLAP 层 opt-in 隔离**——新增 OLAP 查询时必须自觉带 `tenant_id = ?`，否则跨租户泄漏。这是靠约定，不是靠强制。
 - **双引擎编译期切换**——意味着生产部署时，选 ClickHouse 还是 Doris 是"一次定死"的，不能热切。
-- **Kafka 消费未落地**（[第 1 篇](./01-architecture-overview.md)）——目前上报数据停在 Kafka，Core 的 `BatchCreate` 入库管线没接通。这是功能完整度问题，不是安全问题，但生产化前必须补。
+- **Kafka 消费未落地**（第 1 篇）——目前上报数据停在 Kafka，Core 的 `BatchCreate` 入库管线没接通。这是功能完整度问题，不是安全问题，但生产化前必须补。
 
 把这些"需要警惕的地方"写出来，不是挑刺，而是**给二次开发者一张地图**——告诉你在哪里要格外小心。一个敢于在文档里写"OLAP 查询所有都必须带 tenant_id 条件"的项目，比一个声称"全自动零信任隔离"的项目，可信度更高。
 
@@ -295,10 +295,10 @@ Casbin 的 RBAC with domains 模型天然适配多租户：`(sub, dom, obj, act)
 
 四篇拆解走到这里，我们把 GoWind UBA 从埋点到看板的全链路过了一遍：
 
-1. [**架构总览**](./01-architecture-overview.md)：三服务职责、契约优先代码生成、SSE 推送。
-2. [**OLAP/SQL 硬核**](./02-olap-sql-deep-dive.md)：双引擎、Schema 设计、25 个模型的真实 SQL、防注入。
-3. [**SDK/采集层**](./03-sdk-and-collector.md)：批量/重试/sendBeacon/Unity WebGL/采集鉴权。
-4. [**多租户/安全**](./04-multi-tenant-security.md)（本文）：两套隔离机制、JWT/Casbin、安全加固。
+1. **架构总览**：三服务职责、契约优先代码生成、SSE 推送。
+2. **OLAP/SQL 硬核**：双引擎、Schema 设计、25 个模型的真实 SQL、防注入。
+3. **SDK/采集层**：批量/重试/sendBeacon/Unity WebGL/采集鉴权。
+4. **多租户/安全**（本文）：两套隔离机制、JWT/Casbin、安全加固。
 
 回头看，这套平台真正值得借鉴的，不是某一个"惊为天人的算法"，而是**一整套在真实工程约束下做出的一致取舍**：
 
