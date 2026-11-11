@@ -11,31 +11,38 @@ tag:
 sticky: 10
 ---
 
-# GoWind CMS 拆解：发布审批的多级化——从一把 in_progress 旗子到全程留痕
+# GoWind CMS 拆解：发布审批——多级推进、逐级角色与全程留痕
 
-> 本文回答一个问题：**一篇文章从「提交审核」到「正式发布」，中间的每一次签字如何推进、如何留痕、如何不被 Update 接口绕过去？**
+> 本文回答一个问题：**一篇文章从「提交审核」到「正式发布」，审批流怎么推进（第几级了）、谁有权批（每级什么角色）、每一次动作如何留痕（谁在何时批了什么）、以及怎么保证不被 Update 接口绕过去？**
 
-内容平台的发布审批是最典型的「第一版够用、第二版才对」的功能。[GoWind CMS](https://github.com/tx7do/go-wind-cms) 在 10 月 15 日上了单级审批（提交→通过→发布，一把 `in_progress` 旗子搞定），12 天后（10 月 27 日，`322d472c`）把它升级成多级审批 + 全程留痕：支持 N 级逐级推进、每级可配审批角色、每一次 SUBMIT/APPROVE/REJECT 都落表留痕，并顺手封死了 Update 接口绕过审批的后门。
-
-这篇拆这次升级。它的样本价值在于：**审批流的三个痛点（推进、留痕、防绕过）是三种不同性质的问题，解法分布在状态机、审计表和入口闸门三个位置**——位置放对了，每个解法都很薄。
+[GoWind CMS](https://github.com/tx7do/go-wind-cms) 的发布审批是内容域的最后一道闸：文章提交后进入审核中，审批人逐级推进（级数与每级角色都是租户可配的），末级通过才置 PUBLISHED；每一次 SUBMIT/APPROVE/REJECT 都落 `sys_review_logs` 表留痕，审核中的内容被 Update 接口封死了直改状态的后门。页面（page）走同款语义。这篇按审批流的四个组成部分拆：**状态机、推进、授权、留痕与闸门**。
 
 ---
 
-## 一、起点：单级审批的 12 天
+## 一、状态机：一把 in_progress 旗子 + 三个 RPC
 
-10 月 15 日的第一版（`87829314`）骨架极简：
+审批流的骨架极简。文章表上只有一把 `in_progress` 旗子，加上 status 枚举，构成全部状态空间：
 
-- 文章表上只有一把 `in_progress` 旗子：`false` → 提交时置 `true`（审核中），通过时置 `false` + 状态直置 `PUBLISHED`，驳回时置 `false`（回 DRAFT）；
-- `SubmitReview / ApproveReview / RejectReview` 三个 RPC，一次 Approve 直接发布；
-- **零留痕**——谁提交的、谁批的、批了什么，事后无从查起。
+```
+DRAFT(in_progress=false)
+   │ SubmitReview（置 in_progress=true，开新批次）
+   ▼
+审核中(in_progress=true)
+   │ ApproveReview × N-1（中间级：保持审核中，通知进度）
+   │ ApproveReview 第 N 级（末级：置 PUBLISHED + in_progress=false）
+   ▼
+PUBLISHED
 
-单级场景下这个设计完全成立：一把旗子三个状态转移，状态机即文档。它的问题在可审计性与可扩展性：审计要留痕才能做，多级要「当前在第几级」才能推进。12 天后的多级化没有推翻这副骨架——`in_progress` 旗子保留、三个 RPC 签名不变，升级全发生在骨架的三个空位上。
+审核中 ── RejectReview（带理由，in_progress=false）──► DRAFT
+```
+
+三个 RPC 对应三个动作：`SubmitReview`（校验：非 DRAFT 400、已在审 400——重复提交直接拒绝）、`ApproveReview`（推进或发布）、`RejectReview`（驳回回 DRAFT，理由必填进留痕）。`in_progress` 这把旗子的职责被刻意收窄：它只表达「有一场未完结的审批在进行」，**不是**发布状态——发布与否由 status 说话，两者正交。这个收窄直接决定了后面闸门的判定条件（第六节）。
 
 ---
 
 ## 二、留痕先行：sys_review_logs
 
-升级的第一件事不是推进逻辑，是**先把每一次动作记下来**。新表 `sys_review_logs`（ent schema `review_log.go`）：
+每一次审批动作都落独立表（ent schema `review_log.go`）：
 
 ```go
 field.String("entity_type").Comment("实体类型（post/page）").NotEmpty().MaxLen(16),
@@ -47,7 +54,7 @@ field.Uint32("level").Comment("审批级别（submit=0；第 N 次 approve=N）"
 field.String("note").Comment("意见（驳回理由/批准备注）").Optional().Nillable().MaxLen(512),
 ```
 
-五个业务字段之外，Mixin 带上了 `TimeAt + AutoIncrementId64 + TenantID[int64] + OperatorID64`——**操作人（operator）和租户落在 Mixin 里**，`(entity_type, entity_id)` 上建联合索引支撑「查一篇文章的全部审批史」。
+五个业务字段之外，Mixin 带上了 `TimeAt + AutoIncrementId64 + TenantID[int64] + OperatorID64`——**操作人和租户落在 Mixin 里**，`(entity_type, entity_id)` 上建联合索引支撑「查一篇文章的全部审批史」。
 
 这张表有个不显眼但重要的语义约定：**批次由 `in_progress` 的翻转定义**。schema 注释原文：「in_progress false→true 即开新批次」——`level` 的语义是「本批次内的第几级」，而不是「这篇文章历史上第几次 approve」。驳回后重新提交会开新批次，level 从头计。没有这个约定，「当前在第几级」就无法从日志推导。
 
@@ -94,18 +101,18 @@ if !finalApproval {
 
 **「当前级别」为什么用 MAX 而不用 COUNT？** `CurrentLevel` 的实现（`review_log_repo.go`）是按 `entity_type + entity_id + action=APPROVE` 查全部留痕行取 `level` 最大值，无记录返回 0。因为 level 是「本批次第 N 级」，COUNT 在重复审批（同一级批了两次，比如撤销重来）时会虚高，MAX 则天然幂等——**进度是「到达过的最高处」，不是「签过的总次数」**。这个语义同时决定了重试安全：ApproveReview 重放时推进结果不变。
 
-**配置缺省 = 历史行为零变化。** 级数来自系统参数 `review.post.levels`，读取处钳位 1..8、默认 1：
+**配置缺省 = 单级。** 级数来自系统参数 `review.post.levels`，读取处钳位 1..8、默认 1：
 
 ```go
-// Levels 发布审批级数（钳位 1..8；配置缺失/非法回落 1=单级，历史行为）。
+// Levels 发布审批级数（钳位 1..8；配置缺失/非法回落 1=单级）。
 n := p.configRepo.GetConfigInt(ctx, "review.post.levels", 1)
 if n < 1 { n = 1 }
 if n > 8 { n = 8 }
 ```
 
-默认 1 意味着所有存量租户升级后行为与旧版完全一致（一级批完即发）——多级是 opt-in 的租户级配置，不是全局断代。钳位上限 8 是务实的选择：现实中没人需要九级审批，而无限级数会让「当前级」的语义在 UI 上无法呈现。
+一级批完即发；多级是租户按需配置的能力。钳位上限 8 是务实的选择：现实中没人需要九级审批，而无限级数会让「当前级」的语义在 UI 上无法呈现。
 
-末级通过后的发布钩子（ES 重索引、Webhook `published` 事件、站内信通知作者）沿用旧发布链路——**多级只改变「何时算发布」，不改变「发布做什么」**。Page 侧同款语义独立实现（页面无 ES，只派发 Webhook）。
+末级通过后的发布钩子（ES 重索引、Webhook `published` 事件、站内信通知作者）是标准的发布链路——**多级只改变「何时算发布」，不改变「发布做什么」**。Page 侧同款语义独立实现（页面无 ES，只派发 Webhook）。
 
 ---
 
@@ -138,9 +145,7 @@ if idx >= len(parts) { idx = len(parts) - 1 }
 
 ## 五、封绕过口：审批闸门
 
-留痕和推进都做完了，但有个致命的口子一直开着：**审核中的文章，作者可以直接调 Update 接口把 status 改成 PUBLISHED**——审批流形同虚设。旧版没堵是因为旧版根本没有「审核中」这个需要保护的中间态的强语义。
-
-这次升级把闸门堵在了 Update 链路上（`post_service.go`）：
+推进和授权都做完了，还有个致命的口子要堵：**审核中的文章，作者可以直接调 Update 接口把 status 改成 PUBLISHED**——审批流形同虚设。闸门堵在 Update 链路上（`post_service.go`）：
 
 ```go
 // 审批闸门：审核中的文章不允许经 Update 直改状态（绕过审批的口子）。
@@ -161,7 +166,7 @@ if existing.GetInProgress() && req.Data.GetStatus() != prevStatus {
 
 ---
 
-## 六、查询端点、前端与一处诚实交代
+## 六、查询端点与前端
 
 留痕查出来了要有出口：`ReviewLogService` 提供 `/admin/v1/review-logs` 查询端点（要求 entity_type + entity_id 必填，按 id 正序返回——即时间正序的审批史）。admin BFF 直透 core。
 
@@ -173,29 +178,24 @@ if existing.GetInProgress() && req.Data.GetStatus() != prevStatus {
 
 诚实交代一处：**review-logs 的专用查询 UI 还没建**——端点有了、数据有了，但管理端还没有一个「审批历史」页面。这是典型的「后端先行」留白：先保证留痕不可抵赖（数据在），UI 什么时候补都不影响审计能力。
 
----
-
-## 七、回归与测试
-
-这次升级的 E2E 覆盖分两层：`test_review_multilevel.py` 10 断言全过——levels=1 回归（默认配置下与旧版行为一致）、两级逐级推进、留痕内容校验、闸门 400、驳回理由落痕、页面同款流程；旧页面审批流 E2E 8/8 回归全过。
-
-「levels=1 回归」这个用例值得单独点名：**默认配置下的旧行为一致性，是这类「可配置增强」功能的生命线**。所有租户里总有大量用着默认值的，升级断言里没有这一条，等于赌所有租户都改了配置。
+回归覆盖分两层：多级审批 E2E 10 断言（单级回归、两级逐级推进、留痕内容校验、闸门 400、驳回理由落痕、页面同款流程）+ 旧审批流 E2E 8/8 回归。其中「单级回归」这个用例值得单独点名：**默认配置下的旧行为一致性，是这类「可配置增强」功能的生命线**。
 
 ---
 
-## 八、收尾：留痕是为未来腾挪空间
+## 七、收尾
 
-回头看这次升级的三个解法落点：
+审批流的四个组成部分，各自的解法落点：
 
-| 痛点 | 性质 | 解法落点 |
-|------|------|---------|
-| 多级如何推进 | 状态机问题 | level 按批次 MAX 推进，配置缺省回归单级 |
-| 动作如何留痕 | 审计问题 | sys_review_logs 独立表，批次语义钉死 |
-| 审批如何不被绕过 | 入口控制问题 | Update 必经回读处设闸，只拦状态变更 |
+| 组成部分 | 性质 | 解法落点 |
+|----------|------|---------|
+| 推进（走到第几级） | 状态机问题 | level 按批次 MAX 幂等推进，配置缺省单级 |
+| 授权（谁批哪一级） | 参数编码问题 | levelRoles 逗号按级、竖线同级，越界沿用最后段 |
+| 留痕（谁批了什么） | 审计问题 | sys_review_logs 独立表，批次语义钉死，operator 显式取 |
+| 防绕过（不被 Update 穿透） | 入口控制问题 | Update 必经回读处设闸，只拦状态变更 |
 
-三个问题三种性质、三个位置、三套薄实现——没有出现一个「审批引擎」把它们搅在一起。`in_progress` 一把旗子撑起了状态机，日志表撑起了审计，一行闸门条件撑起了入口控制。
+四个问题四种性质、四个位置、四套薄实现——没有出现一个「审批引擎」把它们搅在一起。`in_progress` 一把旗子撑起了状态机，日志表撑起了审计，一行闸门条件撑起了入口控制。
 
-留痕这件事还有一层前瞻价值：`sys_review_logs` 的 `(entity, action, level, operator, note)` 结构已经把审批流建模成了**可回放的事件序列**。将来要加代签、转办、SLA 超时提醒、按角色统计审批负载——全部是在这张表和这个序列上做增量，不动状态机。第一版没留痕，第二版第一件事就是补留痕，顺序说明了一切：**审计先行，扩展才有地基**。
+留痕这件事还有一层前瞻价值：`sys_review_logs` 的 `(entity, action, level, operator, note)` 结构已经把审批流建模成了**可回放的事件序列**。将来要加代签、转办、SLA 超时提醒、按角色统计审批负载——全部是在这张表和这个序列上做增量，不动状态机。**审计先行，扩展才有地基**。
 
 仓库（本文所有代码路径均可逐行核对）：
 
